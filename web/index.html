@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>pdk — Portaldot Dev Kit</title>
+<meta name="description" content="A developer toolkit for the Portaldot blockchain. FailLens turns cryptic transaction failures into clear, actionable diagnoses." />
+<style>
+  :root {
+    --bg: #0a0c10;
+    --panel: #14171d;
+    --border: #21262d;
+    --text: #c9d1d9;
+    --muted: #7d8590;
+    --green: #3fb950;
+    --red: #f85149;
+    --amber: #d29922;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--sans); line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--green); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  code, pre, .mono { font-family: var(--mono); }
+
+  /* nav */
+  nav {
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: rgba(10,12,16,.85);
+    backdrop-filter: blur(8px); z-index: 10;
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .brand { font-family: var(--mono); font-weight: 700; font-size: 16px; color: #fff; }
+  .brand .dot { color: var(--green); }
+
+  /* hero */
+  header { padding: 88px 0 64px; border-bottom: 1px solid var(--border); }
+  .tag {
+    display: inline-block; font-family: var(--mono); font-size: 12px;
+    color: var(--muted); border: 1px solid var(--border);
+    border-radius: 999px; padding: 4px 12px; margin-bottom: 24px;
+  }
+  h1 { font-size: 52px; line-height: 1.1; letter-spacing: -.02em; color: #fff; }
+  h1 .dot { color: var(--green); }
+  .lede { font-size: 19px; color: var(--muted); margin: 20px 0 32px; max-width: 620px; }
+  .btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    font-family: var(--mono); font-size: 14px; padding: 11px 20px;
+    border-radius: 8px; border: 1px solid var(--border); color: var(--text);
+  }
+  .btn:hover { text-decoration: none; border-color: var(--muted); }
+  .btn.primary { background: var(--green); color: #06140a; border-color: var(--green); font-weight: 600; }
+  .btn.primary:hover { background: #4ac75c; }
+
+  /* sections */
+  section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  h2 { font-size: 13px; font-family: var(--mono); text-transform: uppercase;
+       letter-spacing: .12em; color: var(--muted); margin-bottom: 22px; }
+  h3 { font-size: 22px; color: #fff; margin-bottom: 10px; letter-spacing: -.01em; }
+  p.body { color: var(--muted); margin-bottom: 16px; }
+
+  /* terminal block */
+  .term {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; margin: 18px 0;
+  }
+  .term-bar {
+    display: flex; gap: 7px; padding: 11px 14px; border-bottom: 1px solid var(--border);
+  }
+  .term-bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .term-bar i:nth-child(1) { background: #f85149; }
+  .term-bar i:nth-child(2) { background: #d29922; }
+  .term-bar i:nth-child(3) { background: #3fb950; }
+  pre {
+    padding: 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.55;
+    color: var(--text); white-space: pre;
+  }
+  .c-green { color: var(--green); }
+  .c-red { color: var(--red); }
+  .c-amber { color: var(--amber); }
+  .c-muted { color: var(--muted); }
+  .c-bold { color: #fff; font-weight: 600; }
+
+  /* command cards */
+  .cards { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 680px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .card .cmd { font-family: var(--mono); color: var(--green); font-size: 15px; font-weight: 600; }
+  .card p { color: var(--muted); font-size: 14px; margin-top: 8px; }
+
+  ol.steps { margin: 8px 0 0 20px; color: var(--muted); }
+  ol.steps li { margin: 6px 0; }
+
+  footer { padding: 40px 0 60px; color: var(--muted); font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="brand">pdk<span class="dot">.</span></span>
+    <a href="https://github.com/PugarHuda/portaldot-pdk" class="mono" style="font-size:14px;">GitHub ↗</a>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <span class="tag">Portaldot Mini Hackathon S1 · Builder Tools</span>
+    <h1>Portaldot Dev Kit<span class="dot">.</span></h1>
+    <p class="lede">
+      A command-line toolkit for the Portaldot blockchain. Its hero feature,
+      <strong style="color:var(--text)">FailLens</strong>, turns cryptic transaction
+      failures into clear, human-readable diagnoses — with fixes.
+    </p>
+    <div class="btns">
+      <a class="btn primary" href="#install">Get started</a>
+      <a class="btn" href="https://github.com/PugarHuda/portaldot-pdk">View source</a>
+    </div>
+  </div>
+</header>
+
+<section id="problem">
+  <div class="wrap">
+    <h2>The problem</h2>
+    <h3>Portaldot is new. Its errors are cruel.</h3>
+    <p class="body">
+      Portaldot has no public testnet — every developer runs a local node. When a
+      transaction fails, the node hands back a raw, unexplained error code. No hint
+      of what went wrong, no hint of how to fix it.
+    </p>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i></div>
+      <pre><span class="c-muted"># a failed transaction on Portaldot, unfiltered</span>
+<span class="c-red">ExtrinsicFailed</span>: DispatchError <span class="c-muted">{ Module: { index: 6, error: 2 } }</span>
+<span class="c-muted"># ...now what?</span></pre>
+    </div>
+  </div>
+</section>
+
+<section id="faillens">
+  <div class="wrap">
+    <h2>FailLens</h2>
+    <h3>The same failure, decoded.</h3>
+    <p class="body">
+      FailLens reads the failed transaction's <span class="mono">ExtrinsicFailed</span>
+      event, decodes the error against the chain's own metadata, and pairs it with a
+      curated knowledge base of fixes.
+    </p>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i></div>
+      <pre><span class="c-green">$</span> pdk debug --demo
+
+╭───────────────── FailLens ─────────────────╮
+│ <span class="c-red">✗ Balances.InsufficientBalance</span>              │
+│                                            │
+│ <span class="c-bold">What happened</span>                              │
+│ You tried to transfer more POT than the    │
+│ sending account holds.                     │
+│                                            │
+│ <span class="c-bold">How to fix</span>                                 │
+│   1. Check the sender balance.             │
+│   2. Lower the amount, or fund the         │
+│      account first with `pdk up`.          │
+╰────────────────────────────────────────────╯</pre>
+    </div>
+  </div>
+</section>
+
+<section id="commands">
+  <div class="wrap">
+    <h2>Three commands</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="cmd">pdk up</div>
+        <p>Start a local Portaldot node, fund dev accounts, and run a verification transaction.</p>
+      </div>
+      <div class="card">
+        <div class="cmd">pdk debug</div>
+        <p>FailLens — decode any failed transaction into a plain-language diagnosis and fix.</p>
+      </div>
+      <div class="card">
+        <div class="cmd">pdk doctor</div>
+        <p>Check the node version, runtime, and ink! / contracts-API compatibility.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>Install &amp; use</h2>
+    <h3>From zero to a decoded failure.</h3>
+    <p class="body">Requires Python 3.11+. The Portaldot node binary is Linux-only — on Windows, run inside WSL.</p>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i></div>
+      <pre><span class="c-green">$</span> git clone https://github.com/PugarHuda/portaldot-pdk
+<span class="c-green">$</span> cd portaldot-pdk
+<span class="c-green">$</span> pip install -e .
+
+<span class="c-green">$</span> pdk up                  <span class="c-muted"># start a local node</span>
+<span class="c-green">$</span> pdk debug --demo        <span class="c-muted"># submit a failure, then decode it</span>
+<span class="c-green">$</span> pdk doctor              <span class="c-muted"># inspect the node</span></pre>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <h3>Metadata-driven, so it never goes stale.</h3>
+    <p class="body">
+      A failed extrinsic emits a <span class="mono">System.ExtrinsicFailed</span> event
+      carrying a <span class="mono">DispatchError</span>. FailLens resolves that error
+      against the chain's own metadata — no hard-coded tables — so it adapts to any
+      Portaldot runtime version. Every error in the knowledge base is verified against
+      the live runtime.
+    </p>
+    <ol class="steps">
+      <li>Locate the failed transaction (by hash, or submit one with <span class="mono">--demo</span>).</li>
+      <li>Decode the <span class="mono">DispatchError</span> into a named error via metadata.</li>
+      <li>Match it to a curated, human-written fix — with a graceful fallback for the long tail.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap">
+    <h2>Roadmap</h2>
+    <h3>The standard Portaldot dev toolkit.</h3>
+    <p class="body">
+      pdk is built to grow beyond this hackathon: a state seeder for local nodes, a
+      transaction simulator, a typed TypeScript SDK, and CI integration — all under one CLI.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>pdk — Portaldot Dev Kit · MIT License</span>
+    <span><a href="https://github.com/PugarHuda/portaldot-pdk">github.com/PugarHuda/portaldot-pdk</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
