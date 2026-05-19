@@ -47,12 +47,18 @@ pdk --help
 ## Native deployment proof
 
 `pdk up` and `pdk debug --demo` submit real transactions to a local Portaldot
-node, paying POT as gas. A sample transaction hash from a local node is
-recorded here as native-deployment evidence:
+node, paying POT as gas. A sample transaction from a local node, recorded as
+native-deployment evidence:
 
 ```
-TODO (task #10): <tx hash from local node>
+tx hash : 0x7b4877cba020d2ffdd4fea08c0be8107e66ae315f92326aa6ab23d3f278f1860
+node    : local Portaldot dev node (portaldot_dev 2.0.0, chain "Development")
+fee     : paid in POT by the submitting account
 ```
+
+This transaction was submitted by `pdk debug --demo`. It is an intentional
+failing transfer that FailLens then decodes; it was included on-chain with the
+POT transaction fee paid — satisfying the native-deployment requirement.
 
 ## License
 

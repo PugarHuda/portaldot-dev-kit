@@ -17,11 +17,13 @@ _IMPOSSIBLE_AMOUNT = 10**30
 def connect(url: str) -> SubstrateInterface:
     """Open a connection to a Portaldot node.
 
-    Portaldot is Substrate-based, so substrate-interface speaks its protocol
-    directly. If the official Python ``sdk_interface`` is preferred later, swap
-    it in here behind this same signature so callers do not change.
+    The Portaldot runtime (portaldot-1002) predates the MultiAddress type, so
+    its extrinsics still use the legacy ``LookupSource`` type. substrate-interface
+    needs the ``substrate-node-template`` type-registry preset to decode it —
+    without the preset, composing a call fails with
+    'Decoder class for "LookupSource" not found'.
     """
-    return SubstrateInterface(url=url)
+    return SubstrateInterface(url=url, type_registry_preset="substrate-node-template")
 
 
 def trigger_demo_failure(substrate: SubstrateInterface) -> ExtrinsicReceipt:

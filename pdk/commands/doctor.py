@@ -22,20 +22,21 @@ def run(
     """Report node version, runtime info, and contracts/ink! compatibility."""
     try:
         substrate = connect(node)
+        substrate.init_runtime()  # load runtime + metadata (lazy by default)
     except Exception as exc:  # noqa: BLE001 — surface any connection failure plainly
         console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
         console.print(f"[dim]{exc}[/dim]")
         console.print("Start one first with [bold]pdk up[/bold] (inside WSL on Windows).")
         raise typer.Exit(1) from exc
 
-    runtime = substrate.runtime_version or {}
+    pallet_names = [pallet.name for pallet in substrate.metadata.pallets]
     table = Table(title="pdk doctor — Portaldot node health", show_header=False)
     table.add_row("Endpoint", node)
     table.add_row("Chain", str(substrate.chain or "unknown"))
-    table.add_row("Runtime spec", str(runtime.get("specName", "?")))
-    table.add_row("Spec version", str(runtime.get("specVersion", "?")))
+    table.add_row("Runtime version", str(substrate.runtime_version))
+    table.add_row("Pallets", str(len(pallet_names)))
 
-    has_contracts = "Contracts" in [p.name for p in substrate.metadata.pallets]
+    has_contracts = "Contracts" in pallet_names
     if has_contracts:
         table.add_row(
             "Contracts pallet",

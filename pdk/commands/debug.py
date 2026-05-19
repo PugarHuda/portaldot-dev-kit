@@ -53,8 +53,17 @@ def _render(tx_hash: str, decoded: DecodedError, fix: FixSuggestion) -> None:
     called = f"  [dim]· {decoded.extrinsic_call}[/dim]" if decoded.extrinsic_call else ""
     confidence = "" if fix.known else "  [yellow](no curated entry — metadata fallback)[/yellow]"
 
+    # error_message reports a generic "Module" type for pallet errors; recover
+    # the real pallet from the matched knowledge-base key when available.
+    pallet = fix.matched_key.split(".")[0].title() if fix.matched_key else decoded.pallet
+    error_label = (
+        f"{pallet}.{decoded.name}"
+        if pallet and pallet not in ("Module", "Unknown")
+        else decoded.name
+    )
+
     body = (
-        f"[bold red]✗ {decoded.pallet}.{decoded.name}[/bold red]{called}\n\n"
+        f"[bold red]✗ {error_label}[/bold red]{called}\n\n"
         f"[bold]What happened[/bold]{confidence}\n{fix.summary}\n\n"
         f"[bold]How to fix[/bold]\n"
         + "\n".join(f"  {i}. {step}" for i, step in enumerate(fix.steps, 1))

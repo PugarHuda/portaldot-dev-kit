@@ -23,6 +23,7 @@ class FixSuggestion:
     summary: str
     steps: list[str] = field(default_factory=list)
     known: bool = True  # False when this is a fallback, not a curated entry
+    matched_key: str | None = None  # KB key that matched, e.g. "balances.InsufficientBalance"
 
 
 def load_knowledge() -> dict[str, dict]:
@@ -47,14 +48,19 @@ def lookup_fix(decoded: DecodedError, knowledge: dict[str, dict]) -> FixSuggesti
        not just the ~20 errors that happen to be curated.
     """
     # Tier 1 — exact "<pallet>.<ErrorName>" match.
-    entry = knowledge.get(decoded.key)
+    matched_key: str | None = None
+    entry: dict | None = None
+    if decoded.key in knowledge:
+        matched_key, entry = decoded.key, knowledge[decoded.key]
 
-    # Tier 2 — match by error name alone, under any pallet.
+    # Tier 2 — match by error name alone, under any pallet. The decoder cannot
+    # always recover the pallet (substrate-interface reports a generic "Module"
+    # type), so this also tells us the real pallet via the matched key.
     if entry is None:
         suffix = f".{decoded.name}".lower()
         for key, value in knowledge.items():
             if key.lower().endswith(suffix):
-                entry = value
+                matched_key, entry = key, value
                 break
 
     # Tier 3 — miss: fall back to the chain-metadata doc comment.
@@ -71,10 +77,12 @@ def lookup_fix(decoded: DecodedError, knowledge: dict[str, dict]) -> FixSuggesti
                 "Inspect on-chain state via the portaldot.io explorer to confirm preconditions.",
             ],
             known=False,
+            matched_key=None,
         )
 
     return FixSuggestion(
         summary=entry["summary"],
         steps=list(entry.get("steps", [])),
         known=True,
+        matched_key=matched_key,
     )
