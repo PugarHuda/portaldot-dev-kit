@@ -26,8 +26,8 @@ def run(
     except Exception as exc:  # noqa: BLE001 — surface any connection failure plainly
         console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
         console.print(f"[dim]{exc}[/dim]")
-        console.print("Start one first with [bold]pdk up[/bold] (inside WSL on Windows).")
-        raise typer.Exit(1) from exc
+        console.print("Start one with [bold]pdk up[/bold] (inside WSL on Windows).")
+        raise typer.Exit(code=1)
 
     pallet_names = [pallet.name for pallet in substrate.metadata.pallets]
     table = Table(title="pdk doctor — Portaldot node health", show_header=False)
