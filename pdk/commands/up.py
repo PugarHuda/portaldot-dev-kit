@@ -1,7 +1,6 @@
 """`pdk up` — bring a local Portaldot dev environment from zero to ready.
 
-NOTE: node orchestration here is written best-effort and not yet validated
-end-to-end on WSL — task #7. The Portaldot node binary is Linux-only.
+The Portaldot node binary is Linux-only; on Windows, run pdk inside WSL.
 """
 
 from __future__ import annotations
@@ -29,6 +28,16 @@ def run(
     The verification transaction pays POT gas and prints a tx hash — that hash
     is the project's native-deployment proof for the hackathon README.
     """
+    # A second node would clash on the RPC port — bail early if one is up.
+    try:
+        connect(node)
+    except Exception:  # noqa: BLE001 — no node yet is the normal, expected case
+        pass
+    else:
+        console.print(f"[yellow]A Portaldot node is already running at {node}.[/yellow]")
+        console.print("Use [bold]pdk debug[/bold] or [bold]pdk doctor[/bold] against it directly.")
+        raise typer.Exit(0)
+
     binary = shutil.which(node_binary) or node_binary
     console.print(f"[bold]Starting Portaldot dev node[/bold] ({binary}) …")
 

@@ -8,6 +8,7 @@ Registers the three commands of the toolkit:
 
 import typer
 
+from pdk import __version__
 from pdk.commands import debug, doctor, up
 
 app = typer.Typer(
@@ -20,6 +21,25 @@ app = typer.Typer(
 app.command("up", help="Start a local Portaldot node, fund dev accounts, verify.")(up.run)
 app.command("debug", help="Decode a failed transaction into a human-readable diagnosis.")(debug.run)
 app.command("doctor", help="Check node version and environment health.")(doctor.run)
+
+
+def _version_callback(value: bool) -> None:
+    if value:
+        typer.echo(f"pdk {__version__}")
+        raise typer.Exit()
+
+
+@app.callback()
+def _root(
+    version: bool = typer.Option(
+        False,
+        "--version",
+        help="Show the pdk version and exit.",
+        callback=_version_callback,
+        is_eager=True,
+    ),
+) -> None:
+    """Portaldot Dev Kit — developer toolkit for the Portaldot blockchain."""
 
 
 def main() -> None:

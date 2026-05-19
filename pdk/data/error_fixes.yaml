@@ -1,9 +1,9 @@
-# FailLens knowledge base — maps Portaldot/Substrate pallet errors to human fixes.
+# FailLens knowledge base — Portaldot/Substrate pallet errors -> human fixes.
 #
-# Key format: "<pallet>.<ErrorName>" with the pallet name lowercased.
-# Seeded from common Substrate pallet errors. Task #5: verify each name against
-# the real Portaldot runtime metadata once a node is running, and prune/rename
-# any that differ.
+# Every key below is VERIFIED against the live Portaldot runtime metadata
+# (portaldot-1002, 202 pallet errors). Key format: "<pallet>.<ErrorName>" with
+# the pallet lowercased. "dispatch.*" keys are top-level DispatchError variants
+# (not module errors) — FailLens still resolves them by error name.
 
 # --- balances ---------------------------------------------------------------
 balances.InsufficientBalance:
@@ -16,46 +16,34 @@ balances.ExistentialDeposit:
   summary: "The transfer would leave an account below the Existential Deposit, so it was rejected."
   steps:
     - "Leave at least the Existential Deposit in both the sender and receiver."
-    - "Or move the whole balance with `transfer_all` instead of `transfer_keep_alive`."
+    - "Or move the whole balance with `transfer` (allow death) instead of `transfer_keep_alive`."
 
 balances.KeepAlive:
   summary: "The transfer would kill the sender account, but a keep-alive call was used."
   steps:
     - "Reduce the amount so the sender keeps at least the Existential Deposit."
-    - "Use `transfer_allow_death` if you intend to empty the account."
+    - "Use `transfer` if you intend to empty the account."
 
 balances.LiquidityRestrictions:
   summary: "The funds are locked or frozen (e.g. by staking or vesting) and cannot be moved."
   steps:
     - "Unlock the funds first — unbond from staking or wait for vesting to release."
 
-balances.Expendability:
-  summary: "The operation would dust or remove an account that must stay alive."
+balances.DeadAccount:
+  summary: "The target account does not exist on-chain (it was reaped below the Existential Deposit)."
   steps:
-    - "Keep the account above the Existential Deposit, or use an allow-death variant."
+    - "Send at least the Existential Deposit to create the account before further calls."
 
-# --- system -----------------------------------------------------------------
-system.BadOrigin:
-  summary: "The call requires a different origin (e.g. Root or a specific owner) than the signer used."
+balances.VestingBalance:
+  summary: "The balance is still locked by a vesting schedule and cannot be spent yet."
   steps:
-    - "Sign with an account authorised for this call."
-    - "Root-only calls must be routed through the `sudo` pallet on a dev node."
-
-system.CallFiltered:
-  summary: "This call is disabled by the runtime's call filter and cannot be dispatched."
-  steps:
-    - "The runtime blocks this call — there is no client-side fix; pick a different call."
+    - "Wait for the vesting schedule to release, or call `vesting.vest` to unlock vested funds."
 
 # --- assets -----------------------------------------------------------------
 assets.BalanceLow:
   summary: "The account does not hold enough of this asset for the operation."
   steps:
     - "Mint or transfer more of the asset to the account before retrying."
-
-assets.NoAccount:
-  summary: "The account has no balance entry for this asset id."
-  steps:
-    - "The account must receive the asset at least once, or the asset id is wrong."
 
 assets.NoPermission:
   summary: "The signer is not the issuer/admin/freezer of this asset."
@@ -72,11 +60,21 @@ assets.Frozen:
   steps:
     - "Thaw the asset/account with the freezer role before transferring."
 
+assets.WouldDie:
+  summary: "The operation would drop the account's asset balance below the minimum, killing it."
+  steps:
+    - "Leave at least the asset's minimum balance, or transfer the whole holding at once."
+
+assets.Unapproved:
+  summary: "No approved allowance exists for this delegated transfer."
+  steps:
+    - "Call `assets.approve_transfer` from the owner before a `transfer_approved`."
+
 # --- contracts --------------------------------------------------------------
 contracts.ContractNotFound:
   summary: "No contract exists at the supplied address."
   steps:
-    - "Verify the address; ensure the contract was instantiated, not just uploaded."
+    - "Verify the address; ensure the contract was instantiated, not merely uploaded."
 
 contracts.ContractTrapped:
   summary: "The contract panicked or hit a trap during execution."
@@ -88,38 +86,79 @@ contracts.CodeNotFound:
   steps:
     - "Upload the contract Wasm first, then instantiate with the resulting code hash."
 
-contracts.StorageDepositLimitExhausted:
-  summary: "The call needed more storage deposit than the limit allowed."
+contracts.CodeTooLarge:
+  summary: "The uploaded contract Wasm exceeds the runtime size limit."
   steps:
-    - "Raise `storageDepositLimit`, or set it to null to let the node compute it."
+    - "Build with `--release` and optimise the Wasm (e.g. wasm-opt) to shrink it."
 
 contracts.OutOfGas:
   summary: "Execution ran out of the supplied gas (weight) budget."
   steps:
     - "Increase `gasLimit`. A dry-run call returns a realistic estimate to use."
 
-# --- identity / multisig / proxy / staking ----------------------------------
+contracts.StorageExhausted:
+  summary: "The contract has no storage budget left for this operation."
+  steps:
+    - "Fund the contract account so it can pay for additional storage."
+
+contracts.MaxCallDepthReached:
+  summary: "Cross-contract calls nested deeper than the runtime call-depth limit."
+  steps:
+    - "Flatten the call graph so contracts do not call each other too deeply."
+
+# --- identity ---------------------------------------------------------------
 identity.NotFound:
   summary: "No identity is registered for this account."
   steps:
-    - "Register an identity with `identity.setIdentity` before reading or judging it."
+    - "Register an identity with `identity.set_identity` before reading or judging it."
 
+identity.TooManyRegistrars:
+  summary: "The registrar set is already at its maximum size."
+  steps:
+    - "No client-side fix — the runtime caps the number of registrars."
+
+# --- multisig ---------------------------------------------------------------
 multisig.NotFound:
   summary: "No matching multisig operation was found to approve or cancel."
   steps:
     - "Confirm the call hash, timepoint, and signatory set match the original proposal exactly."
 
+multisig.NotOwner:
+  summary: "Only the account that opened the multisig call may cancel it."
+  steps:
+    - "Cancel from the original creator account, or approve instead of cancelling."
+
+# --- proxy ------------------------------------------------------------------
 proxy.NotProxy:
   summary: "The signer is not registered as a proxy for the target account."
   steps:
-    - "Add the proxy relationship with `proxy.addProxy` from the target account first."
+    - "Add the proxy relationship with `proxy.add_proxy` from the target account first."
 
+# --- staking ----------------------------------------------------------------
 staking.InsufficientBond:
   summary: "The bonded amount is below the minimum required to stake."
   steps:
     - "Bond more POT so the stake meets the minimum bond threshold."
 
+staking.NotController:
+  summary: "The signing account is not the controller for this stash."
+  steps:
+    - "Sign with the stash's controller account for staking operations."
+
+# --- scheduler --------------------------------------------------------------
 scheduler.TargetBlockNumberInPast:
   summary: "The scheduled call's target block is already in the past."
   steps:
     - "Schedule for a block number greater than the current chain head."
+
+# --- dispatch-level (non-module DispatchError variants) ---------------------
+dispatch.BadOrigin:
+  summary: "The call requires a different origin (e.g. Root or a specific owner) than the signer used."
+  steps:
+    - "Sign with an account authorised for this call."
+    - "Root-only calls must be routed through the `sudo` pallet on a dev node."
+
+dispatch.CannotLookup:
+  summary: "An address lookup failed — e.g. an account index that does not resolve to an account."
+  steps:
+    - "Pass a full account address instead of an index, or check the index exists."

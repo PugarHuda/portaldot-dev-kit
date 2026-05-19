@@ -24,19 +24,27 @@ def run(
     Demo mode (`--demo`) submits its own failing transaction so a live demo
     always has a fresh failure to show; that submission pays POT gas.
     """
-    substrate = connect(node)
+    if not demo and not tx_hash:
+        console.print("[red]Provide a transaction hash, or use --demo.[/red]")
+        raise typer.Exit(1)
+
+    try:
+        substrate = connect(node)
+    except Exception as exc:  # noqa: BLE001 — surface any connection failure plainly
+        console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
+        console.print(f"[dim]{exc}[/dim]")
+        console.print("Start one with [bold]pdk up[/bold] (inside WSL on Windows).")
+        raise typer.Exit(1) from exc
 
     if demo:
         receipt = trigger_demo_failure(substrate)
         tx_hash = receipt.extrinsic_hash
         console.print(f"[dim]demo: submitted failing tx {tx_hash}[/dim]")
     else:
-        if not tx_hash:
-            console.print("[red]Provide a transaction hash, or use --demo.[/red]")
-            raise typer.Exit(1)
         receipt = find_receipt(substrate, tx_hash)
         if receipt is None:
-            console.print("[yellow]No transaction with that hash found in recent blocks.[/yellow]")
+            console.print(f"[yellow]No transaction {tx_hash} found in recent blocks.[/yellow]")
+            console.print("[dim]FailLens scans only recent blocks — an older tx may be out of range.[/dim]")
             raise typer.Exit(1)
 
     decoded = decode_receipt(receipt)
