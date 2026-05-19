@@ -49,13 +49,12 @@ def run(
 
 
 def _render(tx_hash: str, decoded: DecodedError, fix: FixSuggestion) -> None:
-    """Print the diagnosis: raw error -> explanation -> fix steps."""
-    raw = str(decoded.raw) if decoded.raw else "non-module error"
-    called = f"\n[dim]while calling:[/dim] {decoded.extrinsic_call}" if decoded.extrinsic_call else ""
+    """Print the diagnosis: error -> explanation -> fix steps."""
+    called = f"  [dim]· {decoded.extrinsic_call}[/dim]" if decoded.extrinsic_call else ""
     confidence = "" if fix.known else "  [yellow](no curated entry — metadata fallback)[/yellow]"
 
     body = (
-        f"[bold red]✗ {decoded.pallet}.{decoded.name}[/bold red]  [dim]{raw}[/dim]{called}\n\n"
+        f"[bold red]✗ {decoded.pallet}.{decoded.name}[/bold red]{called}\n\n"
         f"[bold]What happened[/bold]{confidence}\n{fix.summary}\n\n"
         f"[bold]How to fix[/bold]\n"
         + "\n".join(f"  {i}. {step}" for i, step in enumerate(fix.steps, 1))

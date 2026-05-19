@@ -25,11 +25,10 @@ from pdk.config import RECENT_BLOCKS_SCAN
 class DecodedError:
     """A fully decoded, human-readable extrinsic error."""
 
-    pallet: str  # e.g. "Balances" — may be "Unknown" if metadata omits it
+    pallet: str  # e.g. "Balances" — "Unknown" if the error carries no type
     name: str  # e.g. "InsufficientBalance"
-    docs: str  # doc comment pulled from chain metadata
+    docs: str  # doc comment from chain metadata, via the receipt
     extrinsic_call: str  # e.g. "Balances.transfer_keep_alive" (best-effort)
-    raw: tuple[int, int] | None  # (pallet_index, error_index) for module errors
 
     @property
     def key(self) -> str:
@@ -46,31 +45,32 @@ def decode_receipt(receipt: ExtrinsicReceipt) -> DecodedError | None:
     if receipt.is_success:
         return None
 
+    # substrate-interface exposes the decoded error in the shape
+    #   {'type': 'Balances', 'name': 'InsufficientBalance', 'docs': 'Balance too low'}
+    # 'type' is the pallet name; there are no separate module/error indices.
     err = receipt.error_message or {}
     name = err.get("name") or "UnknownError"
-    pallet = err.get("module") or err.get("pallet") or err.get("type") or "Unknown"
+    pallet = err.get("type") or "Unknown"
 
     docs_value = err.get("docs", "")
     docs = " ".join(docs_value) if isinstance(docs_value, list) else str(docs_value)
 
-    raw: tuple[int, int] | None = None
-    if "module_index" in err and "error_index" in err:
-        raw = (err["module_index"], err["error_index"])
-
-    call = getattr(receipt, "extrinsic", None)
     extrinsic_call = ""
+    call = getattr(receipt, "extrinsic", None)
     if call is not None:
         module = getattr(call, "call_module", None)
         function = getattr(call, "call_function", None)
-        if module and function:
-            extrinsic_call = f"{module}.{function}"
+        # call_module/call_function may be objects — coerce to their names.
+        mod_name = getattr(module, "name", module)
+        fn_name = getattr(function, "name", function)
+        if mod_name and fn_name:
+            extrinsic_call = f"{mod_name}.{fn_name}"
 
     return DecodedError(
         pallet=str(pallet),
         name=str(name),
         docs=docs,
         extrinsic_call=extrinsic_call,
-        raw=raw,
     )
 
 
