@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:portalfix.netlify.app)",
+      "WebFetch(domain:portaldot-dev.readthedocs.io)",
+      "WebSearch",
+      "Bash(pip --version)",
+      "Bash(pip install *)",
+      "Bash(pdk --help)",
+      "Bash(python -m pdk --help)",
+      "Bash(python -m pdk debug --help)",
+      "Bash(python -m pytest -q)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests/ -q)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}

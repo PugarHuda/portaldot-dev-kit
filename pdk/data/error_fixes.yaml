@@ -1,0 +1,125 @@
+# FailLens knowledge base — maps Portaldot/Substrate pallet errors to human fixes.
+#
+# Key format: "<pallet>.<ErrorName>" with the pallet name lowercased.
+# Seeded from common Substrate pallet errors. Task #5: verify each name against
+# the real Portaldot runtime metadata once a node is running, and prune/rename
+# any that differ.
+
+# --- balances ---------------------------------------------------------------
+balances.InsufficientBalance:
+  summary: "You tried to transfer more POT than the sending account holds."
+  steps:
+    - "Check the sender balance via the portaldot.io explorer or `pdk doctor`."
+    - "Lower the transfer amount, or fund the account first (`pdk up` funds dev accounts)."
+
+balances.ExistentialDeposit:
+  summary: "The transfer would leave an account below the Existential Deposit, so it was rejected."
+  steps:
+    - "Leave at least the Existential Deposit in both the sender and receiver."
+    - "Or move the whole balance with `transfer_all` instead of `transfer_keep_alive`."
+
+balances.KeepAlive:
+  summary: "The transfer would kill the sender account, but a keep-alive call was used."
+  steps:
+    - "Reduce the amount so the sender keeps at least the Existential Deposit."
+    - "Use `transfer_allow_death` if you intend to empty the account."
+
+balances.LiquidityRestrictions:
+  summary: "The funds are locked or frozen (e.g. by staking or vesting) and cannot be moved."
+  steps:
+    - "Unlock the funds first — unbond from staking or wait for vesting to release."
+
+balances.Expendability:
+  summary: "The operation would dust or remove an account that must stay alive."
+  steps:
+    - "Keep the account above the Existential Deposit, or use an allow-death variant."
+
+# --- system -----------------------------------------------------------------
+system.BadOrigin:
+  summary: "The call requires a different origin (e.g. Root or a specific owner) than the signer used."
+  steps:
+    - "Sign with an account authorised for this call."
+    - "Root-only calls must be routed through the `sudo` pallet on a dev node."
+
+system.CallFiltered:
+  summary: "This call is disabled by the runtime's call filter and cannot be dispatched."
+  steps:
+    - "The runtime blocks this call — there is no client-side fix; pick a different call."
+
+# --- assets -----------------------------------------------------------------
+assets.BalanceLow:
+  summary: "The account does not hold enough of this asset for the operation."
+  steps:
+    - "Mint or transfer more of the asset to the account before retrying."
+
+assets.NoAccount:
+  summary: "The account has no balance entry for this asset id."
+  steps:
+    - "The account must receive the asset at least once, or the asset id is wrong."
+
+assets.NoPermission:
+  summary: "The signer is not the issuer/admin/freezer of this asset."
+  steps:
+    - "Sign with the asset's admin account, or transfer the relevant role first."
+
+assets.Unknown:
+  summary: "The referenced asset id does not exist."
+  steps:
+    - "Create the asset with `assets.create`, or correct the asset id."
+
+assets.Frozen:
+  summary: "The asset or the account's holding of it is frozen."
+  steps:
+    - "Thaw the asset/account with the freezer role before transferring."
+
+# --- contracts --------------------------------------------------------------
+contracts.ContractNotFound:
+  summary: "No contract exists at the supplied address."
+  steps:
+    - "Verify the address; ensure the contract was instantiated, not just uploaded."
+
+contracts.ContractTrapped:
+  summary: "The contract panicked or hit a trap during execution."
+  steps:
+    - "Check the contract logic and the message arguments; inspect debug output."
+
+contracts.CodeNotFound:
+  summary: "No uploaded code matches the given code hash."
+  steps:
+    - "Upload the contract Wasm first, then instantiate with the resulting code hash."
+
+contracts.StorageDepositLimitExhausted:
+  summary: "The call needed more storage deposit than the limit allowed."
+  steps:
+    - "Raise `storageDepositLimit`, or set it to null to let the node compute it."
+
+contracts.OutOfGas:
+  summary: "Execution ran out of the supplied gas (weight) budget."
+  steps:
+    - "Increase `gasLimit`. A dry-run call returns a realistic estimate to use."
+
+# --- identity / multisig / proxy / staking ----------------------------------
+identity.NotFound:
+  summary: "No identity is registered for this account."
+  steps:
+    - "Register an identity with `identity.setIdentity` before reading or judging it."
+
+multisig.NotFound:
+  summary: "No matching multisig operation was found to approve or cancel."
+  steps:
+    - "Confirm the call hash, timepoint, and signatory set match the original proposal exactly."
+
+proxy.NotProxy:
+  summary: "The signer is not registered as a proxy for the target account."
+  steps:
+    - "Add the proxy relationship with `proxy.addProxy` from the target account first."
+
+staking.InsufficientBond:
+  summary: "The bonded amount is below the minimum required to stake."
+  steps:
+    - "Bond more POT so the stake meets the minimum bond threshold."
+
+scheduler.TargetBlockNumberInPast:
+  summary: "The scheduled call's target block is already in the past."
+  steps:
+    - "Schedule for a block number greater than the current chain head."

@@ -1,0 +1,23 @@
+[project]
+name = "portaldot-pdk"
+version = "0.1.0"
+description = "Portaldot Dev Kit — a developer toolkit for the Portaldot blockchain"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "typer>=0.12",
+    "rich>=13.7",
+    "substrate-interface>=1.7",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+pdk = "pdk.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pdk"]
