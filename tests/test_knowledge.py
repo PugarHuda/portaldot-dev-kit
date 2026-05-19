@@ -11,7 +11,7 @@ from pdk.core.knowledge import load_knowledge, lookup_fix
 
 
 def _err(pallet: str, name: str, docs: str = "") -> DecodedError:
-    return DecodedError(pallet=pallet, name=name, docs=docs, extrinsic_call="", raw=None)
+    return DecodedError(pallet=pallet, name=name, docs=docs, extrinsic_call="")
 
 
 def test_knowledge_base_is_well_formed() -> None:
