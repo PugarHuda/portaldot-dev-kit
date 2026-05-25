@@ -11,7 +11,7 @@ Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
 ![pdk — FailLens decoding a Portaldot transaction failure, live](docs/demo.gif)
 
-*Real recording of pdk running against a live Portaldot node — also available as [MP4](docs/demo.mp4).*
+*Real recording of pdk running against a live Portaldot node. Full **narrated pitch video** (slides + demo, voiced, subtitled): [`docs/pitch.mp4`](docs/pitch.mp4) — also [demo MP4](docs/demo.mp4).*
 
 <!-- Demo GIF: record per docs/RECORD_GIF.md, then add here: ![pdk demo](docs/demo.gif) -->
 
