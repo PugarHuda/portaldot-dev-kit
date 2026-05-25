@@ -9,6 +9,8 @@ Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
 **[▶ Live page](https://portaldot-pdk.vercel.app)** · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Submission](SUBMISSION.md) · [Demo script](DEMO.md) · [Video narration](VIDEO_SCRIPT.md)
 
+![pdk FailLens — a decoded Portaldot transaction failure](docs/screens/slide-4.png)
+
 <!-- Demo GIF: record per docs/RECORD_GIF.md, then add here: ![pdk demo](docs/demo.gif) -->
 
 ---
