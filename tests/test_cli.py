@@ -13,7 +13,8 @@ runner = CliRunner()
 def test_help_lists_all_commands() -> None:
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
-    for command in ("up", "accounts", "debug", "explain", "doctor", "simulate", "seed", "pallets"):
+    for command in ("up", "accounts", "debug", "explain", "doctor", "simulate", "seed",
+                    "pallets", "send", "storage", "watch", "keys"):
         assert command in result.output
 
 
@@ -34,3 +35,16 @@ def test_simulate_rejects_negative_amount() -> None:
     result = runner.invoke(app, ["simulate", "--amount", "-5"])
     assert result.exit_code == 1
     assert "non-negative" in result.output.lower()
+
+
+def test_keys_inspect_uri() -> None:
+    # Keypair derivation needs no node.
+    result = runner.invoke(app, ["keys", "//Alice"])
+    assert result.exit_code == 0
+    assert "SS58 address" in result.output
+
+
+def test_keys_generate() -> None:
+    result = runner.invoke(app, ["keys"])
+    assert result.exit_code == 0
+    assert "Mnemonic" in result.output

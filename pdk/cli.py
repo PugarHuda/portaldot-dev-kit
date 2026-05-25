@@ -9,7 +9,9 @@ Registers the three commands of the toolkit:
 import typer
 
 from pdk import __version__
-from pdk.commands import accounts, debug, doctor, explain, pallets, seed, simulate, up
+from pdk.commands import (
+    accounts, debug, doctor, explain, keys, pallets, seed, send, simulate, storage, up, watch,
+)
 
 app = typer.Typer(
     name="pdk",
@@ -26,6 +28,10 @@ app.command("doctor", help="Check node version and environment health.")(doctor.
 app.command("simulate", help="Preview a transfer's fee and feasibility, without sending.")(simulate.run)
 app.command("seed", help="Seed a local dev node with fixtures (fund accounts, create assets).")(seed.run)
 app.command("pallets", help="Discover the runtime's pallets, calls, and errors.")(pallets.run)
+app.command("send", help="Send POT from a dev account — a real on-chain transfer.")(send.run)
+app.command("storage", help="Read any value from the chain's storage.")(storage.run)
+app.command("watch", help="Stream all chain events live (optionally filtered by pallet).")(watch.run)
+app.command("keys", help="Generate or inspect a keypair (SS58 format 42).")(keys.run)
 
 
 def _version_callback(value: bool) -> None:
