@@ -1,0 +1,15 @@
+# pdk seed fixtures — applied to a local --dev node with `pdk seed`.
+# `fund` transfers POT from Alice to an account, so you start testing with
+# several funded accounts instead of just the genesis dev accounts.
+fixtures:
+  - type: fund
+    to: "//Dave"
+    pot: 1000
+
+  - type: fund
+    to: "//Eve"
+    pot: 500
+
+  - type: fund
+    to: "//Ferdie"
+    pot: 250

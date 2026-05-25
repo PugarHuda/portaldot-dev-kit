@@ -9,7 +9,7 @@ Registers the three commands of the toolkit:
 import typer
 
 from pdk import __version__
-from pdk.commands import accounts, debug, doctor, explain, up
+from pdk.commands import accounts, debug, doctor, explain, pallets, seed, simulate, up
 
 app = typer.Typer(
     name="pdk",
@@ -23,6 +23,9 @@ app.command("accounts", help="Show pre-funded dev accounts and their POT balance
 app.command("debug", help="Decode a failed transaction into a human-readable diagnosis.")(debug.run)
 app.command("explain", help="Look up what a Portaldot error means and how to fix it.")(explain.run)
 app.command("doctor", help="Check node version and environment health.")(doctor.run)
+app.command("simulate", help="Preview a transfer's fee and feasibility, without sending.")(simulate.run)
+app.command("seed", help="Seed a local dev node with fixtures (fund accounts, create assets).")(seed.run)
+app.command("pallets", help="Discover the runtime's pallets, calls, and errors.")(pallets.run)
 
 
 def _version_callback(value: bool) -> None:

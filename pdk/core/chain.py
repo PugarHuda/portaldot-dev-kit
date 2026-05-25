@@ -35,34 +35,18 @@ def _is_pool_collision(exc: SubstrateRequestException) -> bool:
     return "priority is too low" in text or "already in the pool" in text
 
 
-def trigger_demo_failure(substrate: SubstrateInterface, retries: int = 3) -> ExtrinsicReceipt:
-    """Submit a transaction guaranteed to fail and return its receipt.
+def submit_call(substrate, keypair, call_module, call_function, call_params, retries: int = 3):
+    """Compose, sign, and submit a call; wait for inclusion; return the receipt.
 
-    Used by ``pdk debug --demo`` so a demo always has a fresh failure to
-    diagnose. Alice transfers an impossible amount to Bob: the extrinsic is
-    *included* (Alice pays the POT transaction fee — satisfying the hackathon's
-    native-deployment gate) but *fails in dispatch* with InsufficientBalance,
-    emitting the System.ExtrinsicFailed event FailLens decodes.
-
-    The demo transaction is identical every run, so two rapid invocations can
-    collide on Alice's nonce ("Priority is too low ... already in the pool").
-    Each retry adds a small tip, which raises the transaction's priority enough
-    to replace the pending one — keeping ``pdk debug --demo`` reliable when a
-    presenter runs it repeatedly on stage.
+    Retries with an increasing tip on a nonce/pool collision (error 1014) so
+    rapid or repeated submissions stay reliable (used by demo, up, and seed).
     """
-    alice = Keypair.create_from_uri("//Alice")
-    bob = Keypair.create_from_uri("//Bob")
     call = substrate.compose_call(
-        call_module="Balances",
-        call_function="transfer_keep_alive",
-        call_params={"dest": bob.ss58_address, "value": _IMPOSSIBLE_AMOUNT},
+        call_module=call_module, call_function=call_function, call_params=call_params
     )
-
     last_exc: SubstrateRequestException | None = None
     for attempt in range(retries):
-        extrinsic = substrate.create_signed_extrinsic(
-            call=call, keypair=alice, tip=attempt * 1_000_000
-        )
+        extrinsic = substrate.create_signed_extrinsic(call=call, keypair=keypair, tip=attempt * 1_000_000)
         try:
             return substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True)
         except SubstrateRequestException as exc:
@@ -71,6 +55,21 @@ def trigger_demo_failure(substrate: SubstrateInterface, retries: int = 3) -> Ext
             last_exc = exc
             time.sleep(1)
     raise last_exc  # type: ignore[misc]
+
+
+def trigger_demo_failure(substrate: SubstrateInterface, retries: int = 3) -> ExtrinsicReceipt:
+    """Submit a transaction guaranteed to fail and return its receipt.
+
+    Used by ``pdk debug --demo``. Alice transfers an impossible amount to Bob:
+    the extrinsic is *included* (Alice pays the POT fee — satisfying the
+    native-deployment gate) but *fails in dispatch* with InsufficientBalance,
+    emitting the System.ExtrinsicFailed event FailLens decodes.
+    """
+    bob = Keypair.create_from_uri("//Bob")
+    return submit_call(
+        substrate, Keypair.create_from_uri("//Alice"), "Balances", "transfer_keep_alive",
+        {"dest": bob.ss58_address, "value": _IMPOSSIBLE_AMOUNT}, retries,
+    )
 
 
 def dev_account_balances(substrate: SubstrateInterface) -> list[tuple[str, str, float]]:
@@ -86,3 +85,9 @@ def dev_account_balances(substrate: SubstrateInterface) -> list[tuple[str, str, 
         free = int(account.value["data"]["free"])
         balances.append((uri.lstrip("/"), keypair.ss58_address, free / 10**POT_DECIMALS))
     return balances
+
+
+def free_balance(substrate: SubstrateInterface, address: str) -> float:
+    """Return the free POT balance of an account."""
+    account = substrate.query("System", "Account", [address])
+    return int(account.value["data"]["free"]) / 10**POT_DECIMALS
