@@ -2,25 +2,32 @@
 
 ## Layout
 
-- `cli.py` — defines the `typer` app and registers commands. Entry point `main()`.
-- `config.py` — static defaults only (node URL, scan depth, binary name).
+- `cli.py` — defines the `typer` app and registers commands (`up`, `accounts`,
+  `debug`, `explain`, `doctor`) plus the `--version` callback. Entry point `main()`.
+- `config.py` — static defaults only (node URL, block-scan depth, binary name).
 - `commands/` — one file per command, each exposing a `run()` function with
   typer-annotated parameters. Command modules stay thin: parse args, call
   `core/`, render output. No chain logic here.
+  - `up.py` — start a local node, show funded dev accounts, run a verification tx.
+  - `accounts.py` — show pre-funded dev accounts + POT balances (`render_balances`).
+  - `debug.py` — FailLens: `--demo`, `--watch`, `--json`, or a tx hash.
+  - `explain.py` — query the knowledge base for any error, no tx needed.
+  - `doctor.py` — node/runtime/ink! info + chain-liveness (stall) check.
 - `core/` — the real work:
-  - `chain.py` — `connect()` returns a `SubstrateInterface`; `trigger_demo_failure()`
-    submits a guaranteed-to-fail tx for `pdk debug --demo`.
-  - `decoder.py` — `find_failed_extrinsic()` + `decode_dispatch_error()`.
-    Decoding is metadata-driven: resolve (pallet index, error index) through
-    `substrate.metadata`. Deterministic, adapts to any runtime version.
-  - `knowledge.py` — `load_knowledge()` + `lookup_fix()`. Maps a `DecodedError`
-    to a `FixSuggestion`.
-- `data/error_fixes.yaml` — knowledge base, keyed `"<pallet>.<ErrorName>"`.
+  - `chain.py` — `connect()` (uses the `substrate-node-template` type preset for
+    Portaldot's legacy `LookupSource`); `trigger_demo_failure()` (retries with a
+    tip on a nonce clash); `dev_account_balances()`.
+  - `decoder.py` — `decode_receipt()`, `find_receipt()`, `failed_receipts_in_block()`.
+    Decoding is metadata-driven via substrate-interface's `error_message`.
+  - `knowledge.py` — `load_knowledge()` + `lookup_fix()` (3-tier: exact key →
+    name-only → metadata-doc fallback). Maps a `DecodedError` to a `FixSuggestion`.
+- `data/error_fixes.yaml` — knowledge base, keyed `"<pallet>.<ErrorName>"`, every
+  name verified against the live runtime metadata.
 
 ## Patterns
 
-- Dataclasses for structured values: `FailedExtrinsic`, `DecodedError`,
-  `FixSuggestion`.
-- Functions needing a live node raise `NotImplementedError` with a task ref
-  until the Day-1 gate passes — do not fake chain responses.
+- Dataclasses for structured values: `DecodedError`, `FixSuggestion`.
+- **No mocks or simulated chain responses anywhere in the product.** Every command
+  talks to a live node; `pdk debug --demo` submits a *real* failing transaction.
+  (Unit tests in `tests/` use a small `FakeReceipt` fixture — that is test-only.)
 - `DecodedError.key` produces the knowledge-base lookup key.

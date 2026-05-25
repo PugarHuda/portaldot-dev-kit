@@ -45,6 +45,10 @@ How to fix
   2. Lower the amount, or fund the account first.
 ```
 
+> **No mocks, no fakes** — every command talks to a live Portaldot node.
+> `pdk debug --demo` submits a *real* failing transaction (it is not simulated),
+> and every error in the knowledge base is verified against the live runtime.
+
 ## Install
 
 ```bash
