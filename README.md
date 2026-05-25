@@ -1,5 +1,9 @@
 # pdk — Portaldot Dev Kit
 
+[![tests](https://github.com/PugarHuda/portaldot-pdk/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-pdk/actions/workflows/ci.yml)
+![python](https://img.shields.io/badge/python-3.11%2B-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+
 A developer toolkit for the [Portaldot](https://www.portaldot.io/) blockchain.
 Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
