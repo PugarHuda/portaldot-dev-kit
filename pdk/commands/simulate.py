@@ -23,6 +23,10 @@ def run(
     node: str = typer.Option(DEFAULT_NODE_URL, "--node", help="Portaldot node WS endpoint."),
 ) -> None:
     """Estimate a transfer's POT fee and whether it would succeed — without sending it."""
+    if amount < 0:
+        console.print("[red]Amount must be non-negative.[/red]")
+        raise typer.Exit(code=1)
+
     try:
         substrate = connect(node)
     except Exception as exc:  # noqa: BLE001

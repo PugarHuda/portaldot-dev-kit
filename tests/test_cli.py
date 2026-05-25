@@ -27,3 +27,10 @@ def test_debug_without_hash_or_demo_errors() -> None:
     # No node is contacted: the missing-argument check runs first.
     result = runner.invoke(app, ["debug"])
     assert result.exit_code != 0
+
+
+def test_simulate_rejects_negative_amount() -> None:
+    # The amount guard runs before any node connection.
+    result = runner.invoke(app, ["simulate", "--amount", "-5"])
+    assert result.exit_code == 1
+    assert "non-negative" in result.output.lower()
