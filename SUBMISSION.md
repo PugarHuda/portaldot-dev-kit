@@ -20,6 +20,11 @@ Portaldot is a brand-new, Substrate-based, Rust-first chain with **no public tes
 - **`pdk debug --watch`** — a live monitor: every failure on the chain is decoded the moment it lands.
 - **`pdk explain <error>`** — a queryable reference for every Portaldot error, no transaction needed.
 - **`pdk doctor`** — node/runtime/ink! compatibility, plus a chain-liveness check that catches a stalled dev chain.
+- **`pdk simulate`** — preview a transfer's POT fee and feasibility before sending it.
+- **`pdk seed`** — fund accounts from YAML fixtures so you start from realistic state.
+- **`pdk pallets`** — browse the runtime's pallets, calls, and errors straight from metadata.
+
+We found these pains by *actually building* on Portaldot: `substrate-interface` would not connect (legacy `LookupSource`), our dev chain stalled on a BABE epoch error, and repeated submissions collided on the nonce. pdk handles all three so the next builder never has to.
 
 **How FailLens works (and why it never goes stale):** a failed extrinsic emits a `System.ExtrinsicFailed` event carrying a `DispatchError`. FailLens resolves that error against the **chain's own metadata** — no hard-coded tables — so it adapts to any runtime version. Every error in the knowledge base is verified against the live `portaldot-1002` runtime (29 curated entries, 202 errors checked).
 

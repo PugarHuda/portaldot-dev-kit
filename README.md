@@ -60,6 +60,9 @@ the long tail too.
 | `pdk debug --json` | Machine-readable output for CI / scripts |
 | `pdk explain <error>` | Look up what any Portaldot error means and how to fix it — no tx needed |
 | `pdk doctor` | Node version, runtime, ink!/contracts compatibility, and chain-liveness check |
+| `pdk simulate` | Preview a transfer's POT fee and feasibility — *without* sending it |
+| `pdk seed` | Fund accounts from YAML fixtures so you start from realistic state |
+| `pdk pallets` | Browse the runtime's pallets, calls, and errors (from metadata) |
 
 > **No mocks, no fakes** — every command talks to a live Portaldot node.
 > `pdk debug --demo` submits a *real* failing transaction (it is not simulated).
@@ -110,7 +113,12 @@ pdk debug --demo --json           # machine-readable output
 # 3. Understand & inspect
 pdk explain InsufficientBalance   # error reference, no transaction needed
 pdk explain                       # list every error pdk knows
+pdk pallets                       # browse the runtime's pallets / calls / errors
 pdk doctor                        # node + ink! compatibility + chain liveness
+
+# 4. Preview & seed
+pdk simulate --amount 10          # preview a transfer's fee + feasibility (no send)
+pdk seed                          # fund dev accounts from fixtures
 ```
 
 Example — `pdk debug --demo`:
