@@ -1,10 +1,8 @@
-"""`pdk doctor` — check node version and environment health (Tier 2 / bonus).
-
-NOTE: the chain queries here are written against the documented
-substrate-interface API but not yet validated against a live node — task #8.
-"""
+"""`pdk doctor` — check node version, environment health, and chain liveness."""
 
 from __future__ import annotations
+
+import time
 
 import typer
 from rich.console import Console
@@ -18,8 +16,11 @@ console = Console()
 
 def run(
     node: str = typer.Option(DEFAULT_NODE_URL, "--node", help="Portaldot node WS endpoint."),
+    liveness: bool = typer.Option(
+        True, "--liveness/--no-liveness", help="Check that the chain is producing blocks (waits ~7s)."
+    ),
 ) -> None:
-    """Report node version, runtime info, and contracts/ink! compatibility."""
+    """Report node version, runtime info, ink! compatibility, and chain liveness."""
     try:
         substrate = connect(node)
         substrate.init_runtime()  # load runtime + metadata (lazy by default)
@@ -47,3 +48,15 @@ def run(
         table.add_row("Contracts pallet", "not found — use native pallets, not ink!")
 
     console.print(table)
+
+    if liveness:
+        first = substrate.get_block_number(substrate.get_chain_head())
+        time.sleep(7)  # longer than one 6s block, so a healthy chain advances
+        second = substrate.get_block_number(substrate.get_chain_head())
+        if second > first:
+            console.print(f"[green]✓ chain is producing blocks[/green] (#{first} → #{second})")
+        else:
+            console.print(f"[red]⚠ chain is stalled at #{first} — no new blocks are being produced.[/red]")
+            console.print("[dim]A dev chain DB can wedge (BABE 'Unexpected epoch change'). Reset it:[/dim]")
+            console.print("[dim]  portaldot_dev purge-chain --dev -y   # then restart the node[/dim]")
+            raise typer.Exit(code=1)
