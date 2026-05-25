@@ -63,6 +63,10 @@ the long tail too.
 | `pdk simulate` | Preview a transfer's POT fee and feasibility — *without* sending it |
 | `pdk seed` | Fund accounts from YAML fixtures so you start from realistic state |
 | `pdk pallets` | Browse the runtime's pallets, calls, and errors (from metadata) |
+| `pdk send` | Send POT from a dev account — a real on-chain transfer |
+| `pdk storage` | Read any value from the chain's storage |
+| `pdk watch` | Stream all chain events live (optionally filtered by pallet) |
+| `pdk keys` | Generate or inspect a keypair (SS58 format 42) |
 
 > **No mocks, no fakes** — every command talks to a live Portaldot node.
 > `pdk debug --demo` submits a *real* failing transaction (it is not simulated).
@@ -119,6 +123,12 @@ pdk doctor                        # node + ink! compatibility + chain liveness
 # 4. Preview & seed
 pdk simulate --amount 10          # preview a transfer's fee + feasibility (no send)
 pdk seed                          # fund dev accounts from fixtures
+
+# 5. Transact & inspect
+pdk send //Bob --amount 5         # a real POT transfer
+pdk storage Balances TotalIssuance  # read any chain storage value
+pdk watch --pallet Balances       # live stream of chain events
+pdk keys                          # generate a new keypair
 ```
 
 Example — `pdk debug --demo`:

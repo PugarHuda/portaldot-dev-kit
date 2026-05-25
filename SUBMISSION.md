@@ -23,6 +23,10 @@ Portaldot is a brand-new, Substrate-based, Rust-first chain with **no public tes
 - **`pdk simulate`** — preview a transfer's POT fee and feasibility before sending it.
 - **`pdk seed`** — fund accounts from YAML fixtures so you start from realistic state.
 - **`pdk pallets`** — browse the runtime's pallets, calls, and errors straight from metadata.
+- **`pdk send`** — submit a real POT transfer from a dev account.
+- **`pdk storage`** — read any value from the chain's storage.
+- **`pdk watch`** — stream all chain events live (optionally by pallet).
+- **`pdk keys`** — generate or inspect a keypair (SS58 format 42).
 
 We found these pains by *actually building* on Portaldot: `substrate-interface` would not connect (legacy `LookupSource`), our dev chain stalled on a BABE epoch error, and repeated submissions collided on the nonce. pdk handles all three so the next builder never has to.
 
