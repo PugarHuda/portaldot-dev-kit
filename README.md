@@ -9,7 +9,9 @@ Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
 **[▶ Live page](https://portaldot-pdk.vercel.app)** · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Submission](SUBMISSION.md) · [Demo script](DEMO.md) · [Video narration](VIDEO_SCRIPT.md)
 
-![pdk FailLens — a decoded Portaldot transaction failure](docs/screens/slide-4.png)
+![pdk — FailLens decoding a Portaldot transaction failure, live](docs/demo.gif)
+
+*Real recording of pdk running against a live Portaldot node — also available as [MP4](docs/demo.mp4).*
 
 <!-- Demo GIF: record per docs/RECORD_GIF.md, then add here: ![pdk demo](docs/demo.gif) -->
 
