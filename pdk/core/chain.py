@@ -11,6 +11,11 @@ from substrateinterface.exceptions import SubstrateRequestException
 # of this amount is guaranteed to fail in dispatch with InsufficientBalance.
 _IMPOSSIBLE_AMOUNT = 10**30
 
+# POT has 14 decimals (Portaldot chain spec). On a --dev chain these accounts
+# are pre-funded with POT at genesis — the answer to "how do I get POT?".
+POT_DECIMALS = 14
+_DEV_ACCOUNTS = ("//Alice", "//Bob", "//Charlie")
+
 
 def connect(url: str) -> SubstrateInterface:
     """Open a connection to a Portaldot node.
@@ -66,3 +71,18 @@ def trigger_demo_failure(substrate: SubstrateInterface, retries: int = 3) -> Ext
             last_exc = exc
             time.sleep(1)
     raise last_exc  # type: ignore[misc]
+
+
+def dev_account_balances(substrate: SubstrateInterface) -> list[tuple[str, str, float]]:
+    """Return (name, ss58 address, POT balance) for the pre-funded dev accounts.
+
+    Answers the question every Portaldot newcomer asks ("how do I get POT?"):
+    on a --dev chain these accounts already hold POT at genesis — no faucet.
+    """
+    balances: list[tuple[str, str, float]] = []
+    for uri in _DEV_ACCOUNTS:
+        keypair = Keypair.create_from_uri(uri)
+        account = substrate.query("System", "Account", [keypair.ss58_address])
+        free = int(account.value["data"]["free"])
+        balances.append((uri.lstrip("/"), keypair.ss58_address, free / 10**POT_DECIMALS))
+    return balances

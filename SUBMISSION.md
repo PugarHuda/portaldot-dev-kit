@@ -8,13 +8,14 @@
 
 ## The problem
 
-Portaldot is a brand-new, Substrate-based, Rust-first chain with **no public testnet** — every developer runs a local node. The developer experience is rough: when a transaction fails, the node returns a raw error like `Module error: 0x0600…` with no explanation and no hint of how to fix it. Onboarding and debugging are the biggest sources of friction in the ecosystem.
+Portaldot is a brand-new, Substrate-based, Rust-first chain with **no public testnet** — every developer runs a local node. The developer experience is rough: when a transaction fails, the node returns a raw error like `Module error: 0x0600…` with no explanation and no hint of how to fix it. Onboarding and debugging are the biggest sources of friction in the ecosystem — the hackathon's own Q&A is full of *"how do I get POT?"* and *"where's the RPC / faucet?"*, with builders blocked and waiting on unanswered replies. pdk is the answer to exactly those questions.
 
 ## The solution
 
 `pdk` (Portaldot Dev Kit) is a single Python CLI that owns the local development loop:
 
 - **`pdk up`** — start a local node and verify it with a real on-chain transaction.
+- **`pdk accounts`** — show the pre-funded dev accounts and their POT balances. The one-command answer to the most-asked question in the Q&A: *"how do I get POT?"*
 - **`pdk debug` (FailLens)** — decode a failed transaction into a plain-language diagnosis + fix. The hero feature.
 - **`pdk debug --watch`** — a live monitor: every failure on the chain is decoded the moment it lands.
 - **`pdk explain <error>`** — a queryable reference for every Portaldot error, no transaction needed.

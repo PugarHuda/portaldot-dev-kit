@@ -12,6 +12,7 @@ import time
 import typer
 from rich.console import Console
 
+from pdk.commands.accounts import render_balances
 from pdk.config import DEFAULT_NODE_URL, NODE_BINARY
 from pdk.core.chain import connect, trigger_demo_failure
 
@@ -59,6 +60,7 @@ def run(
         raise typer.Exit(1)
 
     console.print(f"[green]✓ Node is live[/green] at {node}")
+    render_balances(substrate, console)
 
     if verify:
         # A failing demo transfer still pays POT gas, so its hash is valid

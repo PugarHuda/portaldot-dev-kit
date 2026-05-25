@@ -21,6 +21,7 @@ A single CLI that owns the local development loop:
 | Command | What it does |
 |---|---|
 | `pdk up` | Start a local Portaldot node and verify it with a real transaction |
+| `pdk accounts` | Show the pre-funded dev accounts and their POT balances — the answer to *"how do I get POT?"* |
 | `pdk debug <hash>` | **FailLens** — decode a failed transaction into a plain-language diagnosis + fix |
 | `pdk debug --watch` | Live monitor — decode every failed transaction as it lands, in real time |
 | `pdk explain <error>` | Look up what any Portaldot error means and how to fix it — no transaction needed |
@@ -51,6 +52,7 @@ pip install -e .
 pdk --help
 
 pdk up                       # start a local node + verify with a real tx
+pdk accounts                 # show pre-funded dev accounts ("how do I get POT?")
 pdk debug --demo             # submit a failing tx, then decode it
 pdk debug --watch            # live: decode failures as they happen
 pdk explain InsufficientBalance   # error reference, no tx needed
