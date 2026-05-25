@@ -191,8 +191,16 @@ every push (Python 3.11 and 3.12).
 
 MIT. All code is open source.
 
-## Roadmap
+## Roadmap & known limitations
 
-Beyond this hackathon, pdk grows into the standard Portaldot dev toolkit: typed
-TypeScript SDK, a state seeder for local nodes, a transaction simulator, and
-deeper CI integration — all under one CLI.
+Two deferred capabilities — **asset/token seeding** and **ink! contract
+deployment** — are blocked by the same upstream issue: `substrate-interface`
+(pdk's Python backend) mis-signs *custom-pallet* calls (Assets, Contracts) on
+Portaldot's **V13 metadata**, returning `Invalid Transaction: bad signature`.
+Balances calls sign correctly, so `pdk send` / `seed` / `simulate` build on them.
+(Confirmed across era and type-registry variations; see
+[substrate-interface #9](https://github.com/polkascan/py-substrate-interface/issues/9).)
+
+The clean unlock is a **typed TypeScript SDK on `@polkadot/api`**, which handles
+V13 custom-pallet signing correctly — the natural next step for pdk, alongside
+deeper CI and editor integrations.

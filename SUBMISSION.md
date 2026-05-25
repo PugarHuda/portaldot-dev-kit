@@ -63,4 +63,4 @@ The organizers' goal for this hackathon is developer acquisition. pdk attacks th
 
 ## Roadmap
 
-Typed TypeScript SDK, state seeder for local nodes, transaction simulator, CI integration — all under one CLI.
+A typed **TypeScript SDK on `@polkadot/api`** — to unlock the two capabilities blocked by an upstream Python limitation: `substrate-interface` mis-signs custom-pallet calls (Assets, Contracts) on Portaldot's V13 metadata, so **asset/token seeding** and **ink! contract deployment** need the JS stack. (Diagnosed firsthand; see [substrate-interface #9](https://github.com/polkascan/py-substrate-interface/issues/9).) Plus deeper CI and editor integrations.
