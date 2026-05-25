@@ -48,7 +48,7 @@ The organizers' goal for this hackathon is developer acquisition. pdk attacks th
 ## Links
 
 - **Repo:** https://github.com/PugarHuda/portaldot-pdk
-- **Landing page:** https://web-hudas-projects-a8e7f558.vercel.app
+- **Landing page:** https://portaldot-pdk.vercel.app
 - **Demo video:** <add link>
 
 ## Roadmap
