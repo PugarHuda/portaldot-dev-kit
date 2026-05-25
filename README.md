@@ -16,23 +16,28 @@ A single CLI that owns the local development loop:
 
 | Command | What it does |
 |---|---|
-| `pdk up` | Start a local Portaldot node, fund dev accounts, run a verification tx |
-| `pdk debug` | **FailLens** — decode a failed transaction into a plain-language diagnosis + fix |
-| `pdk doctor` | Check node version, contracts API version, environment health |
+| `pdk up` | Start a local Portaldot node and verify it with a real transaction |
+| `pdk debug <hash>` | **FailLens** — decode a failed transaction into a plain-language diagnosis + fix |
+| `pdk debug --watch` | Live monitor — decode every failed transaction as it lands, in real time |
+| `pdk explain <error>` | Look up what any Portaldot error means and how to fix it — no transaction needed |
+| `pdk doctor` | Check node version, runtime, and ink! / contracts-API compatibility |
+
+Add `--json` to `pdk debug` for machine-readable output (CI / scripts).
 
 **FailLens** is the hero feature. It reads the `System.ExtrinsicFailed` event
 of a failed transaction, decodes the `DispatchError` against the chain's own
-metadata, and pairs it with a curated fix knowledge base:
+metadata, and pairs it with a curated fix knowledge base (every error name
+verified against the live runtime):
 
 ```
-✗ Balances.InsufficientBalance   (5, 2)
+✗ Balances.InsufficientBalance
 
 What happened
 You tried to transfer more POT than the sending account holds.
 
 How to fix
   1. Check the sender balance via the explorer or `pdk doctor`.
-  2. Lower the amount, or fund the account first (`pdk up` funds dev accounts).
+  2. Lower the amount, or fund the account first.
 ```
 
 ## Install
@@ -40,6 +45,12 @@ How to fix
 ```bash
 pip install -e .
 pdk --help
+
+pdk up                       # start a local node + verify with a real tx
+pdk debug --demo             # submit a failing tx, then decode it
+pdk debug --watch            # live: decode failures as they happen
+pdk explain InsufficientBalance   # error reference, no tx needed
+pdk doctor                   # node + ink! compatibility check
 ```
 
 > The Portaldot node binary is Linux-only. On Windows, run pdk inside WSL.
@@ -51,7 +62,7 @@ node, paying POT as gas. A sample transaction from a local node, recorded as
 native-deployment evidence:
 
 ```
-tx hash : 0x7b4877cba020d2ffdd4fea08c0be8107e66ae315f92326aa6ab23d3f278f1860
+tx hash : 0x8b605579d6b512892f4394aa43937e1d762d34411b43c6a4aa9fa8a5dd4d546a
 node    : local Portaldot dev node (portaldot_dev 2.0.0, chain "Development")
 fee     : paid in POT by the submitting account
 ```

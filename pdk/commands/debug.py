@@ -2,13 +2,21 @@
 
 from __future__ import annotations
 
+import json as jsonlib
+import time
+
 import typer
 from rich.console import Console
 from rich.panel import Panel
 
 from pdk.config import DEFAULT_NODE_URL
 from pdk.core.chain import connect, trigger_demo_failure
-from pdk.core.decoder import DecodedError, decode_receipt, find_receipt
+from pdk.core.decoder import (
+    DecodedError,
+    decode_receipt,
+    failed_receipts_in_block,
+    find_receipt,
+)
 from pdk.core.knowledge import FixSuggestion, load_knowledge, lookup_fix
 
 console = Console()
@@ -18,15 +26,17 @@ def run(
     tx_hash: str = typer.Argument(None, help="Hash of the failed transaction to diagnose."),
     node: str = typer.Option(DEFAULT_NODE_URL, "--node", help="Portaldot node WS endpoint."),
     demo: bool = typer.Option(False, "--demo", help="Trigger a failing transaction, then diagnose it."),
+    watch: bool = typer.Option(False, "--watch", help="Live mode: decode every failed transaction as it lands."),
+    json_out: bool = typer.Option(False, "--json", help="Emit the diagnosis as JSON (for scripts/CI)."),
 ) -> None:
     """Diagnose a failed Portaldot transaction.
 
-    Demo mode (`--demo`) submits its own failing transaction so a live demo
-    always has a fresh failure to show; that submission pays POT gas.
+    Three modes: a single tx hash, `--demo` (submits its own failing tx, paying
+    POT gas), or `--watch` (a live monitor that decodes failures as they happen).
     """
-    if not demo and not tx_hash:
-        console.print("[red]Provide a transaction hash, or use --demo.[/red]")
-        raise typer.Exit(1)
+    if not (demo or watch) and not tx_hash:
+        console.print("[red]Provide a transaction hash, or use --demo / --watch.[/red]")
+        raise typer.Exit(code=1)
 
     try:
         substrate = connect(node)
@@ -36,34 +46,91 @@ def run(
         console.print("Start one with [bold]pdk up[/bold] (inside WSL on Windows).")
         raise typer.Exit(code=1)
 
+    if watch:
+        _watch(substrate, json_out)
+        return
+
     if demo:
         receipt = trigger_demo_failure(substrate)
         tx_hash = receipt.extrinsic_hash
-        console.print(f"[dim]demo: submitted failing tx {tx_hash}[/dim]")
+        if not json_out:
+            console.print(f"[dim]demo: submitted failing tx {tx_hash}[/dim]")
     else:
         receipt = find_receipt(substrate, tx_hash)
         if receipt is None:
             console.print(f"[yellow]No transaction {tx_hash} found in recent blocks.[/yellow]")
             console.print("[dim]FailLens scans only recent blocks — an older tx may be out of range.[/dim]")
-            raise typer.Exit(1)
+            raise typer.Exit(code=1)
 
     decoded = decode_receipt(receipt)
     if decoded is None:
-        console.print("[green]That transaction succeeded — nothing to debug.[/green]")
+        if json_out:
+            typer.echo(jsonlib.dumps({"tx": str(tx_hash), "success": True}))
+        else:
+            console.print("[green]That transaction succeeded — nothing to debug.[/green]")
         return
 
     fix = lookup_fix(decoded, load_knowledge())
-    _render(str(tx_hash), decoded, fix)
+    _emit(str(tx_hash), decoded, fix, json_out)
+
+
+def _watch(substrate, json_out: bool) -> None:
+    """Poll for new blocks and diagnose every failed extrinsic as it appears."""
+    kb = load_knowledge()
+    last = substrate.get_block_number(substrate.get_chain_head())
+    if not json_out:
+        console.print(f"[dim]FailLens watching from block #{last} — Ctrl+C to stop.[/dim]")
+    try:
+        while True:
+            head_num = substrate.get_block_number(substrate.get_chain_head())
+            for number in range(last + 1, head_num + 1):
+                block_hash = substrate.get_block_hash(number)
+                for receipt in failed_receipts_in_block(substrate, block_hash):
+                    decoded = decode_receipt(receipt)
+                    if decoded is None:
+                        continue
+                    fix = lookup_fix(decoded, kb)
+                    _emit(str(receipt.extrinsic_hash), decoded, fix, json_out)
+            last = head_num
+            time.sleep(2)
+    except KeyboardInterrupt:
+        if not json_out:
+            console.print("\n[dim]stopped.[/dim]")
+
+
+def _resolve_pallet(decoded: DecodedError, fix: FixSuggestion) -> str:
+    """Recover the real pallet name.
+
+    error_message reports a generic "Module" type for pallet errors, so prefer
+    the pallet from the matched knowledge-base key when one is available.
+    """
+    return fix.matched_key.split(".")[0].title() if fix.matched_key else decoded.pallet
+
+
+def _emit(tx_hash: str, decoded: DecodedError, fix: FixSuggestion, json_out: bool) -> None:
+    """Render the diagnosis as a Rich panel, or as one JSON line when --json."""
+    if json_out:
+        typer.echo(
+            jsonlib.dumps(
+                {
+                    "tx": tx_hash,
+                    "pallet": _resolve_pallet(decoded, fix),
+                    "error": decoded.name,
+                    "known": fix.known,
+                    "summary": fix.summary,
+                    "fix": fix.steps,
+                }
+            )
+        )
+        return
+    _render(tx_hash, decoded, fix)
 
 
 def _render(tx_hash: str, decoded: DecodedError, fix: FixSuggestion) -> None:
     """Print the diagnosis: error -> explanation -> fix steps."""
     called = f"  [dim]· {decoded.extrinsic_call}[/dim]" if decoded.extrinsic_call else ""
     confidence = "" if fix.known else "  [yellow](no curated entry — metadata fallback)[/yellow]"
-
-    # error_message reports a generic "Module" type for pallet errors; recover
-    # the real pallet from the matched knowledge-base key when available.
-    pallet = fix.matched_key.split(".")[0].title() if fix.matched_key else decoded.pallet
+    pallet = _resolve_pallet(decoded, fix)
     error_label = (
         f"{pallet}.{decoded.name}"
         if pallet and pallet not in ("Module", "Unknown")

@@ -74,6 +74,40 @@ def decode_receipt(receipt: ExtrinsicReceipt) -> DecodedError | None:
     )
 
 
+def failed_receipts_in_block(
+    substrate: SubstrateInterface,
+    block_hash: str,
+) -> list[ExtrinsicReceipt]:
+    """Return an :class:`ExtrinsicReceipt` for each failed extrinsic in a block.
+
+    Scans the block's events for ``System.ExtrinsicFailed``; for each, maps the
+    event's ``extrinsic_idx`` back to the extrinsic and builds a receipt. Used by
+    ``pdk debug --watch`` to surface failures as blocks are produced.
+    """
+    receipts: list[ExtrinsicReceipt] = []
+    block = None
+    for event in substrate.get_events(block_hash):
+        value = event.value if hasattr(event, "value") else event
+        if value.get("module_id") == "System" and value.get("event_id") == "ExtrinsicFailed":
+            idx = value.get("extrinsic_idx")
+            if idx is None:
+                continue
+            if block is None:
+                block = substrate.get_block(block_hash=block_hash)
+            extrinsic = block["extrinsics"][idx]
+            ext_hash = getattr(extrinsic, "extrinsic_hash", None)
+            if ext_hash is None:
+                continue
+            receipts.append(
+                ExtrinsicReceipt(
+                    substrate=substrate,
+                    extrinsic_hash="0x" + ext_hash.hex(),
+                    block_hash=block_hash,
+                )
+            )
+    return receipts
+
+
 def find_receipt(
     substrate: SubstrateInterface,
     tx_hash: str,

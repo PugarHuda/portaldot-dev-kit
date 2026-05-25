@@ -10,7 +10,7 @@ balances.InsufficientBalance:
   summary: "You tried to transfer more POT than the sending account holds."
   steps:
     - "Check the sender balance via the portaldot.io explorer or `pdk doctor`."
-    - "Lower the transfer amount, or fund the account first (`pdk up` funds dev accounts)."
+    - "Lower the transfer amount, or fund the account first (dev accounts are pre-funded on a --dev chain)."
 
 balances.ExistentialDeposit:
   summary: "The transfer would leave an account below the Existential Deposit, so it was rejected."
