@@ -3,6 +3,10 @@
 A developer toolkit for the [Portaldot](https://www.portaldot.io/) blockchain.
 Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
+**[▶ Live page](https://web-hudas-projects-a8e7f558.vercel.app)** · [Submission](SUBMISSION.md) · [Demo script](DEMO.md) · [Video narration](VIDEO_SCRIPT.md)
+
+<!-- Demo GIF: record per docs/RECORD_GIF.md, then add here: ![pdk demo](docs/demo.gif) -->
+
 ## The problem
 
 Portaldot is a brand-new, Substrate-based, Rust-first chain with no public
