@@ -5,6 +5,17 @@ description = "Portaldot Dev Kit — a developer toolkit for the Portaldot block
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
+authors = [{ name = "Pugar Huda Mantoro" }]
+keywords = ["portaldot", "substrate", "blockchain", "cli", "developer-tools", "debugging"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Debuggers",
+]
 dependencies = [
     "typer>=0.12",
     "rich>=13.7",
@@ -14,6 +25,10 @@ dependencies = [
 
 [project.scripts]
 pdk = "pdk.cli:main"
+
+[project.urls]
+Homepage = "https://portaldot-pdk.vercel.app"
+Repository = "https://github.com/PugarHuda/portaldot-pdk"
 
 [build-system]
 requires = ["hatchling"]
