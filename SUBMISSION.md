@@ -6,6 +6,8 @@
 
 **pdk turns Portaldot's cryptic transaction failures into clear, actionable diagnoses — and gives every developer a one-command local dev loop.**
 
+*A starter kit helps you **write** Portaldot code; pdk is the only tool that **saves** you when it breaks — decoding failed transactions into fixes that generic Substrate tooling can't.*
+
 ## The problem
 
 Portaldot is a brand-new, Substrate-based, Rust-first chain. In Season 1 developers run it from a **local node** (the organizers' intended environment). The developer experience is rough: when a transaction fails, the node returns a raw error like `Module error: 0x0600…` with no explanation and no hint of how to fix it. Onboarding and debugging are the biggest sources of friction in the ecosystem — the hackathon's own Q&A is full of *"how do I get POT?"* and *"where's the RPC / faucet?"*, with builders blocked and waiting on unanswered replies. pdk is the answer to exactly those questions.
