@@ -117,7 +117,7 @@
 <script>
 // Mirrors pdk/data/error_fixes.yaml (29 entries, verified vs live runtime metadata).
 const ERRORS = [
-  {p:"balances", n:"InsufficientBalance", s:"You tried to transfer more POT than the sending account holds.", f:["Check the sender balance via the portaldot.io explorer or `pdk doctor`.","Lower the transfer amount, or fund the account first (dev accounts are pre-funded on a --dev chain)."]},
+  {p:"balances", n:"InsufficientBalance", s:"You tried to transfer more POT than the sending account holds.", f:["Check the sender balance via the Portaldot explorer (portalscan.portaldot.io) or `pdk doctor`.","Lower the transfer amount, or fund the account first (dev accounts are pre-funded on a --dev chain)."]},
   {p:"balances", n:"ExistentialDeposit", s:"The transfer would leave an account below the Existential Deposit, so it was rejected.", f:["Leave at least the Existential Deposit in both the sender and receiver.","Or move the whole balance with `transfer` (allow death) instead of `transfer_keep_alive`."]},
   {p:"balances", n:"KeepAlive", s:"The transfer would kill the sender account, but a keep-alive call was used.", f:["Reduce the amount so the sender keeps at least the Existential Deposit.","Use `transfer` if you intend to empty the account."]},
   {p:"balances", n:"LiquidityRestrictions", s:"The funds are locked or frozen (e.g. by staking or vesting) and cannot be moved.", f:["Unlock the funds first — unbond from staking or wait for vesting to release."]},

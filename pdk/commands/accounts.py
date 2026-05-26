@@ -37,7 +37,7 @@ def run(
     except Exception as exc:  # noqa: BLE001 — surface any connection failure plainly
         console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
         console.print(f"[dim]{exc}[/dim]")
-        console.print("Start one with [bold]pdk up[/bold] (inside WSL on Windows).")
+        console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
         raise typer.Exit(code=1)
     render_balances(substrate, console)
     console.print("[dim]These accounts are funded at genesis — use them to pay POT gas.[/dim]")

@@ -9,7 +9,7 @@
 balances.InsufficientBalance:
   summary: "You tried to transfer more POT than the sending account holds."
   steps:
-    - "Check the sender balance via the portaldot.io explorer or `pdk doctor`."
+    - "Check the sender balance via the Portaldot explorer (portalscan.portaldot.io) or `pdk doctor`."
     - "Lower the transfer amount, or fund the account first (dev accounts are pre-funded on a --dev chain)."
 
 balances.ExistentialDeposit:

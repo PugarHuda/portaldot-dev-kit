@@ -74,7 +74,7 @@ def lookup_fix(decoded: DecodedError, knowledge: dict[str, dict]) -> FixSuggesti
             summary=summary,
             steps=[
                 "Check the failing call's inputs and the signer's balance and permissions.",
-                "Inspect on-chain state via the portaldot.io explorer to confirm preconditions.",
+                "Inspect on-chain state via the Portaldot explorer (portalscan.portaldot.io) to confirm preconditions.",
             ],
             known=False,
             matched_key=None,

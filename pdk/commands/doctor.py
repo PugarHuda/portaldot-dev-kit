@@ -8,7 +8,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pdk.config import DEFAULT_NODE_URL
+from pdk.config import DEFAULT_NODE_URL, EXPLORER_URL
 from pdk.core.chain import connect
 
 console = Console()
@@ -27,7 +27,7 @@ def run(
     except Exception as exc:  # noqa: BLE001 — surface any connection failure plainly
         console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
         console.print(f"[dim]{exc}[/dim]")
-        console.print("Start one with [bold]pdk up[/bold] (inside WSL on Windows).")
+        console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
         raise typer.Exit(code=1)
 
     pallet_names = [pallet.name for pallet in substrate.metadata.pallets]
@@ -47,6 +47,7 @@ def run(
     else:
         table.add_row("Contracts pallet", "not found — use native pallets, not ink!")
 
+    table.add_row("Explorer", EXPLORER_URL)
     console.print(table)
 
     if liveness:

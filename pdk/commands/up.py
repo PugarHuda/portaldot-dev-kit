@@ -1,11 +1,13 @@
 """`pdk up` — bring a local Portaldot dev environment from zero to ready.
 
-The Portaldot node binary ships for Linux and macOS (no Windows build); on
-Windows, run pdk inside WSL.
+pdk itself runs natively on Windows. The Portaldot node binary, however, ships
+only for Linux and macOS (no Windows build), so on Windows run the *node* in WSL
+and let pdk connect to it.
 """
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import time
@@ -40,6 +42,16 @@ def run(
         console.print("Use [bold]pdk debug[/bold] or [bold]pdk doctor[/bold] against it directly.")
         raise typer.Exit(0)
 
+    # The node binary has no Windows build, so `pdk up` can't launch it here.
+    # pdk itself runs natively on Windows — only the node needs Linux/macOS/WSL.
+    if os.name == "nt" and shutil.which(node_binary) is None:
+        console.print("[yellow]No Windows build of the Portaldot node exists, so `pdk up` can't start it here.[/yellow]")
+        console.print("On Windows, run the node in [bold]WSL[/bold]:")
+        console.print("  [dim]./portaldot_dev --dev --alice --ws-external --rpc-cors all[/dim]")
+        console.print(f"then drive it with pdk from Windows, e.g. [bold]pdk debug --demo --node {node}[/bold].")
+        console.print("Or point pdk at any reachable RPC: [dim]--node wss://<endpoint>[/dim].")
+        raise typer.Exit(1)
+
     binary = shutil.which(node_binary) or node_binary
     console.print(f"[bold]Starting Portaldot dev node[/bold] ({binary}) …")
 
@@ -51,7 +63,7 @@ def run(
         )
     except FileNotFoundError:
         console.print(f"[red]Node binary '{node_binary}' not found.[/red]")
-        console.print("Download it from the Portaldot Chain Info docs; on Windows, run pdk in WSL.")
+        console.print("Download it from the Portaldot node repo; on Windows, run the node in WSL (pdk runs natively).")
         raise typer.Exit(1) from None
 
     substrate = _wait_for_node(node, timeout_s=60)

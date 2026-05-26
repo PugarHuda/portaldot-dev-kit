@@ -75,9 +75,10 @@ the long tail too.
 
 ## Setup
 
-Requires **Python 3.11+**. The Portaldot node binary ships for **Linux and
-macOS** (no Windows build), so on Linux/macOS you can run it natively; on Windows
-run everything inside **WSL**.
+Requires **Python 3.11+**. **pdk itself runs natively on every OS, Windows
+included** — it's a pure-Python CLI. The *node binary* ships only for **Linux and
+macOS** (no Windows build), so on Windows you run the node in **WSL** and let pdk
+talk to it from PowerShell (see [Windows](#windows) below).
 
 **1. Get and run a local Portaldot node** (Linux/WSL shown — swap in the
 `-macos` archive on macOS):
@@ -110,6 +111,32 @@ git clone https://github.com/PugarHuda/portaldot-pdk
 cd portaldot-pdk
 pip install -e .
 ```
+
+## Windows
+
+pdk runs natively on Windows — no WSL needed for pdk itself:
+
+```powershell
+pip install portaldot-pdk
+pdk --help
+pdk explain InsufficientBalance   # the error reference works with no node
+pdk keys //Alice                  # key tools work with no node
+```
+
+The **node** has no Windows build, so to run the node-backed commands (`debug`,
+`doctor`, `send`, `watch`, …) start the node in **WSL** with `--ws-external`,
+then point pdk at it from PowerShell:
+
+```powershell
+# WSL:        ./portaldot_dev --dev --alice --ws-external --rpc-cors all
+# PowerShell: connect over WSL's forwarded localhost
+pdk debug --demo --node ws://127.0.0.1:9944
+```
+
+If `127.0.0.1` doesn't reach WSL on your setup, use the WSL IP
+(`wsl hostname -I`): `pdk debug --demo --node ws://<wsl-ip>:9944`. Or point
+`--node` at any reachable Portaldot RPC. Inspect on-chain data anytime in the
+official explorer: **[portalscan.portaldot.io](https://portalscan.portaldot.io)**.
 
 ## Usage
 

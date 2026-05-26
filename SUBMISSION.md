@@ -54,6 +54,7 @@ fee     : paid in POT by the submitting account
 - **A CI citizen, not just a REPL.** `pdk debug --json --exit-code` returns a non-zero code with a decoded diagnosis, so a Portaldot project can *gate its pipeline* on transaction failures (see [`docs/ci-recipe.md`](docs/ci-recipe.md)). That turns pdk from a personal convenience into team infrastructure.
 - **A community-owned knowledge base.** FailLens reads fixes from `error_fixes.yaml`; every contributor who adds an entry improves debugging for the whole ecosystem. [`CONTRIBUTING.md`](CONTRIBUTING.md) makes that a five-line PR. The value compounds with adoption.
 - **Machine-readable everywhere.** `--json` output is the integration surface for the editor extensions and bots on the roadmap.
+- **Cross-platform.** pdk runs natively on Linux, macOS, **and Windows** (pure-Python CLI), so no developer is excluded by their OS — the error reference and key tools even work with no node at all.
 
 **Who it serves, concretely:** the *newcomer* who can't get POT (`pdk accounts`), the *ink! contract dev* facing a raw module error (`pdk debug`), and the *team* running on-chain integration tests in CI (`pdk debug --json --exit-code`).
 
