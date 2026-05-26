@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from pdk.core.decoder import decode_receipt
+from pdk.core.decoder import decode_receipt, find_receipt
 
 
 @dataclass
@@ -69,3 +69,31 @@ def test_empty_error_message_is_handled_safely() -> None:
     decoded = decode_receipt(FakeReceipt(is_success=False, error_message=None))
     assert decoded is not None
     assert decoded.name == "UnknownError"
+
+
+class _FakeSubstrate:
+    """Minimal substrate stub for find_receipt: a tiny chain that ends at genesis."""
+
+    def __init__(self, blocks: dict[str, Any], head: str) -> None:
+        self._blocks = blocks
+        self._head = head
+
+    def get_chain_head(self) -> str:
+        return self._head
+
+    def get_block(self, block_hash: str | None = None):
+        # Unknown hash (e.g. genesis' zero-hash parent) has no block -> None.
+        return self._blocks.get(block_hash)
+
+
+def test_find_receipt_returns_none_past_genesis_without_crashing() -> None:
+    # Regression: on a short chain, scanning a missing hash walks past genesis;
+    # get_block then returns None and must NOT crash (was a TypeError).
+    zero = "0x" + "0" * 64
+    blocks = {
+        "0xhead": {"extrinsics": [], "header": {"parentHash": "0xgenesis"}},
+        "0xgenesis": {"extrinsics": [], "header": {"parentHash": zero}},
+        # `zero` is absent -> get_block returns None (off the start of the chain).
+    }
+    sub = _FakeSubstrate(blocks, head="0xhead")
+    assert find_receipt(sub, "0xdeadbeef", scan_blocks=200) is None

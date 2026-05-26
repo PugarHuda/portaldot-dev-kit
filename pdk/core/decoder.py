@@ -124,6 +124,11 @@ def find_receipt(
 
     for _ in range(scan_blocks):
         block = substrate.get_block(block_hash=block_hash)
+        if block is None:
+            # Walked past the start of the chain (genesis' parent is the zero
+            # hash, which has no block). On a short chain this is the normal
+            # "not found" terminus — stop instead of crashing.
+            break
         for extrinsic in block["extrinsics"]:
             ext_hash = getattr(extrinsic, "extrinsic_hash", None)
             if ext_hash and ext_hash.hex().lower() == target:
