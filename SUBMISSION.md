@@ -72,6 +72,7 @@ fee     : paid in POT by the submitting account
 - **Repo:** https://github.com/PugarHuda/portaldot-pdk
 - **Install:** `pip install portaldot-pdk`
 - **Landing page:** https://portaldot-pdk.vercel.app
+- **Developer dashboard (visual):** https://portaldot-pdk.vercel.app/dashboard
 - **Error reference (zero-install):** https://portaldot-pdk.vercel.app/errors
 - **Pitch deck:** https://portaldot-pdk.vercel.app/slide
 - **CI recipe:** [docs/ci-recipe.md](docs/ci-recipe.md)

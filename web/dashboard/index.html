@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>pdk — Developer Dashboard</title>
+<meta name="description" content="A visual companion to the pdk CLI — node health, FailLens diagnoses, dev accounts, and the full command surface for the Portaldot blockchain." />
+<meta name="theme-color" content="#0a0c10" />
+<meta property="og:title" content="pdk — Portaldot Developer Dashboard" />
+<meta property="og:description" content="See what pdk surfaces from a live Portaldot node: node health, decoded failures, dev accounts, and 12 commands." />
+<meta property="og:url" content="https://portaldot-pdk.vercel.app/dashboard" />
+<meta property="og:image" content="https://portaldot-pdk.vercel.app/logo.png" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" type="image/png" href="/logo.png" />
+<style>
+  :root {
+    --bg:#0a0c10; --panel:#14171d; --panel2:#0f1318; --border:#21262d; --text:#c9d1d9;
+    --muted:#7d8590; --green:#3fb950; --red:#f85149; --amber:#d29922; --cyan:#56d4dd;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased; line-height:1.5; }
+  code,pre,.mono { font-family:var(--mono); }
+  a { color:var(--green); text-decoration:none; } a:hover { text-decoration:underline; }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 22px; }
+
+  header.top { border-bottom:1px solid var(--border); padding:14px 0; position:sticky; top:0;
+    background:rgba(10,12,16,.92); backdrop-filter:blur(8px); z-index:10; }
+  header.top .wrap { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+  .brand { font-family:var(--mono); font-weight:700; color:#fff; }
+  .brand .dot { color:var(--green); }
+  .navlinks { display:flex; gap:16px; font-size:14px; flex-wrap:wrap; }
+  .status { font-family:var(--mono); font-size:12px; color:var(--muted); display:flex; align-items:center; gap:7px; }
+  .pulse { width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(63,185,80,.6); animation:p 2s infinite; }
+  @keyframes p { 0%{box-shadow:0 0 0 0 rgba(63,185,80,.5)} 70%{box-shadow:0 0 0 7px rgba(63,185,80,0)} 100%{box-shadow:0 0 0 0 rgba(63,185,80,0)} }
+
+  .hero { padding:40px 0 14px; }
+  .kicker { font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+  h1 { font-size:clamp(28px,4.6vw,42px); line-height:1.05; letter-spacing:-.02em; color:#fff; margin:8px 0 10px; }
+  .lede { color:var(--muted); font-size:clamp(14px,1.8vw,17px); max-width:70ch; }
+  .note { background:#0e1116; border:1px solid var(--border); border-left:3px solid var(--green); border-radius:8px;
+    padding:11px 15px; margin:18px 0 6px; color:var(--muted); font-size:13.5px; }
+  .note strong { color:var(--text); }
+
+  .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; padding:18px 0 10px; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
+  .card h2 { font-size:13px; font-family:var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
+  .card h2 .cmd { color:var(--green); text-transform:none; letter-spacing:0; }
+  .col-4 { grid-column:span 4; } .col-6 { grid-column:span 6; } .col-8 { grid-column:span 8; } .col-12 { grid-column:span 12; }
+  @media (max-width:860px){ .col-4,.col-6,.col-8 { grid-column:span 12; } }
+
+  .kv { display:flex; justify-content:space-between; gap:14px; padding:7px 0; border-bottom:1px solid #1b2027; font-size:14px; }
+  .kv:last-child { border-bottom:0; }
+  .kv .k { color:var(--muted); } .kv .v { font-family:var(--mono); color:var(--text); text-align:right; }
+  .v .ok { color:var(--green); } .v .amber { color:var(--amber); }
+
+  .term { background:var(--panel2); border:1px solid var(--border); border-radius:9px; padding:14px 16px; font-family:var(--mono); font-size:13.5px; }
+  .term .err { color:var(--red); font-weight:600; }
+  .term .lbl { color:#fff; font-weight:600; margin-top:10px; }
+  .term .mut { color:var(--muted); }
+  ol.fix { margin:6px 0 0 18px; display:flex; flex-direction:column; gap:4px; }
+  ol.fix li::marker { color:var(--green); }
+
+  .acct { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid #1b2027; }
+  .acct:last-child { border-bottom:0; }
+  .acct .name { font-weight:600; color:#fff; min-width:64px; }
+  .acct .addr { font-family:var(--mono); font-size:12px; color:var(--muted); word-break:break-all; }
+  .badge { font-family:var(--mono); font-size:11px; color:var(--green); border:1px solid #1f3a26; background:#0e1a12; border-radius:999px; padding:2px 9px; white-space:nowrap; }
+
+  .cmds { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .cmd-card { background:var(--panel2); border:1px solid var(--border); border-radius:9px; padding:11px 13px; }
+  .cmd-card .c { font-family:var(--mono); color:var(--green); font-weight:600; font-size:13.5px; }
+  .cmd-card .d { color:var(--muted); font-size:12.5px; margin-top:3px; }
+
+  .proof { font-family:var(--mono); font-size:13px; }
+  .proof .hash { color:var(--cyan); word-break:break-all; }
+
+  footer { border-top:1px solid var(--border); margin-top:30px; padding:24px 0 50px; color:var(--muted); font-size:13.5px; }
+  footer .wrap { display:flex; flex-wrap:wrap; gap:8px 18px; justify-content:space-between; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="brand">pdk<span class="dot">.</span></span>
+    <nav class="navlinks">
+      <a href="/">Home</a>
+      <a href="/errors">Errors</a>
+      <a href="/slide">Pitch</a>
+      <a href="https://portalscan.portaldot.io">Explorer ↗</a>
+      <a href="https://github.com/PugarHuda/portaldot-pdk">GitHub ↗</a>
+    </nav>
+    <span class="status"><span class="pulse"></span> Development · portaldot-1002</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">Portaldot · developer dashboard</div>
+    <h1>Everything pdk surfaces — at a glance.</h1>
+    <p class="lede">pdk is a 12-command CLI for the Portaldot local dev loop. This dashboard
+      is its visual companion: the node's health, a decoded failure from <span class="mono">FailLens</span>,
+      the funded dev accounts, and the full command surface — the same data the CLI prints, laid out visually.</p>
+    <div class="note">
+      <strong>No mocks.</strong> Every value here is real: the runtime facts and dev-account
+      addresses pdk reads from a live Portaldot node, the verified error knowledge base, and the
+      actual native-deployment transaction hash. Run the commands yourself to reproduce any of it.
+    </div>
+  </section>
+
+  <section class="grid">
+
+    <!-- Node health -->
+    <div class="card col-4">
+      <h2>Node health <span class="cmd">pdk doctor</span></h2>
+      <div class="kv"><span class="k">Chain</span><span class="v">Development</span></div>
+      <div class="kv"><span class="k">Runtime</span><span class="v">portaldot-1002</span></div>
+      <div class="kv"><span class="k">Node</span><span class="v">portaldot_dev 2.0.0</span></div>
+      <div class="kv"><span class="k">Block time</span><span class="v">6s</span></div>
+      <div class="kv"><span class="k">Contracts API</span><span class="v">v5 <span class="amber">(ink! 3.x)</span></span></div>
+      <div class="kv"><span class="k">Liveness</span><span class="v"><span class="ok">● producing blocks</span></span></div>
+      <div class="kv"><span class="k">Explorer</span><span class="v"><a href="https://portalscan.portaldot.io">portalscan ↗</a></span></div>
+    </div>
+
+    <!-- FailLens -->
+    <div class="card col-8">
+      <h2>FailLens — a decoded failure <span class="cmd">pdk debug &lt;hash&gt;</span></h2>
+      <div class="term">
+        <div><span class="mut">raw:</span> <span class="mut">ExtrinsicFailed · DispatchError { Module: { index: 6, error: 2 } }</span></div>
+        <div style="margin-top:8px"><span class="err">✗ Balances.InsufficientBalance</span></div>
+        <div class="lbl">What happened</div>
+        <div>You tried to transfer more POT than the sending account holds.</div>
+        <div class="lbl">How to fix</div>
+        <ol class="fix">
+          <li>Check the sender balance via the Portaldot explorer or <span class="mono">pdk doctor</span>.</li>
+          <li>Lower the transfer amount, or fund the account first (dev accounts are pre-funded on a --dev chain).</li>
+        </ol>
+      </div>
+      <div style="margin-top:12px; color:var(--muted); font-size:13.5px;">
+        Decoded against the chain's own metadata — never goes stale.
+        <a href="/errors">Browse all 29 verified errors →</a>
+      </div>
+    </div>
+
+    <!-- Dev accounts -->
+    <div class="card col-6">
+      <h2>Dev accounts <span class="cmd">pdk accounts</span></h2>
+      <div class="acct"><span class="name">Alice</span><span class="addr">5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY</span><span class="badge">genesis</span></div>
+      <div class="acct"><span class="name">Bob</span><span class="addr">5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty</span><span class="badge">genesis</span></div>
+      <div class="acct"><span class="name">Charlie</span><span class="addr">5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y</span><span class="badge">genesis</span></div>
+      <div style="margin-top:12px; color:var(--muted); font-size:13px;">
+        Funded at genesis on a <span class="mono">--dev</span> chain · SS58 format 42 · POT has 14 decimals.
+        The one-command answer to <em>"how do I get POT?"</em>. Run <span class="mono">pdk accounts</span> for live balances.
+      </div>
+    </div>
+
+    <!-- Native proof -->
+    <div class="card col-6">
+      <h2>Native deployment proof <span class="cmd">pdk up</span></h2>
+      <div class="proof">
+        <div class="kv"><span class="k">tx hash</span></div>
+        <div class="hash">0x8b605579d6b512892f4394aa43937e1d762d34411b43c6a4aa9fa8a5dd4d546a</div>
+        <div class="kv" style="margin-top:8px"><span class="k">node</span><span class="v">local Portaldot dev (2.0.0)</span></div>
+        <div class="kv"><span class="k">fee</span><span class="v"><span class="ok">paid in POT</span></span></div>
+      </div>
+      <div style="margin-top:12px; color:var(--muted); font-size:13px;">
+        A real on-chain transaction paying POT as gas — the hackathon's native-deployment requirement.
+      </div>
+    </div>
+
+    <!-- Command surface -->
+    <div class="card col-12">
+      <h2>The command surface <span class="cmd">12 commands</span></h2>
+      <div class="cmds">
+        <div class="cmd-card"><div class="c">pdk up</div><div class="d">Start a node + verify with a real tx</div></div>
+        <div class="cmd-card"><div class="c">pdk accounts</div><div class="d">Funded dev accounts + POT</div></div>
+        <div class="cmd-card"><div class="c">pdk debug</div><div class="d">FailLens — decode a failure</div></div>
+        <div class="cmd-card"><div class="c">pdk explain</div><div class="d">Queryable error reference</div></div>
+        <div class="cmd-card"><div class="c">pdk doctor</div><div class="d">Node + ink! + liveness</div></div>
+        <div class="cmd-card"><div class="c">pdk simulate</div><div class="d">Preview fee + feasibility</div></div>
+        <div class="cmd-card"><div class="c">pdk seed</div><div class="d">Fund accounts from fixtures</div></div>
+        <div class="cmd-card"><div class="c">pdk pallets</div><div class="d">Browse pallets / calls / errors</div></div>
+        <div class="cmd-card"><div class="c">pdk send</div><div class="d">A real POT transfer</div></div>
+        <div class="cmd-card"><div class="c">pdk storage</div><div class="d">Read any chain storage</div></div>
+        <div class="cmd-card"><div class="c">pdk watch</div><div class="d">Stream chain events live</div></div>
+        <div class="cmd-card"><div class="c">pdk keys</div><div class="d">Generate / inspect a keypair</div></div>
+      </div>
+      <div style="margin-top:14px; color:var(--muted); font-size:13.5px;">
+        <span class="mono">pip install portaldot-pdk</span> · runs on Linux, macOS &amp; Windows ·
+        CI-gating with <span class="mono">pdk debug --json --exit-code</span>.
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>pdk — Portaldot Dev Kit · a visual companion to the CLI · verified against runtime <span class="mono">portaldot-1002</span></span>
+    <span><a href="https://github.com/PugarHuda/portaldot-pdk">github.com/PugarHuda/portaldot-pdk</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
