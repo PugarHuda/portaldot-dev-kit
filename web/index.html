@@ -9,6 +9,9 @@
 <link rel="canonical" href="https://portaldot-pdk.vercel.app" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://portaldot-pdk.vercel.app" />
+<meta property="og:image" content="https://portaldot-pdk.vercel.app/logo.png" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" type="image/png" href="/logo.png" />
 <meta property="og:title" content="pdk — Portaldot Dev Kit" />
 <meta property="og:description" content="FailLens turns cryptic Portaldot transaction failures into clear, actionable diagnoses — live, as failures happen." />
 <meta name="twitter:card" content="summary" />
@@ -147,9 +150,9 @@
     <h2>The problem</h2>
     <h3>Portaldot is new. Its errors are cruel.</h3>
     <p class="body">
-      Portaldot has no public testnet — every developer runs a local node. When a
-      transaction fails, the node hands back a raw, unexplained error code. No hint
-      of what went wrong, no hint of how to fix it.
+      Portaldot is brand-new and Rust-first; in Season 1 you run it from a local
+      node. When a transaction fails, the node hands back a raw, unexplained error
+      code. No hint of what went wrong, no hint of how to fix it.
     </p>
     <div class="term">
       <div class="term-bar"><i></i><i></i><i></i></div>
@@ -251,7 +254,7 @@
   <div class="wrap">
     <h2>Install &amp; use</h2>
     <h3>From zero to a decoded failure.</h3>
-    <p class="body">Requires Python 3.11+. The Portaldot node binary is Linux-only — on Windows, run inside WSL.</p>
+    <p class="body">Requires Python 3.11+. The Portaldot node binary ships for Linux and macOS (no Windows build) — on Windows, run inside WSL.</p>
     <div class="term">
       <div class="term-bar"><i></i><i></i><i></i></div>
       <pre><span class="c-green">$</span> pip install portaldot-pdk   <span class="c-muted"># one command, from PyPI</span>

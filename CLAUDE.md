@@ -25,7 +25,7 @@ pdk debug <txhash> --node ws://127.0.0.1:9944
 pdk debug --demo
 ```
 
-The Portaldot node binary is Linux-only — on Windows, run pdk inside WSL.
+The Portaldot node binary ships for Linux and macOS (no Windows build) — on Windows, run pdk inside WSL.
 
 ## Test
 

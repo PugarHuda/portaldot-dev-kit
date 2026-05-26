@@ -7,10 +7,10 @@ Purge + restart the node first (see DEMO.md pre-flight).
 ---
 
 **[0:00 — Title / hook]**
-> "Portaldot is a brand-new Substrate chain — Rust-first, and with no public testnet. Every developer runs a local node. And when something breaks, the chain doesn't help you."
+> "Portaldot is a brand-new Substrate chain — Rust-first. In Season 1, every developer runs a local node. And when something breaks, the chain doesn't help you."
 
 **[0:12 — Scene 1: the pain]** *(show a raw failed transaction)*
-> "Here's a failed transaction. This is all you get: a module error code. No message, no explanation, no idea how to fix it. On a chain with no block explorer, you're on your own."
+> "Here's a failed transaction. This is all you get: a module error code. No message, no explanation, no idea how to fix it. You're on your own."
 
 **[0:30 — Scene 2: pdk up]** *(run `pdk up`)*
 > "Meet pdk — the Portaldot Dev Kit. One command brings up a local node and proves it works with a real on-chain transaction — paying POT as gas. There's your transaction hash."

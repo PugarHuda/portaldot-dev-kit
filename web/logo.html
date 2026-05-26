@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>pdk logo</title>
+<style>
+  html, body { margin:0; padding:0; width:480px; height:480px; overflow:hidden; }
+  .tile {
+    width:480px; height:480px; box-sizing:border-box;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background: radial-gradient(130% 120% at 50% 28%, #121821 0%, #0a0c10 68%);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    position:relative;
+  }
+  .ring { position:absolute; inset:26px; border:1.5px solid #1c2430; border-radius:60px; }
+  .word { font-size:172px; font-weight:800; color:#fff; line-height:1; letter-spacing:-4px; }
+  .dot { color:#3fb950; text-shadow:0 0 30px rgba(63,185,80,.65); }
+  .cap { margin-top:30px; font-size:22px; letter-spacing:9px; color:#8b949e; text-transform:uppercase; }
+  .prompt { position:absolute; bottom:48px; font-size:19px; color:#3fb950; opacity:.85; letter-spacing:1px; }
+</style>
+</head>
+<body>
+  <div class="tile">
+    <div class="ring"></div>
+    <div class="word">pdk<span class="dot">.</span></div>
+    <div class="cap">Portaldot&nbsp;Dev&nbsp;Kit</div>
+    <div class="prompt">$ pdk debug</div>
+  </div>
+</body>
+</html>

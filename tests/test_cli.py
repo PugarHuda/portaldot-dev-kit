@@ -44,6 +44,20 @@ def test_debug_help_advertises_ci_gating() -> None:
     assert "--exit-code" in result.output
 
 
+def test_explain_lists_all_when_no_argument() -> None:
+    # Listing the knowledge base needs no node.
+    result = runner.invoke(app, ["explain"])
+    assert result.exit_code == 0
+    assert "InsufficientBalance" in result.output
+
+
+def test_explain_unknown_error_exits_nonzero_gracefully() -> None:
+    # An unknown error is a clean "not found" (scriptable), not a crash.
+    result = runner.invoke(app, ["explain", "ZzzNotARealError"])
+    assert result.exit_code == 1
+    assert "No curated entry" in result.output
+
+
 def test_keys_inspect_uri() -> None:
     # Keypair derivation needs no node.
     result = runner.invoke(app, ["keys", "//Alice"])

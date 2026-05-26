@@ -19,7 +19,7 @@ pdk debug <txhash> --json --exit-code
 ## Reference GitHub Actions workflow
 
 > A template for a **Portaldot project** that runs on-chain integration tests.
-> It boots a local node on the Ubuntu runner (the node binary is Linux-only),
+> It boots a local node on the Ubuntu runner (the node binary ships for Linux/macOS),
 > exercises the chain, then gates on any decoded failure. Adapt the node
 > download URL and your own integration step.
 

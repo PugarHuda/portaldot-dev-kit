@@ -2,7 +2,7 @@
 
 This is the direct answer to the most-asked question in the hackathon Q&A —
 "how do I get POT?". On a --dev chain the answer is: you already have it. These
-accounts are funded at genesis; no faucet, no testnet, no waiting.
+accounts are funded at genesis; no faucet, no waiting.
 """
 
 from __future__ import annotations

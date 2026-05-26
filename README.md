@@ -1,5 +1,7 @@
 # pdk — Portaldot Dev Kit
 
+<img src="docs/logo.png" alt="pdk — Portaldot Dev Kit" width="116" align="right" />
+
 [![tests](https://github.com/PugarHuda/portaldot-pdk/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-pdk/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
@@ -19,9 +21,9 @@ Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
 ## The problem
 
-Portaldot is a brand-new, Substrate-based, Rust-first chain with **no public
-testnet** — every developer runs a local node. The developer experience is
-rough:
+Portaldot is a brand-new, Substrate-based, Rust-first chain. In Season 1
+developers run it from a **local node** (the organizers' intended environment),
+and the developer experience is rough:
 
 - When a transaction fails, the node returns a raw error like
   `Module error: 0x0600…` — no message, no explanation, no fix.
@@ -73,10 +75,12 @@ the long tail too.
 
 ## Setup
 
-Requires **Python 3.11+**. The Portaldot node binary is **Linux-only**, so on
-Windows run everything inside **WSL**.
+Requires **Python 3.11+**. The Portaldot node binary ships for **Linux and
+macOS** (no Windows build), so on Linux/macOS you can run it natively; on Windows
+run everything inside **WSL**.
 
-**1. Get and run a local Portaldot node** (inside WSL):
+**1. Get and run a local Portaldot node** (Linux/WSL shown — swap in the
+`-macos` archive on macOS):
 
 ```bash
 wget https://github.com/portaldotVolunteer/Portaldot-node/raw/main/portaldot-testnet-ubuntu.tar.gz

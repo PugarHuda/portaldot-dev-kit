@@ -1,6 +1,7 @@
 """`pdk up` — bring a local Portaldot dev environment from zero to ready.
 
-The Portaldot node binary is Linux-only; on Windows, run pdk inside WSL.
+The Portaldot node binary ships for Linux and macOS (no Windows build); on
+Windows, run pdk inside WSL.
 """
 
 from __future__ import annotations

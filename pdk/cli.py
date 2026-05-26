@@ -1,9 +1,9 @@
 """pdk — Portaldot Dev Kit CLI entry point.
 
-Registers the three commands of the toolkit:
-  pdk up      — bring a local Portaldot dev environment from zero to ready
-  pdk debug   — FailLens: decode a failed transaction into a clear diagnosis
-  pdk doctor  — check node version and environment health
+Registers the toolkit's commands and wires the `--version` flag. Each command's
+logic lives in `pdk/commands/<name>.py` (a thin `run()`), with chain work in
+`pdk/core/`. The hero command is `pdk debug` (FailLens), which decodes a failed
+transaction into a clear, actionable diagnosis.
 """
 
 import typer
@@ -26,7 +26,7 @@ app.command("debug", help="Decode a failed transaction into a human-readable dia
 app.command("explain", help="Look up what a Portaldot error means and how to fix it.")(explain.run)
 app.command("doctor", help="Check node version and environment health.")(doctor.run)
 app.command("simulate", help="Preview a transfer's fee and feasibility, without sending.")(simulate.run)
-app.command("seed", help="Seed a local dev node with fixtures (fund accounts, create assets).")(seed.run)
+app.command("seed", help="Fund dev accounts on a local node from YAML fixtures.")(seed.run)
 app.command("pallets", help="Discover the runtime's pallets, calls, and errors.")(pallets.run)
 app.command("send", help="Send POT from a dev account — a real on-chain transfer.")(send.run)
 app.command("storage", help="Read any value from the chain's storage.")(storage.run)

@@ -8,7 +8,7 @@
 
 ## The problem
 
-Portaldot is a brand-new, Substrate-based, Rust-first chain with **no public testnet** — every developer runs a local node. The developer experience is rough: when a transaction fails, the node returns a raw error like `Module error: 0x0600…` with no explanation and no hint of how to fix it. Onboarding and debugging are the biggest sources of friction in the ecosystem — the hackathon's own Q&A is full of *"how do I get POT?"* and *"where's the RPC / faucet?"*, with builders blocked and waiting on unanswered replies. pdk is the answer to exactly those questions.
+Portaldot is a brand-new, Substrate-based, Rust-first chain. In Season 1 developers run it from a **local node** (the organizers' intended environment). The developer experience is rough: when a transaction fails, the node returns a raw error like `Module error: 0x0600…` with no explanation and no hint of how to fix it. Onboarding and debugging are the biggest sources of friction in the ecosystem — the hackathon's own Q&A is full of *"how do I get POT?"* and *"where's the RPC / faucet?"*, with builders blocked and waiting on unanswered replies. pdk is the answer to exactly those questions.
 
 ## The solution
 
@@ -46,7 +46,7 @@ fee     : paid in POT by the submitting account
 
 ## Why it matters (application value)
 
-**The market is the entire developer base of the chain — and growing it is the organizers' explicit goal.** A blockchain is worth what its builders ship on it; this hackathon exists to acquire developers. Onboarding and debugging friction is the single biggest reason a newcomer bounces off a Rust-first chain with no testnet and no explorer. pdk removes exactly that friction, so it is not a side tool — it sits on the critical path of the ecosystem's own growth metric. Every developer Portaldot wants to keep is a pdk user.
+**The market is the entire developer base of the chain — and growing it is the organizers' explicit goal.** A blockchain is worth what its builders ship on it; this hackathon exists to acquire developers. Onboarding and debugging friction is the single biggest reason a newcomer bounces off a brand-new, Rust-first chain with sparse tooling. pdk removes exactly that friction, so it is not a side tool — it sits on the critical path of the ecosystem's own growth metric. Every developer Portaldot wants to keep is a pdk user.
 
 **Adoption path — built to spread, not to demo once:**
 
@@ -62,7 +62,7 @@ fee     : paid in POT by the submitting account
 ## Quality
 
 - Verified end-to-end against a live Portaldot node (every command).
-- 21 automated tests (CI on Python 3.11 + 3.12); graceful handling of unreachable nodes, missing/invalid hashes, successful txs, and repeated demo runs.
+- 23 automated tests (CI on Python 3.11 + 3.12); graceful handling of unreachable nodes, missing/invalid hashes, successful txs, and repeated demo runs.
 - Packaged for PyPI (sdist + wheel build clean); automated release pipeline.
 - MIT licensed, open source, with a contributor guide.
 
