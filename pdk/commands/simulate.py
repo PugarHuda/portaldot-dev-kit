@@ -37,14 +37,18 @@ def run(
 
     alice = Keypair.create_from_uri("//Alice")
     bob = Keypair.create_from_uri("//Bob")
-    value = int(amount * 10**POT_DECIMALS)
-    call = substrate.compose_call(
-        call_module="Balances", call_function="transfer_keep_alive",
-        call_params={"dest": bob.ss58_address, "value": value},
-    )
-    info = substrate.get_payment_info(call=call, keypair=alice)
-    fee = info["partialFee"] / 10**POT_DECIMALS
-    balance = free_balance(substrate, alice.ss58_address)
+    try:
+        value = int(amount * 10**POT_DECIMALS)
+        call = substrate.compose_call(
+            call_module="Balances", call_function="transfer_keep_alive",
+            call_params={"dest": bob.ss58_address, "value": value},
+        )
+        info = substrate.get_payment_info(call=call, keypair=alice)
+        fee = info["partialFee"] / 10**POT_DECIMALS
+        balance = free_balance(substrate, alice.ss58_address)
+    except Exception as exc:  # noqa: BLE001
+        console.print(f"[red]Could not estimate the transfer: {exc}[/red]")
+        raise typer.Exit(code=1)
     feasible = (amount + fee) <= balance
 
     table = Table(title="pdk simulate — transfer preview (not submitted)", show_header=False)

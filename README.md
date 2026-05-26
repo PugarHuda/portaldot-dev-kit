@@ -148,11 +148,13 @@ How to fix
 
 ```
 pdk/
-  cli.py            typer app; registers up / accounts / debug / explain / doctor
+  cli.py            typer app; registers the 12 commands (up, accounts, debug,
+                    explain, doctor, simulate, seed, pallets, send, storage, watch, keys)
   config.py         static defaults (node URL, scan depth, binary name)
   commands/         one thin module per command (parse args → call core → render)
   core/
-    chain.py        connect(), trigger_demo_failure(), dev_account_balances()
+    chain.py        connect(), submit_call(), trigger_demo_failure(),
+                    dev_account_balances(), free_balance()
     decoder.py      decode_receipt(), find_receipt(), failed_receipts_in_block()
     knowledge.py    load_knowledge(), lookup_fix()  (3-tier resolution)
   data/

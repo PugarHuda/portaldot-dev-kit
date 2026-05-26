@@ -2,8 +2,9 @@
 
 ## Layout
 
-- `cli.py` — defines the `typer` app and registers commands (`up`, `accounts`,
-  `debug`, `explain`, `doctor`) plus the `--version` callback. Entry point `main()`.
+- `cli.py` — defines the `typer` app and registers the 12 commands (`up`, `accounts`,
+  `debug`, `explain`, `doctor`, `simulate`, `seed`, `pallets`, `send`, `storage`,
+  `watch`, `keys`) plus the `--version` callback. Entry point `main()`.
 - `config.py` — static defaults only (node URL, block-scan depth, binary name).
 - `commands/` — one file per command, each exposing a `run()` function with
   typer-annotated parameters. Command modules stay thin: parse args, call
@@ -13,10 +14,15 @@
   - `debug.py` — FailLens: `--demo`, `--watch`, `--json`, or a tx hash.
   - `explain.py` — query the knowledge base for any error, no tx needed.
   - `doctor.py` — node/runtime/ink! info + chain-liveness (stall) check.
+  - `simulate.py` — preview a transfer's fee + feasibility (no send).
+  - `seed.py` — fund accounts from YAML fixtures. `pallets.py` — browse metadata.
+  - `send.py` — real POT transfer. `storage.py` — read chain storage.
+  - `watch.py` — stream all events. `keys.py` — generate/inspect a keypair.
 - `core/` — the real work:
   - `chain.py` — `connect()` (uses the `substrate-node-template` type preset for
-    Portaldot's legacy `LookupSource`); `trigger_demo_failure()` (retries with a
-    tip on a nonce clash); `dev_account_balances()`.
+    Portaldot's legacy `LookupSource`); `submit_call()` (compose/sign/submit with a
+    tip-retry on nonce clash); `trigger_demo_failure()`; `dev_account_balances()`;
+    `free_balance()`.
   - `decoder.py` — `decode_receipt()`, `find_receipt()`, `failed_receipts_in_block()`.
     Decoding is metadata-driven via substrate-interface's `error_message`.
   - `knowledge.py` — `load_knowledge()` + `lookup_fix()` (3-tier: exact key →
