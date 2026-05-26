@@ -28,11 +28,15 @@ def run(
     demo: bool = typer.Option(False, "--demo", help="Trigger a failing transaction, then diagnose it."),
     watch: bool = typer.Option(False, "--watch", help="Live mode: decode every failed transaction as it lands."),
     json_out: bool = typer.Option(False, "--json", help="Emit the diagnosis as JSON (for scripts/CI)."),
+    exit_code: bool = typer.Option(False, "--exit-code", help="Exit non-zero (2) when a failure is decoded — for CI pipeline gating."),
 ) -> None:
     """Diagnose a failed Portaldot transaction.
 
     Three modes: a single tx hash, `--demo` (submits its own failing tx, paying
     POT gas), or `--watch` (a live monitor that decodes failures as they happen).
+
+    With `--json --exit-code`, pdk becomes a CI citizen: pipe a tx hash in, gate
+    the build on the result.
     """
     if not (demo or watch) and not tx_hash:
         console.print("[red]Provide a transaction hash, or use --demo / --watch.[/red]")
@@ -72,6 +76,9 @@ def run(
 
     fix = lookup_fix(decoded, load_knowledge())
     _emit(str(tx_hash), decoded, fix, json_out)
+    if exit_code:
+        # A failure was decoded — signal it so CI pipelines can gate on the result.
+        raise typer.Exit(code=2)
 
 
 def _watch(substrate, json_out: bool) -> None:

@@ -253,13 +253,13 @@
     <p class="body">Requires Python 3.11+. The Portaldot node binary is Linux-only — on Windows, run inside WSL.</p>
     <div class="term">
       <div class="term-bar"><i></i><i></i><i></i></div>
-      <pre><span class="c-green">$</span> git clone https://github.com/PugarHuda/portaldot-pdk
-<span class="c-green">$</span> cd portaldot-pdk
-<span class="c-green">$</span> pip install -e .
+      <pre><span class="c-green">$</span> pip install portaldot-pdk   <span class="c-muted"># one command, from PyPI</span>
 
 <span class="c-green">$</span> pdk up                  <span class="c-muted"># start a local node</span>
 <span class="c-green">$</span> pdk debug --demo        <span class="c-muted"># submit a failure, then decode it</span>
-<span class="c-green">$</span> pdk doctor              <span class="c-muted"># inspect the node</span></pre>
+<span class="c-green">$</span> pdk doctor              <span class="c-muted"># inspect the node</span>
+
+<span class="c-green">$</span> pdk debug 0x… --json --exit-code   <span class="c-muted"># gate CI on the result</span></pre>
     </div>
   </div>
 </section>

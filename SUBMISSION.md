@@ -46,19 +46,33 @@ fee     : paid in POT by the submitting account
 
 ## Why it matters (application value)
 
-The organizers' goal for this hackathon is developer acquisition. pdk attacks the single biggest barrier — getting started and debugging on a chain with no testnet — and is built to become **the standard Portaldot dev toolkit**. It is uncopyable from other chains: it speaks Portaldot's exact runtime (legacy `LookupSource` types, contracts API v5 / ink! 3.x quirks) and its knowledge base is verified against the real metadata.
+**The market is the entire developer base of the chain — and growing it is the organizers' explicit goal.** A blockchain is worth what its builders ship on it; this hackathon exists to acquire developers. Onboarding and debugging friction is the single biggest reason a newcomer bounces off a Rust-first chain with no testnet and no explorer. pdk removes exactly that friction, so it is not a side tool — it sits on the critical path of the ecosystem's own growth metric. Every developer Portaldot wants to keep is a pdk user.
+
+**Adoption path — built to spread, not to demo once:**
+
+- **One-command install.** `pip install portaldot-pdk` — published to PyPI, no clone, no build. (Release pipeline is automated via tag → PyPI Trusted Publishing.)
+- **A CI citizen, not just a REPL.** `pdk debug --json --exit-code` returns a non-zero code with a decoded diagnosis, so a Portaldot project can *gate its pipeline* on transaction failures (see [`docs/ci-recipe.md`](docs/ci-recipe.md)). That turns pdk from a personal convenience into team infrastructure.
+- **A community-owned knowledge base.** FailLens reads fixes from `error_fixes.yaml`; every contributor who adds an entry improves debugging for the whole ecosystem. [`CONTRIBUTING.md`](CONTRIBUTING.md) makes that a five-line PR. The value compounds with adoption.
+- **Machine-readable everywhere.** `--json` output is the integration surface for the editor extensions and bots on the roadmap.
+
+**Who it serves, concretely:** the *newcomer* who can't get POT (`pdk accounts`), the *ink! contract dev* facing a raw module error (`pdk debug`), and the *team* running on-chain integration tests in CI (`pdk debug --json --exit-code`).
+
+**Why it's defensible (a real moat).** pdk speaks Portaldot's *exact* runtime — legacy `LookupSource` types, contracts API v5 / ink! 3.x quirks — and its knowledge base is verified against the live `portaldot-1002` metadata. You cannot lift a generic Substrate tool and get this; the value is in Portaldot-specific, verified knowledge that deepens every release. We earned that knowledge by building on the chain and even diagnosing an upstream `substrate-interface` signing bug along the way.
 
 ## Quality
 
 - Verified end-to-end against a live Portaldot node (every command).
-- 17 automated tests; graceful handling of unreachable nodes, missing/invalid hashes, successful txs, and repeated demo runs.
-- MIT licensed, open source.
+- 21 automated tests (CI on Python 3.11 + 3.12); graceful handling of unreachable nodes, missing/invalid hashes, successful txs, and repeated demo runs.
+- Packaged for PyPI (sdist + wheel build clean); automated release pipeline.
+- MIT licensed, open source, with a contributor guide.
 
 ## Links
 
 - **Repo:** https://github.com/PugarHuda/portaldot-pdk
+- **Install:** `pip install portaldot-pdk`
 - **Landing page:** https://portaldot-pdk.vercel.app
 - **Pitch deck:** https://portaldot-pdk.vercel.app/slide
+- **CI recipe:** [docs/ci-recipe.md](docs/ci-recipe.md)
 - **Demo video:** <add link>
 
 ## Roadmap

@@ -92,13 +92,19 @@ The node listens on `ws://127.0.0.1:9944`. Leave it running.
 > *"Unexpected epoch change"*), reset it: `./portaldot_dev purge-chain --dev -y`
 > then start again. `pdk doctor` detects this for you.
 
-**2. Install pdk:**
+**2. Install pdk** — from PyPI:
+
+```bash
+pip install portaldot-pdk
+pdk --help
+```
+
+…or from source:
 
 ```bash
 git clone https://github.com/PugarHuda/portaldot-pdk
 cd portaldot-pdk
 pip install -e .
-pdk --help
 ```
 
 ## Usage
@@ -129,7 +135,19 @@ pdk send //Bob --amount 5         # a real POT transfer
 pdk storage Balances TotalIssuance  # read any chain storage value
 pdk watch --pallet Balances       # live stream of chain events
 pdk keys                          # generate a new keypair
+
+# 6. In CI — gate the build on a transaction result
+pdk debug 0x<txhash> --json --exit-code   # exits 2 (with a decoded diagnosis) if it failed
 ```
+
+## Use in CI
+
+`pdk` is built to gate a pipeline, not just to run interactively.
+`pdk debug --json --exit-code` exits non-zero with a machine-readable diagnosis
+when a transaction failed, so a Portaldot project can fail its build with a clear
+reason instead of a raw `Module error: 0x0600…`. See
+[`docs/ci-recipe.md`](docs/ci-recipe.md) for a copy-paste GitHub Actions workflow
+that boots a node, runs integration transactions, and gates on the result.
 
 Example — `pdk debug --demo`:
 

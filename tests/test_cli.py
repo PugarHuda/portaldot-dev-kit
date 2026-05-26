@@ -37,6 +37,13 @@ def test_simulate_rejects_negative_amount() -> None:
     assert "non-negative" in result.output.lower()
 
 
+def test_debug_help_advertises_ci_gating() -> None:
+    # The CI-gating contract must be discoverable from --help (no node needed).
+    result = runner.invoke(app, ["debug", "--help"])
+    assert result.exit_code == 0
+    assert "--exit-code" in result.output
+
+
 def test_keys_inspect_uri() -> None:
     # Keypair derivation needs no node.
     result = runner.invoke(app, ["keys", "//Alice"])
