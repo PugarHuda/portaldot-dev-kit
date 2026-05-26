@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>pdk — Pitch Deck</title>
+<meta name="description" content="pdk — Portaldot Dev Kit. Pitch deck for the Portaldot Mini Hackathon S1." />
+<meta name="theme-color" content="#0a0c10" />
+<meta property="og:title" content="pdk — Portaldot Dev Kit · Pitch Deck" />
+<meta property="og:description" content="Turn cryptic Portaldot transaction failures into clear, actionable diagnoses — live." />
+<meta property="og:url" content="https://portaldot-pdk.vercel.app/slide" />
+<meta property="og:image" content="https://portaldot-pdk.vercel.app/logo.png" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" type="image/png" href="/logo.png" />
+<style>
+  :root {
+    --bg:#0a0c10; --panel:#14171d; --border:#21262d; --text:#c9d1d9;
+    --muted:#7d8590; --green:#3fb950; --red:#f85149; --amber:#d29922;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { height:100%; }
+  body { background:var(--bg); color:var(--text); font-family:var(--sans);
+         overflow:hidden; -webkit-font-smoothing:antialiased; }
+  code,pre,.mono { font-family:var(--mono); }
+  a { color:var(--green); text-decoration:none; }
+
+  .progress { position:fixed; top:0; left:0; right:0; height:3px; background:#161a21; z-index:20; }
+  .bar { height:100%; width:14%; background:var(--green); transition:width .3s ease; }
+
+  #deck { position:relative; height:100vh; width:100vw; }
+  .slide {
+    position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+    padding:7vh 9vw; opacity:0; transform:translateY(14px); pointer-events:none;
+    transition:opacity .35s ease, transform .35s ease; gap:18px;
+  }
+  .slide.active { opacity:1; transform:none; pointer-events:auto; }
+
+  .kicker { font-family:var(--mono); font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+  h1 { font-size:clamp(40px,8vw,86px); line-height:1.02; letter-spacing:-.03em; color:#fff; }
+  h1 .dot { color:var(--green); }
+  h2 { font-size:clamp(26px,4.4vw,46px); line-height:1.1; letter-spacing:-.02em; color:#fff; }
+  .lede { font-size:clamp(17px,2.3vw,23px); color:var(--muted); max-width:60ch; }
+  ul { list-style:none; display:flex; flex-direction:column; gap:12px; font-size:clamp(15px,2vw,21px); }
+  ul li { padding-left:26px; position:relative; }
+  ul li::before { content:"▸"; color:var(--green); position:absolute; left:0; }
+  .big-green { color:var(--green); }
+  .muted { color:var(--muted); } .red { color:var(--red); } .amber { color:var(--amber); }
+  strong { color:#fff; }
+
+  .term { background:var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; max-width:760px; }
+  .term-bar { display:flex; gap:7px; padding:10px 13px; border-bottom:1px solid var(--border); }
+  .term-bar i { width:11px; height:11px; border-radius:50%; display:block; }
+  .term-bar i:nth-child(1){background:#f85149} .term-bar i:nth-child(2){background:#d29922} .term-bar i:nth-child(3){background:#3fb950}
+  pre { padding:16px 18px; font-size:clamp(12px,1.5vw,15px); line-height:1.6; white-space:pre; overflow-x:auto; }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; max-width:900px; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .card .cmd { font-family:var(--mono); color:var(--green); font-weight:600; }
+  .card p { color:var(--muted); font-size:14px; margin-top:6px; }
+
+  .hud { position:fixed; bottom:18px; right:22px; font-family:var(--mono); font-size:12px; color:var(--muted); z-index:20; }
+  .hud .hint { opacity:.6; margin-left:10px; }
+  .foot { position:fixed; bottom:18px; left:22px; font-family:var(--mono); font-size:12px; color:var(--muted); z-index:20; }
+  @media (max-width:640px){ .hud .hint{ display:none; } }
+</style>
+</head>
+<body>
+<div class="progress"><div class="bar" id="bar"></div></div>
+
+<main id="deck">
+
+  <!-- 1 — Title -->
+  <section class="slide">
+    <div class="kicker">Portaldot Mini Hackathon S1 · Builder Tools</div>
+    <h1>pdk<span class="dot">.</span></h1>
+    <div class="lede">Portaldot Dev Kit — turn cryptic transaction failures into
+      clear, actionable diagnoses. Live, as they happen.</div>
+    <div class="mono muted" style="margin-top:10px;">github.com/PugarHuda/portaldot-pdk · portaldot-pdk.vercel.app</div>
+  </section>
+
+  <!-- 2 — Problem -->
+  <section class="slide">
+    <div class="kicker">The problem</div>
+    <h2>Portaldot is new. Its errors are cruel.</h2>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i></div>
+      <pre><span class="red">ExtrinsicFailed</span>: DispatchError <span class="muted">{ Module: { index: 6, error: 2 } }</span>
+<span class="muted"># no message. no explanation. now what?</span></pre>
+    </div>
+    <ul>
+      <li>Brand-new, Rust-first chain — in Season 1 you run it from a local node.</li>
+      <li>Failed transactions return raw codes with zero guidance.</li>
+      <li>The hackathon Q&A is full of <em>"how do I get POT?"</em> — builders stuck, unanswered.</li>
+    </ul>
+  </section>
+
+  <!-- 3 — Solution -->
+  <section class="slide">
+    <div class="kicker">The solution</div>
+    <h2>One CLI for the whole local dev loop.</h2>
+    <div class="grid">
+      <div class="card"><div class="cmd">pdk up</div><p>Node + funded accounts + a real verification tx.</p></div>
+      <div class="card"><div class="cmd">pdk accounts</div><p>Pre-funded POT — answers "how do I get POT?".</p></div>
+      <div class="card"><div class="cmd">pdk debug</div><p><strong>FailLens</strong> — decode any failure.</p></div>
+      <div class="card"><div class="cmd">pdk explain</div><p>Queryable error reference.</p></div>
+      <div class="card"><div class="cmd">pdk doctor</div><p>Node, ink! compat, chain liveness.</p></div>
+      <div class="card"><div class="cmd">pdk simulate</div><p>Preview fee + feasibility, no send.</p></div>
+      <div class="card"><div class="cmd">pdk seed</div><p>Fund accounts from fixtures.</p></div>
+      <div class="card"><div class="cmd">pdk pallets</div><p>Browse pallets / calls / errors.</p></div>
+    </div>
+    <p class="lede" style="font-size:18px; margin-top:10px;">…plus <span class="big-green">send</span> · <span class="big-green">storage</span> · <span class="big-green">watch</span> · <span class="big-green">keys</span> — <strong>twelve</strong> commands in one CLI.</p>
+  </section>
+
+  <!-- 4 — FailLens hero -->
+  <section class="slide">
+    <div class="kicker">FailLens · the hero</div>
+    <h2>The same failure, decoded.</h2>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i></div>
+      <pre><span class="green">$</span> pdk debug --demo
+
+<span class="red">✗ Balances.InsufficientBalance</span>
+
+<span style="color:#fff">What happened</span>
+You tried to transfer more POT than the account holds.
+
+<span style="color:#fff">How to fix</span>
+  1. Check the sender balance.
+  2. Lower the amount, or fund the account first.</pre>
+    </div>
+    <div class="lede">Metadata-driven — resolved against the chain's own runtime,
+      so it never goes stale. Every error verified against the live chain.</div>
+  </section>
+
+  <!-- 5 — Live monitor -->
+  <section class="slide">
+    <div class="kicker">The wow</div>
+    <h2>Watch failures decode <span class="big-green">live</span>.</h2>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i></div>
+      <pre><span class="green">$</span> pdk debug --watch
+FailLens watching from block #14 …
+<span class="red">✗ Balances.InsufficientBalance</span>  <span class="muted">← decoded the instant it landed</span></pre>
+    </div>
+    <ul>
+      <li>A live monitor for every failure on the chain.</li>
+      <li><span class="mono">--json</span> for CI · <span class="mono">pdk explain</span> for the long tail.</li>
+    </ul>
+  </section>
+
+  <!-- 6 — Why it wins -->
+  <section class="slide">
+    <div class="kicker">Why it wins</div>
+    <h2>The only debugger for Portaldot.</h2>
+    <ul>
+      <li><strong>Unique</strong> — the only tool that decodes failed Portaldot transactions into fixes; generic Substrate tooling can't.</li>
+      <li><strong>Native</strong> — real transactions, POT paid as gas.</li>
+      <li><strong>Application value</strong> — solves the ecosystem's #1 documented pain, on the critical path of the chain's own growth goal.</li>
+      <li><strong>Adoption-ready</strong> — <span class="mono">pip install portaldot-pdk</span> · CI-gating (<span class="mono">--exit-code</span>) · community-owned knowledge base.</li>
+      <li><strong>Aligned</strong> — directly serves the organizer's goal: developer onboarding.</li>
+      <li><strong>Quality</strong> — 23 unit + live + adversarial tests · CI green · no mocks.</li>
+    </ul>
+  </section>
+
+  <!-- 7 — Close -->
+  <section class="slide">
+    <div class="kicker">The ask</div>
+    <h1 style="font-size:clamp(32px,6vw,64px)">The standard Portaldot dev toolkit<span class="dot">.</span></h1>
+    <div class="lede">On PyPI today. Roadmap: typed TypeScript SDK (unblocks contract deploy) · editor extensions · deeper CI integrations.</div>
+    <ul style="margin-top:6px">
+      <li><a href="https://github.com/PugarHuda/portaldot-pdk">github.com/PugarHuda/portaldot-pdk</a></li>
+      <li><a href="https://portaldot-pdk.vercel.app">portaldot-pdk.vercel.app</a></li>
+    </ul>
+    <div class="mono muted" style="margin-top:8px">Thanks — let's make Portaldot easy to build on.</div>
+  </section>
+
+</main>
+
+<div class="foot mono">pdk — Portaldot Dev Kit</div>
+<div class="hud"><span id="counter">1 / 7</span><span class="hint">← →  /  space  ·  click sides</span></div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const bar = document.getElementById('bar');
+  const counter = document.getElementById('counter');
+  let i = Math.min(slides.length - 1, Math.max(0, (parseInt(location.hash.slice(1)) || 1) - 1));
+
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    counter.textContent = (i + 1) + ' / ' + slides.length;
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  const next = () => show(i + 1);
+  const prev = () => show(i - 1);
+
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'ArrowDown', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+  });
+  addEventListener('click', (e) => { if (e.target.closest('a')) return; (e.clientX > innerWidth / 2 ? next : prev)(); });
+
+  show(i);
+</script>
+</body>
+</html>
