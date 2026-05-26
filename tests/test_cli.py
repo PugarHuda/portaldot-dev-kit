@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+
 from typer.testing import CliRunner
 
 from pdk import __version__
@@ -56,6 +60,19 @@ def test_explain_unknown_error_exits_nonzero_gracefully() -> None:
     result = runner.invoke(app, ["explain", "ZzzNotARealError"])
     assert result.exit_code == 1
     assert "No curated entry" in result.output
+
+
+def test_unicode_output_on_non_utf8_pipe_does_not_crash() -> None:
+    # Regression: on a non-UTF-8 stdout (Windows cp1252 / a redirected pipe),
+    # Rich output (box-drawing, em-dashes, ✗) crashed with UnicodeEncodeError.
+    # pdk.cli forces UTF-8 at startup. `explain` renders a Rich panel, no node.
+    env = {**os.environ, "PYTHONIOENCODING": "cp1252"}
+    result = subprocess.run(
+        [sys.executable, "-m", "pdk.cli", "explain", "InsufficientBalance"],
+        capture_output=True, env=env,
+    )
+    assert result.returncode == 0
+    assert b"Traceback" not in result.stderr
 
 
 def test_keys_inspect_uri() -> None:

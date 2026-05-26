@@ -6,10 +6,22 @@ logic lives in `pdk/commands/<name>.py` (a thin `run()`), with chain work in
 transaction into a clear, actionable diagnosis.
 """
 
-import typer
+import sys
 
-from pdk import __version__
-from pdk.commands import (
+# Rich prints ✗, box-drawing, and em-dashes. On Windows a non-UTF-8 console — or
+# any redirected pipe — defaults to cp1252, and Rich then crashes with
+# UnicodeEncodeError. Force UTF-8 before any Rich Console is constructed (the
+# command imports below each create one at import time).
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):  # e.g. test runners that wrap stdout
+        pass
+
+import typer  # noqa: E402 — must follow the stdout reconfigure above
+
+from pdk import __version__  # noqa: E402
+from pdk.commands import (  # noqa: E402
     accounts, debug, doctor, explain, keys, pallets, seed, send, simulate, storage, up, watch,
 )
 
