@@ -13,6 +13,7 @@ const COMMANDS = [
   ["pdk storage", "Read any value from the chain's storage, straight from the terminal."],
   ["pdk watch", "Stream every chain event live — a general monitoring view."],
   ["pdk keys", "Generate or inspect a keypair — no separate tool needed."],
+  ["pdk report", "Scan recent blocks and summarise every failure by type — triage at a glance."],
 ];
 
 export default function Home() {
@@ -102,7 +103,7 @@ export default function Home() {
 
       <Reveal as="section" className="sec">
         <div className="wrap">
-          <div className="sec-kicker">The toolkit · 12 commands</div>
+          <div className="sec-kicker">The toolkit · 13 commands</div>
           <div className="cards">
             {COMMANDS.map(([cmd, desc]) => (
               <div className="l-card" key={cmd}>

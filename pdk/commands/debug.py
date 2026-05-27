@@ -10,7 +10,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from pdk.config import DEFAULT_NODE_URL
-from pdk.core.chain import connect, trigger_demo_failure
+from pdk.core.chain import connect, submit_valid_demo_transfer, trigger_demo_failure
 from pdk.core.decoder import (
     DecodedError,
     decode_receipt,
@@ -29,6 +29,7 @@ def run(
     watch: bool = typer.Option(False, "--watch", help="Live mode: decode every failed transaction as it lands."),
     json_out: bool = typer.Option(False, "--json", help="Emit the diagnosis as JSON (for scripts/CI)."),
     exit_code: bool = typer.Option(False, "--exit-code", help="Exit non-zero (2) when a failure is decoded — for CI pipeline gating."),
+    fix: bool = typer.Option(False, "--fix", help="After diagnosing, apply a remediation (with --demo) or suggest one."),
 ) -> None:
     """Diagnose a failed Portaldot transaction.
 
@@ -74,11 +75,42 @@ def run(
             console.print("[green]That transaction succeeded — nothing to debug.[/green]")
         return
 
-    fix = lookup_fix(decoded, load_knowledge())
-    _emit(str(tx_hash), decoded, fix, json_out)
+    suggestion = lookup_fix(decoded, load_knowledge())
+    _emit(str(tx_hash), decoded, suggestion, json_out)
+    if fix:
+        _remediate(substrate, demo, decoded, json_out)
     if exit_code:
         # A failure was decoded — signal it so CI pipelines can gate on the result.
         raise typer.Exit(code=2)
+
+
+def _remediate(substrate, demo: bool, decoded: DecodedError, json_out: bool) -> None:
+    """`--fix`: for the demo, submit the corrected transaction and show it succeed;
+    otherwise print a concrete, runnable remediation for the decoded error."""
+    if json_out:
+        return
+    console.print()
+    if demo:
+        console.print("[bold]Applying fix[/bold] — the demo transfer exceeded the balance; "
+                      "retrying with a valid amount …")
+        try:
+            receipt = submit_valid_demo_transfer(substrate)
+        except Exception as exc:  # noqa: BLE001
+            console.print(f"[red]Fix attempt failed: {str(exc)[:90]}[/red]")
+            return
+        if receipt.is_success:
+            console.print(f"[green]✓ Fixed[/green] — the corrected transfer succeeded. "
+                          f"tx: {receipt.extrinsic_hash}")
+        else:
+            console.print("[yellow]The corrected transfer still failed — run pdk debug on its hash.[/yellow]")
+        return
+    # Real tx: suggest, don't auto-execute (we can't know the user's intent).
+    if decoded.name == "InsufficientBalance":
+        console.print("[bold]Suggested fix[/bold] — lower the amount, or fund the sender:")
+        console.print("  [dim]pdk send <dest> --amount <smaller>[/dim]   ·   fund: "
+                      "[dim]pdk send //Alice --amount <n>[/dim]")
+    else:
+        console.print(f"[dim]No automated remediation for {decoded.name} — follow the fix steps above.[/dim]")
 
 
 def _watch(substrate, json_out: bool) -> None:

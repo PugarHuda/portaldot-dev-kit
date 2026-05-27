@@ -8,7 +8,7 @@ export const metadata = {
     "A visual companion to the pdk CLI — node health, an interactive FailLens decoder, dev accounts, and the full command surface for Portaldot.",
   openGraph: {
     title: "pdk — Portaldot Developer Dashboard",
-    description: "Node health, a live in-browser FailLens decoder, dev accounts, and 12 commands.",
+    description: "Node health, a live in-browser FailLens decoder, dev accounts, and 13 commands.",
     url: "https://portaldot-pdk.vercel.app/dashboard",
     images: ["/logo.png"],
   },
@@ -32,6 +32,7 @@ const COMMANDS = [
   ["pdk storage", "Read any chain storage"],
   ["pdk watch", "Stream chain events live"],
   ["pdk keys", "Generate / inspect a keypair"],
+  ["pdk report", "Summarise failures across recent blocks"],
 ];
 
 export default function Dashboard() {
@@ -43,7 +44,7 @@ export default function Dashboard() {
           <div className="kicker">Portaldot · developer dashboard</div>
           <h1>Everything pdk surfaces — at a glance.</h1>
           <p className="d-lede">
-            pdk is a 12-command CLI for the Portaldot local dev loop. This dashboard is its visual
+            pdk is a 13-command CLI for the Portaldot local dev loop. This dashboard is its visual
             companion: the node&apos;s health, a live <span className="mono">FailLens</span> decoder you can
             actually use, the funded dev accounts, and the full command surface.
           </p>
@@ -106,7 +107,7 @@ export default function Dashboard() {
           </Reveal>
 
           <Reveal className="d-card col-12">
-            <h2>The command surface <span className="cmd">12 commands</span></h2>
+            <h2>The command surface <span className="cmd">13 commands</span></h2>
             <div className="cmds">
               {COMMANDS.map(([c, d]) => (
                 <div className="cmd-card" key={c}>

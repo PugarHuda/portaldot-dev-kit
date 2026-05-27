@@ -60,6 +60,8 @@ the long tail too.
 | `pdk debug --demo` | Submit a real failing transaction, then decode it |
 | `pdk debug --watch` | Live monitor — decode every failed transaction as it lands |
 | `pdk debug --json` | Machine-readable output for CI / scripts |
+| `pdk debug --demo --fix` | Diagnose, then **apply the fix** — submit the corrected transaction and show it succeed |
+| `pdk debug --ai` | Add an **AI-assisted** diagnosis, grounded in chain metadata, for the long tail (opt-in, needs `PDK_AI_KEY`) |
 | `pdk explain <error>` | Look up what any Portaldot error means and how to fix it — no tx needed |
 | `pdk explain --module 6 --error 2` | Decode the **raw** `DispatchError { Module: { index, error } }` code itself — no hash, no name — via a verified runtime index |
 | `pdk doctor` | Node version, runtime, ink!/contracts compatibility, and chain-liveness check |
@@ -70,6 +72,7 @@ the long tail too.
 | `pdk storage` | Read any value from the chain's storage |
 | `pdk watch` | Stream all chain events live (optionally filtered by pallet) |
 | `pdk keys` | Generate or inspect a keypair (SS58 format 42) |
+| `pdk report` | Scan recent blocks and **summarise every failure by type** — triage at a glance |
 
 > **No mocks, no fakes** — every command talks to a live Portaldot node.
 > `pdk debug --demo` submits a *real* failing transaction (it is not simulated).
@@ -199,8 +202,8 @@ How to fix
 
 ```
 pdk/
-  cli.py            typer app; registers the 12 commands (up, accounts, debug,
-                    explain, doctor, simulate, seed, pallets, send, storage, watch, keys)
+  cli.py            typer app; registers the 13 commands (up, accounts, debug,
+                    explain, doctor, simulate, seed, pallets, send, storage, watch, keys, report)
   config.py         static defaults (node URL, scan depth, binary name)
   commands/         one thin module per command (parse args → call core → render)
   core/

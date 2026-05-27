@@ -31,6 +31,10 @@ def run(
         None, "--error", "-e",
         help="Raw error index from a DispatchError, e.g. 2. Decodes the bare code with --module.",
     ),
+    ai: bool = typer.Option(
+        False, "--ai",
+        help="Add an AI-assisted diagnosis, grounded in chain metadata (needs PDK_AI_KEY). For the long tail.",
+    ),
 ) -> None:
     """Explain a Portaldot error — what it means and how to fix it — without a transaction.
 
@@ -69,6 +73,8 @@ def run(
 
     if not fix.known:
         console.print(f"[yellow]No curated entry for '{error}'.[/yellow]")
+        if ai and _ai_section(pallet or "Unknown", name, decoded.docs):
+            return  # AI provided a diagnosis for the long-tail error
         hits = [k for k in sorted(kb) if name.lower() in k.lower()]
         if hits:
             console.print("Did you mean: " + ", ".join(f"[cyan]{h}[/cyan]" for h in hits))
@@ -84,3 +90,26 @@ def run(
         + "\n".join(f"  {i}. {step}" for i, step in enumerate(fix.steps, 1))
     )
     console.print(Panel(body, title="pdk explain", border_style="cyan"))
+    if ai:
+        _ai_section(pallet or (display.split(".")[0] if "." in display else "Unknown"), name, decoded.docs)
+
+
+def _ai_section(pallet: str, name: str, docs: str) -> bool:
+    """Print an AI-suggested diagnosis (clearly labelled unverified).
+
+    Returns True if a diagnosis was produced. Never raises — if no key or the
+    call fails, prints a hint and returns False so the caller can fall back.
+    """
+    from pdk.core.ai import ai_available, ai_diagnose
+
+    if not ai_available():
+        console.print("[dim]--ai needs PDK_AI_KEY (a free Groq key) — set it to enable AI diagnosis.[/dim]")
+        return False
+    console.print("[dim]asking AI (grounded in chain metadata) …[/dim]")
+    result = ai_diagnose(pallet, name, docs)
+    if not result:
+        console.print("[yellow]AI diagnosis unavailable right now.[/yellow]")
+        return False
+    console.print(Panel(result, title="AI-suggested — UNVERIFIED (not a curated KB entry)",
+                        border_style="yellow"))
+    return True

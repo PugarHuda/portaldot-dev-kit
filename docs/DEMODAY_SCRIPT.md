@@ -27,7 +27,7 @@ Meets the progress-review rule: **one** end-to-end flow, runnable in 60–90s �
 
 ### [0:55–1:08] Breadth + the visual
 *(switch to the `/dashboard` browser tab)*
-> "And it's a whole toolkit — twelve commands: send, simulate, seed, storage, watch, keys. Here's the dashboard: node health, decoded failures, accounts, all in one view. It's `pip install portaldot-pdk`, runs on Linux, macOS and Windows, and even gates CI."
+> "And it's a whole toolkit — thirteen commands. It even decodes the raw error code (`pdk explain --module 6 --error 2`), summarises every failure across recent blocks (`pdk report`), and can apply the fix for you. Here's the dashboard: node health, a live FailLens decoder, accounts, all in one view. It's `pip install portaldot-pdk`, runs on Linux, macOS and Windows, and gates CI."
 
 ### [1:08–1:15] Close
 > "A starter kit helps you write Portaldot code. **pdk is what saves you when it breaks** — the only debugger for Portaldot. Thanks."

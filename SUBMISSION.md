@@ -30,6 +30,9 @@ Portaldot is a brand-new, Substrate-based, Rust-first chain. In Season 1 develop
 - **`pdk storage`** — read any value from the chain's storage.
 - **`pdk watch`** — stream all chain events live (optionally by pallet).
 - **`pdk keys`** — generate or inspect a keypair (SS58 format 42).
+- **`pdk report`** — scan recent blocks and summarise *every* decoded failure by type ("3 failed: 2× InsufficientBalance, 1× BadOrigin"). Triage for a flaky integration — failure analytics no other Portaldot tool offers.
+- **`pdk debug --demo --fix`** — the debugger that *also remediates*: diagnose the failure, then submit the corrected transaction and show it succeed (diagnose → fix → success).
+- **`pdk debug --ai` / `pdk explain --ai`** — an optional AI diagnosis for the long tail, *grounded in the chain's own metadata* (not a generic chatbot). Clearly labelled "AI-suggested"; the verified KB stays the source of truth.
 
 We found these pains by *actually building* on Portaldot: `substrate-interface` would not connect (legacy `LookupSource`), our dev chain stalled on a BABE epoch error, and repeated submissions collided on the nonce. pdk handles all three so the next builder never has to.
 

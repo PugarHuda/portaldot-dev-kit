@@ -20,7 +20,7 @@ debugging is painful: a failed transaction returns a raw code like
 "Module error: 0x0600…" with no message and no fix. pdk is a single CLI that owns
 the local dev loop and, with its hero feature FailLens (`pdk debug`), decodes any
 failed transaction into a plain-language diagnosis + fix — resolved against the
-chain's own metadata, so it never goes stale. Twelve commands, real on-chain
+chain's own metadata, so it never goes stale. Thirteen commands, real on-chain
 transactions (no mocks), one-command install. Built to become the standard
 Portaldot developer toolkit and remove the #1 barrier to onboarding new builders.
 ```
@@ -64,11 +64,14 @@ https://github.com/PugarHuda
 
 **The problem.** Portaldot is brand-new and Rust-first; in Season 1 developers run it from a local node. When a transaction fails, the node returns a raw error like `Module error: 0x0600…` with no explanation. Onboarding and debugging are the biggest sources of friction — the hackathon's own Q&A is full of *"how do I get POT?"* and *"where's the RPC?"*.
 
-**The solution.** `pdk` is a single Python CLI with 12 commands covering the whole local loop:
+**The solution.** `pdk` is a single Python CLI with 13 commands covering the whole local loop:
 - `pdk debug` (**FailLens**) — decode a failed transaction into a plain-language diagnosis + fix. The hero.
 - `pdk up` / `accounts` — start a node and answer *"how do I get POT?"* in one command.
 - `explain`, `pallets`, `storage`, `watch`, `doctor` — inspect the chain and the runtime.
 - **`pdk explain --module 6 --error 2`** — decode the *raw* `DispatchError { Module: { index, error } }` code a node prints, with no hash and no name, via a verified 202-entry runtime index. The exact cryptic thing builders copy from logs — and nothing else decodes it.
+- **`pdk report`** — scan recent blocks and summarise every failure by type (triage analytics).
+- **`pdk debug --demo --fix`** — diagnose *and remediate*: submit the corrected tx and show it succeed.
+- **`pdk debug --ai`** — optional AI diagnosis for the long tail, grounded in chain metadata (labelled "AI-suggested"; verified KB stays source of truth).
 - `simulate`, `seed`, `send`, `keys` — preview fees, fund accounts, transact, manage keys.
 
 FailLens resolves errors against the **chain's own metadata** (no hard-coded tables), so it adapts to any runtime version. Every entry in its knowledge base is verified against the live `portaldot-1002` runtime.

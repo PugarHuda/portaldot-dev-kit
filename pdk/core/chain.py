@@ -72,6 +72,20 @@ def trigger_demo_failure(substrate: SubstrateInterface, retries: int = 3) -> Ext
     )
 
 
+# The corrected counterpart to the demo failure: a small, valid amount.
+_VALID_DEMO_AMOUNT = 1 * 10**POT_DECIMALS  # 1 POT — within any dev balance
+
+
+def submit_valid_demo_transfer(substrate: SubstrateInterface, retries: int = 3) -> ExtrinsicReceipt:
+    """Submit the *fixed* version of the demo failure: Alice sends Bob 1 POT,
+    which succeeds. Powers ``pdk debug --demo --fix`` (diagnose → fix → success)."""
+    bob = Keypair.create_from_uri("//Bob")
+    return submit_call(
+        substrate, Keypair.create_from_uri("//Alice"), "Balances", "transfer_keep_alive",
+        {"dest": bob.ss58_address, "value": _VALID_DEMO_AMOUNT}, retries,
+    )
+
+
 def dev_account_balances(substrate: SubstrateInterface) -> list[tuple[str, str, float]]:
     """Return (name, ss58 address, POT balance) for the pre-funded dev accounts.
 
