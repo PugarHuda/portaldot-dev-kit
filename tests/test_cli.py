@@ -75,6 +75,31 @@ def test_unicode_output_on_non_utf8_pipe_does_not_crash() -> None:
     assert b"Traceback" not in result.stderr
 
 
+def test_explain_decodes_raw_module_error_code() -> None:
+    # The hero case: decode `Module: { index: 6, error: 2 }` with no node.
+    result = runner.invoke(app, ["explain", "--module", "6", "--error", "2"])
+    assert result.exit_code == 0
+    assert "Balances.InsufficientBalance" in result.output
+
+
+def test_explain_raw_code_requires_both_indices() -> None:
+    result = runner.invoke(app, ["explain", "--module", "6"])
+    assert result.exit_code == 1
+
+
+def test_explain_unknown_raw_code_is_graceful() -> None:
+    result = runner.invoke(app, ["explain", "-m", "99", "-e", "99"])
+    assert result.exit_code == 1
+    assert "No error at module" in result.output
+
+
+def test_resolve_code_maps_verified_index() -> None:
+    from pdk.core.knowledge import resolve_code
+
+    assert resolve_code(6, 2) == "Balances.InsufficientBalance"
+    assert resolve_code(99, 99) is None
+
+
 def test_keys_inspect_uri() -> None:
     # Keypair derivation needs no node.
     result = runner.invoke(app, ["keys", "//Alice"])

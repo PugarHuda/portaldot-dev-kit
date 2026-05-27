@@ -1,6 +1,6 @@
 [project]
 name = "portaldot-pdk"
-version = "0.1.1"
+version = "0.1.2"
 description = "Portaldot Dev Kit — a developer toolkit for the Portaldot blockchain"
 readme = "README.md"
 requires-python = ">=3.11"

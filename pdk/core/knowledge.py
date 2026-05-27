@@ -6,6 +6,7 @@ Chain metadata tells the user *what* the error is. This module tells them
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -14,6 +15,29 @@ import yaml
 from pdk.core.decoder import DecodedError
 
 _KB_PATH = Path(__file__).resolve().parent.parent / "data" / "error_fixes.yaml"
+_INDEX_PATH = Path(__file__).resolve().parent.parent / "data" / "error_index.json"
+
+
+def load_error_index() -> dict[str, str]:
+    """Load the verified ``"<pallet_index>.<error_index>"`` → ``"Pallet.ErrorName"``
+    map, extracted from the live ``portaldot-1002`` runtime metadata."""
+    try:
+        with _INDEX_PATH.open(encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return {}
+
+
+def resolve_code(module: int, error: int, index: dict[str, str] | None = None) -> str | None:
+    """Resolve a raw ``Module: { index, error }`` code to ``"Pallet.ErrorName"``.
+
+    This is FailLens for the cryptic code itself — the exact thing a node prints
+    (``DispatchError { Module: { index: 6, error: 2 } }``) with no name attached.
+    Returns ``None`` if the code is unknown in the verified index.
+    """
+    if index is None:
+        index = load_error_index()
+    return index.get(f"{module}.{error}")
 
 
 @dataclass

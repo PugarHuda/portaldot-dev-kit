@@ -13,7 +13,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from pdk.core.decoder import DecodedError
-from pdk.core.knowledge import load_knowledge, lookup_fix
+from pdk.core.knowledge import load_knowledge, lookup_fix, resolve_code
 
 console = Console()
 
@@ -23,9 +23,36 @@ def run(
         None,
         help="Error name, e.g. 'InsufficientBalance' or 'balances.InsufficientBalance'. Omit to list all.",
     ),
+    module: int = typer.Option(
+        None, "--module", "-m",
+        help="Raw module (pallet) index from a DispatchError, e.g. 6.",
+    ),
+    err_index: int = typer.Option(
+        None, "--error", "-e",
+        help="Raw error index from a DispatchError, e.g. 2. Decodes the bare code with --module.",
+    ),
 ) -> None:
-    """Explain a Portaldot error — what it means and how to fix it — without a transaction."""
+    """Explain a Portaldot error — what it means and how to fix it — without a transaction.
+
+    Pass a name, or decode a raw code straight from a node's output:
+    `pdk explain --module 6 --error 2` turns `Module: { index: 6, error: 2 }`
+    into the named error + its fix, using the verified runtime index.
+    """
     kb = load_knowledge()
+
+    # Raw-code mode: resolve `Module: { index, error }` to a name, no tx needed.
+    if module is not None or err_index is not None:
+        if module is None or err_index is None:
+            console.print("[red]Provide both --module and --error to decode a raw code.[/red]")
+            raise typer.Exit(code=1)
+        resolved = resolve_code(module, err_index)
+        if resolved is None:
+            console.print(f"[yellow]No error at module {module}, error {err_index} in the "
+                          "verified portaldot-1002 index.[/yellow]")
+            console.print("[dim]Indices are runtime-specific; check the module/error numbers.[/dim]")
+            raise typer.Exit(code=1)
+        console.print(f"[dim]Module {{ index: {module}, error: {err_index} }} → [bold]{resolved}[/bold][/dim]")
+        error = resolved
 
     if not error:
         table = Table(title=f"Errors pdk can explain ({len(kb)})", header_style="bold")

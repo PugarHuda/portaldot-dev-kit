@@ -70,8 +70,10 @@ export default function Dashboard() {
             <h2>FailLens — decode any failure, live <span className="cmd">pdk debug</span></h2>
             <FailLens />
             <div style={{ marginTop: 12, color: "var(--muted)", fontSize: "13.5px" }}>
-              Decoded against the chain&apos;s own metadata — <strong style={{ color: "var(--text)" }}>try any of the{" "}
-              <a href="/errors">29 verified errors</a></strong>. This runs the real knowledge base, in your browser.
+              Type a name, or <strong style={{ color: "var(--text)" }}>paste the raw code</strong> a node prints
+              (<span className="mono">index: 6, error: 2</span>) — it decodes against the verified
+              <span className="mono"> portaldot-1002</span> runtime index, in your browser. Same in the CLI:
+              <span className="mono"> pdk explain --module 6 --error 2</span>.
             </div>
           </Reveal>
 

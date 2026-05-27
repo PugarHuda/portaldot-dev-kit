@@ -21,6 +21,7 @@ Portaldot is a brand-new, Substrate-based, Rust-first chain. In Season 1 develop
 - **`pdk debug` (FailLens)** — decode a failed transaction into a plain-language diagnosis + fix. The hero feature.
 - **`pdk debug --watch`** — a live monitor: every failure on the chain is decoded the moment it lands.
 - **`pdk explain <error>`** — a queryable reference for every Portaldot error, no transaction needed.
+- **`pdk explain --module 6 --error 2`** — decode the *raw* `DispatchError { Module: { index, error } }` code itself, with no tx hash and no name, against a verified 202-entry runtime index. This is the exact cryptic thing a node prints — and nothing else in the ecosystem decodes it.
 - **`pdk doctor`** — node/runtime/ink! compatibility, plus a chain-liveness check that catches a stalled dev chain.
 - **`pdk simulate`** — preview a transfer's POT fee and feasibility before sending it.
 - **`pdk seed`** — fund accounts from YAML fixtures so you start from realistic state.
