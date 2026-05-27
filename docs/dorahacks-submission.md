@@ -68,6 +68,7 @@ https://github.com/PugarHuda
 - `pdk debug` (**FailLens**) — decode a failed transaction into a plain-language diagnosis + fix. The hero.
 - `pdk up` / `accounts` — start a node and answer *"how do I get POT?"* in one command.
 - `explain`, `pallets`, `storage`, `watch`, `doctor` — inspect the chain and the runtime.
+- **`pdk explain --module 6 --error 2`** — decode the *raw* `DispatchError { Module: { index, error } }` code a node prints, with no hash and no name, via a verified 202-entry runtime index. The exact cryptic thing builders copy from logs — and nothing else decodes it.
 - `simulate`, `seed`, `send`, `keys` — preview fees, fund accounts, transact, manage keys.
 
 FailLens resolves errors against the **chain's own metadata** (no hard-coded tables), so it adapts to any runtime version. Every entry in its knowledge base is verified against the live `portaldot-1002` runtime.
@@ -76,7 +77,7 @@ FailLens resolves errors against the **chain's own metadata** (no hard-coded tab
 
 **Why it matters.** This hackathon exists to acquire developers; pdk removes the #1 barrier to onboarding. It's adoption-ready: `pip install portaldot-pdk`, a CI-gating mode (`pdk debug --json --exit-code`) so teams depend on it in pipelines, a community-owned error knowledge base, and a zero-install web error reference (https://portaldot-pdk.vercel.app/errors). The moat is Portaldot-specific, metadata-verified knowledge — not liftable from a generic Substrate tool.
 
-**Quality.** 23 automated tests (CI on Python 3.11 + 3.12), no mocks, MIT licensed, packaged for PyPI.
+**Quality.** 29 automated tests (CI on Python 3.11 + 3.12), no mocks, MIT licensed, published to PyPI (`pip install portaldot-pdk`, v0.1.2).
 
 - Repo: https://github.com/PugarHuda/portaldot-pdk
 - Install: `pip install portaldot-pdk`

@@ -61,6 +61,7 @@ the long tail too.
 | `pdk debug --watch` | Live monitor — decode every failed transaction as it lands |
 | `pdk debug --json` | Machine-readable output for CI / scripts |
 | `pdk explain <error>` | Look up what any Portaldot error means and how to fix it — no tx needed |
+| `pdk explain --module 6 --error 2` | Decode the **raw** `DispatchError { Module: { index, error } }` code itself — no hash, no name — via a verified runtime index |
 | `pdk doctor` | Node version, runtime, ink!/contracts compatibility, and chain-liveness check |
 | `pdk simulate` | Preview a transfer's POT fee and feasibility — *without* sending it |
 | `pdk seed` | Fund accounts from YAML fixtures so you start from realistic state |
@@ -153,6 +154,7 @@ pdk debug --demo --json           # machine-readable output
 
 # 3. Understand & inspect
 pdk explain InsufficientBalance   # error reference, no transaction needed
+pdk explain --module 6 --error 2  # decode a raw DispatchError code (no node needed)
 pdk explain                       # list every error pdk knows
 pdk pallets                       # browse the runtime's pallets / calls / errors
 pdk doctor                        # node + ink! compatibility + chain liveness
