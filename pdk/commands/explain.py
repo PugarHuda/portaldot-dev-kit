@@ -103,7 +103,7 @@ def _ai_section(pallet: str, name: str, docs: str) -> bool:
     from pdk.core.ai import ai_available, ai_diagnose
 
     if not ai_available():
-        console.print("[dim]--ai needs PDK_AI_KEY (a free Groq key) — set it to enable AI diagnosis.[/dim]")
+        console.print("[dim]--ai needs PDK_AI_KEY (a free OpenRouter key) — set it to enable AI diagnosis.[/dim]")
         return False
     console.print("[dim]asking AI (grounded in chain metadata) …[/dim]")
     result = ai_diagnose(pallet, name, docs)
