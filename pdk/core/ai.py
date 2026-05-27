@@ -12,8 +12,9 @@ Fully optional and honest:
   entry. The verified KB stays the source of truth.
 
 Uses only the standard library (urllib) — no extra dependency. Defaults to
-Groq's free OpenAI-compatible endpoint; override with PDK_AI_BASE_URL /
-PDK_AI_MODEL for any OpenAI-compatible provider.
+OpenRouter's OpenAI-compatible endpoint with a free model; override with
+PDK_AI_BASE_URL / PDK_AI_MODEL for any OpenAI-compatible provider (Groq,
+OpenAI, a local model, …). Just set ``PDK_AI_KEY`` to an OpenRouter key.
 """
 
 from __future__ import annotations
@@ -22,8 +23,10 @@ import json
 import os
 import urllib.request
 
-_DEFAULT_BASE = "https://api.groq.com/openai/v1/chat/completions"
-_DEFAULT_MODEL = "llama-3.3-70b-versatile"
+# OpenRouter (OpenAI-compatible). The default model is free; swap it via
+# PDK_AI_MODEL (e.g. "z-ai/glm-4.5-air:free", "deepseek/deepseek-v4-flash:free").
+_DEFAULT_BASE = "https://openrouter.ai/api/v1/chat/completions"
+_DEFAULT_MODEL = "openai/gpt-oss-120b:free"
 
 _SYSTEM = (
     "You are FailLens, a debugging assistant for the Portaldot blockchain "
@@ -39,7 +42,7 @@ def ai_available() -> bool:
     return bool(os.environ.get("PDK_AI_KEY"))
 
 
-def ai_diagnose(pallet: str, name: str, docs: str = "", timeout: float = 20.0) -> str | None:
+def ai_diagnose(pallet: str, name: str, docs: str = "", timeout: float = 45.0) -> str | None:
     """Return an LLM diagnosis for ``pallet.name`` grounded in ``docs``.
 
     Returns ``None`` if no key is configured or on any error (network, API,
@@ -66,7 +69,15 @@ def ai_diagnose(pallet: str, name: str, docs: str = "", timeout: float = 20.0) -
     }).encode("utf-8")
     request = urllib.request.Request(
         base, data=payload,
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            # Recommended by OpenRouter (ignored by other providers). HTTP header
+            # values must be latin-1 / ASCII — no em-dash here (it raises
+            # UnicodeEncodeError in urllib).
+            "HTTP-Referer": "https://portaldot-pdk.vercel.app",
+            "X-Title": "pdk - Portaldot Dev Kit",
+        },
     )
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:

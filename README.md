@@ -61,7 +61,7 @@ the long tail too.
 | `pdk debug --watch` | Live monitor — decode every failed transaction as it lands |
 | `pdk debug --json` | Machine-readable output for CI / scripts |
 | `pdk debug --demo --fix` | Diagnose, then **apply the fix** — submit the corrected transaction and show it succeed |
-| `pdk debug --ai` | Add an **AI-assisted** diagnosis, grounded in chain metadata, for the long tail (opt-in, needs `PDK_AI_KEY`) |
+| `pdk debug --ai` / `pdk explain --ai` | Add an **AI-assisted** diagnosis, grounded in chain metadata, for the long tail. Opt-in: `export PDK_AI_KEY=<free OpenRouter key>` (defaults to a free model; override with `PDK_AI_MODEL`). Output is clearly labelled "AI-suggested"; the verified KB stays the source of truth |
 | `pdk explain <error>` | Look up what any Portaldot error means and how to fix it — no tx needed |
 | `pdk explain --module 6 --error 2` | Decode the **raw** `DispatchError { Module: { index, error } }` code itself — no hash, no name — via a verified runtime index |
 | `pdk doctor` | Node version, runtime, ink!/contracts compatibility, and chain-liveness check |

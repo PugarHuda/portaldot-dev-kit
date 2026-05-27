@@ -30,6 +30,7 @@ def run(
     json_out: bool = typer.Option(False, "--json", help="Emit the diagnosis as JSON (for scripts/CI)."),
     exit_code: bool = typer.Option(False, "--exit-code", help="Exit non-zero (2) when a failure is decoded — for CI pipeline gating."),
     fix: bool = typer.Option(False, "--fix", help="After diagnosing, apply a remediation (with --demo) or suggest one."),
+    ai: bool = typer.Option(False, "--ai", help="Add an AI-assisted diagnosis grounded in chain metadata (needs PDK_AI_KEY)."),
 ) -> None:
     """Diagnose a failed Portaldot transaction.
 
@@ -77,11 +78,31 @@ def run(
 
     suggestion = lookup_fix(decoded, load_knowledge())
     _emit(str(tx_hash), decoded, suggestion, json_out)
+    if ai and not json_out:
+        _ai_section(_resolve_pallet(decoded, suggestion), decoded.name, decoded.docs)
     if fix:
         _remediate(substrate, demo, decoded, json_out)
     if exit_code:
         # A failure was decoded — signal it so CI pipelines can gate on the result.
         raise typer.Exit(code=2)
+
+
+def _ai_section(pallet: str, name: str, docs: str) -> bool:
+    """Print an AI-suggested diagnosis (clearly labelled unverified). Never raises;
+    prints a hint and returns False if no key / the call fails."""
+    from pdk.core.ai import ai_available, ai_diagnose
+
+    if not ai_available():
+        console.print("[dim]--ai needs PDK_AI_KEY (e.g. a free OpenRouter key) to enable AI diagnosis.[/dim]")
+        return False
+    console.print("[dim]asking AI (grounded in chain metadata) …[/dim]")
+    result = ai_diagnose(pallet, name, docs)
+    if not result:
+        console.print("[yellow]AI diagnosis unavailable right now.[/yellow]")
+        return False
+    console.print(Panel(result, title="AI-suggested — UNVERIFIED (not a curated KB entry)",
+                        border_style="yellow"))
+    return True
 
 
 def _remediate(substrate, demo: bool, decoded: DecodedError, json_out: bool) -> None:
