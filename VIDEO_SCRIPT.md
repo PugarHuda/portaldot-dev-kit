@@ -41,14 +41,24 @@ Total: **0:59.1** (`ffprobe docs/pitch.mp4`).
 **[0:14 — seg-2 · LIVE DEMO]** *(terminal recording — typed commands and their real outputs)*
 > "Now watch pdk decode a real failure on a real local Portaldot node. Doctor confirms the chain. Accounts shows funded developers. Demo submits a failing transfer; FailLens decodes Balances Insufficient Balance with the fix, and the AI section auto-runs because a key is in the environment, no flag needed. Explain decodes the raw module error code itself. Demo fix retries the corrected transaction, and report summarises every failure on chain."
 
-Commands executed on-screen during seg-2 (in order, real outputs):
+Commands executed on-screen during seg-2 — **all 14 commands** in one take
+(real outputs against a fresh local Portaldot node):
 
-1. `pdk doctor --no-liveness`
-2. `pdk accounts`
-3. `pdk debug --demo` — **AI auto-runs because `PDK_AI_KEY` is set** (no `--ai` flag; both the KB panel and the yellow "AI-suggested — UNVERIFIED" panel render side by side)
-4. `pdk explain --module 6 --error 2 --no-ai` — raw-code decoder, AI suppressed to keep the recording tight
-5. `pdk debug --demo --fix --no-ai`
-6. `pdk report`
+1. `pdk doctor --no-liveness` — chain health + the new "AI (optional)" row
+2. `pdk accounts` — pre-funded dev account POT balances
+3. `pdk pallets` — 31 runtime pallets browsed straight from metadata
+4. `pdk storage System Number` — read chain state (current block)
+5. `pdk keys //Alice` — keypair inspection (no node)
+6. `pdk simulate --amount 5 --no-ai` — fee preview before sending
+7. `pdk send //Bob --amount 1 --from //Alice` — **real** POT transfer
+8. `pdk seed` — fund extra accounts (Dave, Eve, Ferdie) from YAML
+9. `pdk debug --demo` — **hero.** AI auto-runs because `PDK_AI_KEY` is set; both the FailLens KB panel and the yellow "AI-suggested — UNVERIFIED" panel render together
+10. `pdk explain --module 6 --error 2 --no-ai` — the *unique* raw-code decoder
+11. `pdk debug --demo --fix --no-ai` — diagnose AND remediate (corrected tx)
+12. `pdk report --no-ai` — failure analytics across recent blocks
+13. `timeout 3 pdk watch --pallet Balances` — live event stream (snipped)
+14. `env -u PDK_AI_KEY pdk ai-setup` — wizard walkthrough (deterministic; no
+    network roundtrip — running with a real key would block the recording)
 
 **[0:43 — seg-3 · why it wins]** *(slide: uniqueness — raw-code decoder + POT gas + tests)*
 > "pdk is the only debugger for Portaldot — even decoding the raw error code itself. Real transactions, paying POT as gas. Open source, and fully tested."

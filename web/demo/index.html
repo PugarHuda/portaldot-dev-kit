@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>pdk — Live demo (in-browser)</title>
+<meta name="description" content="Replay the pdk live terminal demo in your browser — all 14 commands, real Portaldot transactions, AI-suggested diagnoses." />
+<meta name="theme-color" content="#0a0c10" />
+<link rel="canonical" href="https://portaldot-pdk.vercel.app/demo" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="pdk — Live demo (in-browser)" />
+<meta property="og:description" content="Replay the pdk live terminal demo in your browser — all 14 commands, real Portaldot transactions, AI-suggested diagnoses." />
+<meta property="og:url" content="https://portaldot-pdk.vercel.app/demo" />
+<meta property="og:image" content="https://portaldot-pdk.vercel.app/logo.png" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" type="image/png" href="/logo.png" />
+
+<!-- asciinema-player 3.8.1 - bundled locally (web/demo/vendor/) instead of a CDN
+     to eliminate Subresource-Integrity risk and remove the third-party origin
+     entirely. Self-contained, zero JS deps. -->
+<link rel="stylesheet" type="text/css" href="/demo/vendor/asciinema-player.min.css" />
+
+<style>
+  :root {
+    --bg:#0a0c10; --panel:#14171d; --border:#21262d; --text:#c9d1d9;
+    --muted:#7d8590; --green:#3fb950;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.65; -webkit-font-smoothing:antialiased; }
+  a { color:var(--green); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .wrap { max-width:920px; margin:0 auto; padding:0 24px; }
+  code, .mono { font-family:var(--mono); }
+
+  nav { border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(10,12,16,.85); backdrop-filter:blur(8px); z-index:10; }
+  nav .wrap { display:flex; align-items:center; justify-content:space-between; height:58px; }
+  nav .brand { font-weight:700; font-size:20px; letter-spacing:-.02em; }
+  nav .brand .dot { color:var(--green); }
+
+  header.hero { padding:64px 0 24px; }
+  .kicker { font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+  h1 { font-size:clamp(34px,5vw,52px); line-height:1.05; letter-spacing:-.02em; color:#fff; }
+  h1 .dot { color:var(--green); }
+  .lede { font-size:clamp(16px,1.6vw,18px); color:var(--muted); margin-top:14px; max-width:65ch; }
+
+  .player-shell {
+    margin:32px 0;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  /* Override player chrome to fit the dark theme. */
+  .ap-1d2dvtg { background:var(--panel) !important; }
+
+  .meta { display:flex; flex-wrap:wrap; gap:14px 24px; margin-top:18px; color:var(--muted); font-family:var(--mono); font-size:13px; }
+  .meta strong { color:#fff; }
+
+  .commands { margin:48px 0 32px; }
+  .commands h2 { font-size:24px; color:#fff; margin-bottom:12px; letter-spacing:-.01em; }
+  .commands ol { padding-left:0; counter-reset:cmd; }
+  .commands li { list-style:none; padding:14px 16px; border-left:2px solid var(--border); margin-bottom:6px; counter-increment:cmd; }
+  .commands li::before { content:counter(cmd) ". "; color:var(--green); font-family:var(--mono); font-weight:600; }
+  .commands li code { background:#0d1117; padding:2px 8px; border-radius:4px; font-size:14px; color:#fff; }
+  .commands li .why { display:block; color:var(--muted); font-size:14px; margin-top:4px; }
+
+  .install { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 22px; margin:32px 0; }
+  .install pre { font-family:var(--mono); color:#fff; font-size:14px; line-height:1.6; }
+  .install .c-green { color:var(--green); } .install .c-muted { color:var(--muted); }
+
+  footer { border-top:1px solid var(--border); margin-top:64px; padding:32px 0; color:var(--muted); font-size:13px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="brand">pdk<span class="dot">.</span></span>
+    <span class="mono" style="font-size:14px;">
+      <a href="/">Home</a> &nbsp;·&nbsp;
+      <a href="/dashboard">Dashboard</a> &nbsp;·&nbsp;
+      <a href="/errors">Error reference</a> &nbsp;·&nbsp;
+      <a href="/slide">Pitch deck</a> &nbsp;·&nbsp;
+      <a href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang">GitHub ↗</a>
+    </span>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Voiced pitch · in-browser terminal · all 14 commands</div>
+    <h1>See pdk run on a real Portaldot node<span class="dot">.</span></h1>
+    <p class="lede">
+      Two ways to watch: the <strong>narrated pitch video</strong> tells the
+      story in 90 seconds; the <strong>interactive terminal recording</strong>
+      below it is a real asciinema cast you can scrub through and copy text
+      from. Both were captured against a freshly purged local Portaldot node
+      (<span class="mono">portaldot-1002</span>); every command pays POT as
+      gas; the AI panel is live OpenRouter output.
+    </p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <h2 style="font-size:22px;color:#fff;margin-bottom:12px;letter-spacing:-.01em;">▶ Narrated pitch video (90 s)</h2>
+  <video controls preload="metadata" poster="/logo.png"
+         style="width:100%;max-height:540px;background:var(--panel);border:1px solid var(--border);border-radius:12px;display:block;margin-bottom:14px;">
+    <source src="/pitch.mp4" type="video/mp4" />
+    Your browser cannot play MP4. Download:
+    <a href="/pitch.mp4">/pitch.mp4</a>
+  </video>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:36px;">
+    Voiced (piper TTS). Slide intro · live terminal demo of all 14 commands ·
+    uniqueness slide · outro. No burned-in subtitles — narration is in the
+    audio track only.
+  </p>
+
+  <h2 style="font-size:22px;color:#fff;margin-bottom:12px;letter-spacing:-.01em;">▶ Interactive terminal (replay or scrub)</h2>
+  <div class="player-shell">
+    <div id="player"></div>
+  </div>
+
+  <div class="meta">
+    <div>Recorded against <strong>portaldot-1002</strong></div>
+    <div>Cast format: <strong>asciinema v2</strong></div>
+    <div>Total runtime: <strong>~60 s</strong></div>
+    <div>Player: <a href="https://github.com/asciinema/asciinema-player">asciinema-player 3.8</a></div>
+  </div>
+
+  <section class="commands">
+    <h2>What you'll see — all 14 commands</h2>
+    <ol>
+      <li><code>pdk doctor --no-liveness</code> <span class="why">Node + runtime health, plus the new "AI (optional)" status row.</span></li>
+      <li><code>pdk accounts</code> <span class="why">Pre-funded dev accounts and POT balances — no faucet needed.</span></li>
+      <li><code>pdk pallets</code> <span class="why">Browse the 31 runtime pallets straight from metadata.</span></li>
+      <li><code>pdk storage System Number</code> <span class="why">Read any value from chain storage (here: current block number).</span></li>
+      <li><code>pdk keys //Alice</code> <span class="why">Inspect any keypair (SS58 + public key). No node required.</span></li>
+      <li><code>pdk simulate --amount 5</code> <span class="why">Preview a transfer's POT fee and feasibility without sending.</span></li>
+      <li><code>pdk send //Bob --amount 1 --from //Alice</code> <span class="why">Real on-chain POT transfer — POT paid as gas.</span></li>
+      <li><code>pdk seed</code> <span class="why">Fund accounts from YAML fixtures (realistic starting state).</span></li>
+      <li><code>pdk debug --demo</code> <span class="why"><strong>The hero.</strong> Submits a failing tx, FailLens decodes it, and the AI section auto-runs (key in env, no flag needed).</span></li>
+      <li><code>pdk explain --module 6 --error 2</code> <span class="why">The <em>unique</em> moment: decode the raw <code>Module&nbsp;{&nbsp;index,&nbsp;error&nbsp;}</code> code itself.</span></li>
+      <li><code>pdk debug --demo --fix</code> <span class="why">Diagnose AND remediate: submit the corrected transaction and show it succeed.</span></li>
+      <li><code>pdk report</code> <span class="why">Scan recent blocks, group every failure by type — failure analytics.</span></li>
+      <li><code>pdk watch --pallet Balances</code> <span class="why">Stream chain events live (snipped with timeout in the recording).</span></li>
+      <li><code>pdk ai-setup --test</code> <span class="why">Verify the optional AI layer is reachable.</span></li>
+    </ol>
+  </section>
+
+  <section class="install">
+    <pre><span class="c-green">$</span> pip install portaldot-pdk        <span class="c-muted"># latest v0.1.6, all 14 commands</span>
+<span class="c-green">$</span> export PDK_AI_KEY=sk-or-v1-...    <span class="c-muted"># optional — enables AI auto-on</span>
+<span class="c-green">$</span> pdk ai-setup --test               <span class="c-muted"># verify the key works</span>
+<span class="c-green">$</span> pdk doctor                        <span class="c-muted"># confirm the node is healthy</span>
+<span class="c-green">$</span> pdk debug --demo                  <span class="c-muted"># run the hero flow yourself</span></pre>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    pdk — Portaldot Dev Kit · MIT · made for the Portaldot Mini Hackathon S1 ·
+    <a href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang">GitHub</a>
+  </div>
+</footer>
+
+<script src="/demo/vendor/asciinema-player.min.js"></script>
+<script>
+  // The cast file is served from /demo/cast.json (next to this index.html).
+  // We use the v2 cast format that `asciinema rec` produces by default.
+  AsciinemaPlayer.create('/demo/cast.json', document.getElementById('player'), {
+    cols: 100, rows: 30,
+    autoPlay: false,
+    preload: true,
+    poster: 'npt:0:01',
+    fit: 'width',
+    theme: 'monokai',
+    speed: 1.2,
+    idleTimeLimit: 1.5,
+    terminalFontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+    terminalFontSize: '14px',
+  });
+</script>
+
+</body>
+</html>

@@ -9,7 +9,7 @@
 A developer toolkit for the [Portaldot](https://www.portaldot.io/) blockchain.
 Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
-**[▶ Live page](https://portaldot-pdk.vercel.app)** · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Submission](SUBMISSION.md) · [Changelog](CHANGELOG.md)
+**[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Submission](SUBMISSION.md) · [Changelog](CHANGELOG.md)
 
 ![pdk — FailLens decoding a Portaldot transaction failure, live](docs/demo.gif)
 

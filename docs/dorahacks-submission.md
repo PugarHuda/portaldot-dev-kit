@@ -78,6 +78,7 @@ FailLens resolves errors against the **chain's own metadata** (no hard-coded tab
 
 - Repo: https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
 - Install: `pip install portaldot-pdk`
+- **In-browser live demo:** https://portaldot-pdk.vercel.app/demo (replays the real asciinema cast of all 14 commands — no install needed)
 - Error reference: https://portaldot-pdk.vercel.app/errors
 - Pitch deck: https://portaldot-pdk.vercel.app/slide
 
