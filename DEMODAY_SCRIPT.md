@@ -201,7 +201,7 @@ Expected output:
 ```
 
 **Say (close):** *"And that's triage. Recent blocks, grouped by failure type.
-pdk: thirteen commands, one toolkit, real POT gas, no mocks. Repo and PyPI
+pdk: fourteen commands, one toolkit, real POT gas, no mocks. Repo and PyPI
 links are in the submission."*
 
 ---

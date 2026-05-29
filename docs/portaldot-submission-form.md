@@ -66,7 +66,7 @@ real node, real POT gas, no asterisk.
 
 **Adoption-ready, not a demo repo:**
 
-- `pip install portaldot-pdk` (0.1.5 live on PyPI); cross-platform — runs
+- `pip install portaldot-pdk` (0.1.6 live on PyPI); cross-platform — runs
   natively on Linux, macOS, and Windows (CI verifies Python 3.11 and 3.12).
 - CI-gating: `pdk debug --json --exit-code` returns non-zero with a decoded
   diagnosis, so a Portaldot project can fail its pipeline with a clear reason
@@ -75,7 +75,7 @@ real node, real POT gas, no asterisk.
   `pdk debug` / `pdk explain` attaches an AI diagnosis grounded in the chain
   metadata - no `--ai` flag, no friction. Labelled "AI-suggested - UNVERIFIED"
   so the verified KB stays the source of truth. `--no-ai` opts out.
-- 38 unit tests + 25 live E2E checks (graceful bad-node, edge cases, no-mock
+- 40 unit tests + 25 live E2E checks (graceful bad-node, edge cases, no-mock
   policy). Site (Next.js) live with interactive in-browser FailLens.
 
 ---

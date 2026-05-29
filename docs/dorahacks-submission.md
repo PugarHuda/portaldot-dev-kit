@@ -15,7 +15,7 @@ Use `docs/logo.png` (exactly 480×480). ✅ ready in the repo.
 
 ### Vision  *(max 256 chars)*
 ```
-Portaldot prints a raw error code when a tx fails — no message, no fix. pdk's FailLens decodes it into a plain-language diagnosis + fix using the chain's own metadata. 13 commands cover the local dev loop, no mocks. pip install portaldot-pdk.
+Portaldot prints a raw error code when a tx fails — no message, no fix. pdk's FailLens decodes it into a plain-language diagnosis + fix using the chain's own metadata. 14 commands cover the local dev loop, no mocks. pip install portaldot-pdk.
 ```
 *(242 chars — fits inside the 256-char limit on the DoraHacks BUIDL form.)*
 
@@ -58,7 +58,7 @@ https://github.com/PugarHuda
 
 **The problem.** Portaldot is brand-new and Rust-first; in Season 1 developers run it from a local node. When a transaction fails, the node returns a raw error like `Module error: 0x0600…` with no explanation. Onboarding and debugging are the biggest sources of friction — the hackathon's own Q&A is full of *"how do I get POT?"* and *"where's the RPC?"*.
 
-**The solution.** `pdk` is a single Python CLI with 13 commands covering the whole local loop:
+**The solution.** `pdk` is a single Python CLI with 14 commands covering the whole local loop:
 - `pdk debug` (**FailLens**) — decode a failed transaction into a plain-language diagnosis + fix. The hero.
 - `pdk up` / `accounts` — start a node and answer *"how do I get POT?"* in one command.
 - `explain`, `pallets`, `storage`, `watch`, `doctor` — inspect the chain and the runtime.
@@ -74,7 +74,7 @@ FailLens resolves errors against the **chain's own metadata** (no hard-coded tab
 
 **Why it matters.** This hackathon exists to acquire developers; pdk removes the #1 barrier to onboarding. It's adoption-ready: `pip install portaldot-pdk`, a CI-gating mode (`pdk debug --json --exit-code`) so teams depend on it in pipelines, a community-owned error knowledge base, and a zero-install web error reference (https://portaldot-pdk.vercel.app/errors). The moat is Portaldot-specific, metadata-verified knowledge — not liftable from a generic Substrate tool.
 
-**Quality.** 38 automated tests (CI on Python 3.11 + 3.12), no mocks, MIT licensed, published to PyPI (`pip install portaldot-pdk`, v0.1.5).
+**Quality.** 40 automated tests (CI on Python 3.11 + 3.12), no mocks, MIT licensed, published to PyPI (`pip install portaldot-pdk`, v0.1.6).
 
 - Repo: https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
 - Install: `pip install portaldot-pdk`

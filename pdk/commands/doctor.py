@@ -48,6 +48,17 @@ def run(
         table.add_row("Contracts pallet", "not found — use native pallets, not ink!")
 
     table.add_row("Explorer", EXPLORER_URL)
+    # AI status row - lets users see at a glance whether AI auto-on will trigger
+    # on debug/explain/simulate/report. Computed locally; never hits the network.
+    from pdk.core.ai import ai_status
+    ai = ai_status()
+    if ai["configured"]:
+        table.add_row("AI (optional)",
+                      f"[green]configured[/green] - {ai['key_preview']} via {ai['model']} "
+                      f"(auto-runs on debug/explain/simulate/report)")
+    else:
+        table.add_row("AI (optional)",
+                      "not configured - run [bold]pdk ai-setup[/bold] to enable")
     console.print(table)
 
     if liveness:

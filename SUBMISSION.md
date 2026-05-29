@@ -69,7 +69,7 @@ fee     : paid in POT by the submitting account
 ## Quality
 
 - Verified end-to-end against a live Portaldot node (every command).
-- 38 automated tests (CI on Python 3.11 + 3.12); graceful handling of unreachable nodes, missing/invalid hashes, short-chain scans, successful txs, and repeated demo runs.
+- 40 automated tests (CI on Python 3.11 + 3.12); graceful handling of unreachable nodes, missing/invalid hashes, short-chain scans, successful txs, and repeated demo runs.
 - Packaged for PyPI (sdist + wheel build clean); automated release pipeline.
 - MIT licensed, open source, with a contributor guide.
 

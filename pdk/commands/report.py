@@ -10,6 +10,7 @@ import json as jsonlib
 
 import typer
 from rich.console import Console
+from rich.panel import Panel
 from rich.table import Table
 
 from pdk.config import DEFAULT_NODE_URL, RECENT_BLOCKS_SCAN
@@ -24,6 +25,8 @@ def run(
     node: str = typer.Option(DEFAULT_NODE_URL, "--node", help="Portaldot node WS endpoint."),
     blocks: int = typer.Option(RECENT_BLOCKS_SCAN, "--blocks", help="How many recent blocks to scan."),
     json_out: bool = typer.Option(False, "--json", help="Emit the report as JSON (for CI/scripts)."),
+    ai: bool = typer.Option(False, "--ai", help="Force the AI pattern summary even when no key is set (prints the setup hint)."),
+    no_ai: bool = typer.Option(False, "--no-ai", help="Skip the AI pattern summary even if PDK_AI_KEY is set."),
 ) -> None:
     """Decode every failed extrinsic in the last N blocks and group them by error."""
     try:
@@ -68,3 +71,45 @@ def run(
     console.print(table)
     console.print(f"[bold]{len(hits)}[/bold] failed extrinsic(s) across {len(grouped)} error type(s). "
                   "Use [bold]pdk debug <hash>[/bold] to dig into one.")
+    if _should_run_ai(ai, no_ai):
+        _ai_pattern_summary(grouped, blocks, explicit=ai)
+
+
+def _should_run_ai(ai_flag: bool, no_ai_flag: bool) -> bool:
+    if no_ai_flag:
+        return False
+    if ai_flag:
+        return True
+    from pdk.core.ai import ai_available
+    return ai_available()
+
+
+def _ai_pattern_summary(grouped: list, blocks: int, *, explicit: bool) -> None:
+    """Ask the LLM to identify patterns across the failure groups (e.g.
+    "all balance-related: likely under-funded test accounts"). Labelled
+    "AI-suggested"; the table above is the source of truth."""
+    from pdk.core.ai import ai_available, ai_complete
+
+    if not ai_available():
+        if explicit:
+            console.print("[dim]--ai needs PDK_AI_KEY (a free OpenRouter key) - set it to enable AI summaries.[/dim]")
+        return
+    console.print("[dim]asking AI to summarise failure patterns ...[/dim]")
+    bullet_list = "\n".join(f"- {err}: {count}" for err, count in grouped)
+    system = (
+        "You are a senior Substrate engineer triaging recent failures on a "
+        "Portaldot dev node. Given a count-by-error list, identify any "
+        "patterns: clustered root causes, configuration smells, likely fixes. "
+        "Be specific. Two to three short paragraphs maximum. If only one "
+        "error type is present, say so plainly and skip pattern detection."
+    )
+    user = (
+        f"Failure counts from the last {blocks} blocks:\n{bullet_list}\n\n"
+        "What patterns do you see? What should the operator investigate first?"
+    )
+    text = ai_complete(system, user, max_tokens=320)
+    if not text:
+        console.print("[yellow]AI summary unavailable right now.[/yellow]")
+        return
+    console.print(Panel(text, title="AI-suggested pattern summary - UNVERIFIED",
+                        border_style="yellow"))

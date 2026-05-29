@@ -42,6 +42,56 @@ def ai_available() -> bool:
     return bool(os.environ.get("PDK_AI_KEY"))
 
 
+def ai_status() -> dict:
+    """One-shot snapshot of the AI configuration — used by `pdk doctor` and
+    `pdk ai-setup` so the user can see at a glance what's wired up. Never
+    raises; returns plain values suitable for table display."""
+    key = os.environ.get("PDK_AI_KEY", "")
+    return {
+        "configured": bool(key),
+        "key_preview": (key[:7] + "..." + key[-4:]) if len(key) > 12 else ("(set)" if key else "(unset)"),
+        "model": os.environ.get("PDK_AI_MODEL", _DEFAULT_MODEL),
+        "base": os.environ.get("PDK_AI_BASE_URL", _DEFAULT_BASE),
+    }
+
+
+def ai_complete(system: str, user: str, *, timeout: float = 45.0,
+                max_tokens: int = 320) -> str | None:
+    """Generic OpenAI-compatible chat completion. Returns the assistant
+    message text, or ``None`` on any error / missing key. Used by AI features
+    that aren't strictly error-diagnosis (fee breakdowns, report patterns)."""
+    key = os.environ.get("PDK_AI_KEY")
+    if not key:
+        return None
+    base = os.environ.get("PDK_AI_BASE_URL", _DEFAULT_BASE)
+    model = os.environ.get("PDK_AI_MODEL", _DEFAULT_MODEL)
+    payload = json.dumps({
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        "temperature": 0.2,
+        "max_tokens": max_tokens,
+    }).encode("utf-8")
+    request = urllib.request.Request(
+        base, data=payload,
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://portaldot-pdk.vercel.app",
+            "X-Title": "pdk - Portaldot Dev Kit",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            data = json.loads(response.read().decode("utf-8"))
+        text = data["choices"][0]["message"]["content"].strip()
+        return text or None
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def ai_diagnose(pallet: str, name: str, docs: str = "", timeout: float = 45.0) -> str | None:
     """Return an LLM diagnosis for ``pallet.name`` grounded in ``docs``.
 

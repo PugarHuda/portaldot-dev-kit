@@ -14,11 +14,12 @@ from pdk.cli import app
 runner = CliRunner()
 
 
-def test_help_lists_all_commands() -> None:
+def test_help_lists_all_commands(monkeypatch) -> None:
+    monkeypatch.setenv("COLUMNS", "200")
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
     for command in ("up", "accounts", "debug", "explain", "doctor", "simulate", "seed",
-                    "pallets", "send", "storage", "watch", "keys", "report"):
+                    "pallets", "send", "storage", "watch", "keys", "report", "ai-setup"):
         assert command in result.output
 
 
@@ -95,6 +96,31 @@ def test_no_ai_flag_suppresses_ai_when_key_is_set(monkeypatch) -> None:
     assert _should_run_ai(ai_flag=False, no_ai_flag=False) is True
     # --ai forces even when no_ai also passed? --no-ai wins (explicit opt-out).
     assert _should_run_ai(ai_flag=True, no_ai_flag=True) is False
+
+
+def test_ai_setup_test_only_with_no_key_exits_nonzero(monkeypatch) -> None:
+    # Calling --test without a key should fail loudly (so scripts can branch
+    # on the exit code) rather than silently asking the user to set one up.
+    monkeypatch.delenv("PDK_AI_KEY", raising=False)
+    result = runner.invoke(app, ["ai-setup", "--test"])
+    assert result.exit_code != 0
+    assert "No key set" in result.output
+
+
+def test_simulate_and_report_share_the_ai_gate(monkeypatch) -> None:
+    # simulate and report each carry their own _should_run_ai (copied so the
+    # gate stays local to the command module). Both must obey --no-ai and
+    # auto-on with a key, exactly like debug/explain.
+    monkeypatch.setenv("PDK_AI_KEY", "test-key")
+    from pdk.commands.simulate import _should_run_ai as sim_gate
+    from pdk.commands.report import _should_run_ai as rep_gate
+    assert sim_gate(ai_flag=False, no_ai_flag=True) is False
+    assert sim_gate(ai_flag=False, no_ai_flag=False) is True
+    assert rep_gate(ai_flag=False, no_ai_flag=True) is False
+    assert rep_gate(ai_flag=False, no_ai_flag=False) is True
+    monkeypatch.delenv("PDK_AI_KEY", raising=False)
+    assert sim_gate(ai_flag=False, no_ai_flag=False) is False
+    assert rep_gate(ai_flag=False, no_ai_flag=False) is False
 
 
 def test_force_ai_flag_runs_even_without_key(monkeypatch) -> None:

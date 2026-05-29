@@ -2,9 +2,9 @@
 
 ## Layout
 
-- `cli.py` — defines the `typer` app and registers the 13 commands (`up`, `accounts`,
+- `cli.py` — defines the `typer` app and registers the 14 commands (`up`, `accounts`,
   `debug`, `explain`, `doctor`, `simulate`, `seed`, `pallets`, `send`, `storage`,
-  `watch`, `keys`, `report`) plus the `--version` callback. Entry point `main()`.
+  `watch`, `keys`, `report`, `ai-setup`) plus the `--version` callback. Entry point `main()`.
   Forces UTF-8 stdout at import so Rich output never crashes on a non-UTF-8 console.
 - `config.py` — static defaults only (node URL, block-scan depth, binary name).
 - `commands/` — one file per command, each exposing a `run()` function with

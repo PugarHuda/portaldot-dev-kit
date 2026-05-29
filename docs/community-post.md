@@ -47,7 +47,7 @@ post these where they genuinely answer someone.
 >
 > Building on Portaldot, the friction that kept biting me was the first hour:
 > getting POT, and decoding cryptic transaction failures. So I made a CLI that
-> owns the local dev loop end-to-end — 13 commands, all talking to a real node.
+> owns the local dev loop end-to-end — 14 commands, all talking to a real node.
 >
 > The hero is **FailLens** (`pdk debug`): it turns `Module error: 0x06…` into a
 > plain-language diagnosis + fix, decoded against the chain's own metadata (so it

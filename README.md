@@ -73,6 +73,7 @@ the long tail too.
 | `pdk watch` | Stream all chain events live (optionally filtered by pallet) |
 | `pdk keys` | Generate or inspect a keypair (SS58 format 42) |
 | `pdk report` | Scan recent blocks and **summarise every failure by type** — triage at a glance |
+| `pdk ai-setup` | Interactive first-run wizard — walks through getting an OpenRouter key, tests it, prints the right export command for your shell |
 
 > **No mocks, no fakes** — every command talks to a live Portaldot node.
 > `pdk debug --demo` submits a *real* failing transaction (it is not simulated).
@@ -206,7 +207,7 @@ How to fix
 - **CLI framework:** [`typer`](https://typer.tiangolo.com/) + [`rich`](https://github.com/Textualize/rich) for terminal UI; [`pyyaml`](https://pyyaml.org/) for the knowledge base
 - **Optional AI layer:** standard-library `urllib` → OpenAI-compatible endpoint (defaults to OpenRouter's free `openai/gpt-oss-120b:free`); zero hard dependency
 - **Web companion:** [Next.js 14](https://nextjs.org/) (App Router, React), deployed on Vercel
-- **Test + CI:** `pytest` (38 unit tests) on Python 3.11 & 3.12 via GitHub Actions
+- **Test + CI:** `pytest` (40 unit tests) on Python 3.11 & 3.12 via GitHub Actions
 
 ## Demo
 
@@ -222,7 +223,7 @@ How to fix
 
 ```
 pdk/
-  cli.py            typer app; registers the 13 commands (up, accounts, debug,
+  cli.py            typer app; registers the 14 commands (up, accounts, debug,
                     explain, doctor, simulate, seed, pallets, send, storage, watch, keys, report)
   config.py         static defaults (node URL, scan depth, binary name)
   commands/         one thin module per command (parse args → call core → render)

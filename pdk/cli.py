@@ -22,7 +22,7 @@ import typer  # noqa: E402 — must follow the stdout reconfigure above
 
 from pdk import __version__  # noqa: E402
 from pdk.commands import (  # noqa: E402
-    accounts, debug, doctor, explain, keys, pallets, report, seed, send, simulate, storage, up, watch,
+    accounts, ai_setup, debug, doctor, explain, keys, pallets, report, seed, send, simulate, storage, up, watch,
 )
 
 app = typer.Typer(
@@ -45,6 +45,7 @@ app.command("storage", help="Read any value from the chain's storage.")(storage.
 app.command("watch", help="Stream all chain events live (optionally filtered by pallet).")(watch.run)
 app.command("report", help="Scan recent blocks and summarise decoded failures by type.")(report.run)
 app.command("keys", help="Generate or inspect a keypair (SS58 format 42).")(keys.run)
+app.command("ai-setup", help="Set up (or verify) the optional AI diagnosis layer.")(ai_setup.run)
 
 
 def _version_callback(value: bool) -> None:
