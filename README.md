@@ -198,6 +198,26 @@ How to fix
   2. Lower the amount, or fund the account first.
 ```
 
+## Tech stack
+
+- **Blockchain platform:** Portaldot (Substrate-based, runtime `portaldot-1002`, Contracts API v5)
+- **Smart contracts:** *none* — pdk uses **native pallets + metadata-driven decoding**, so it works on the real Portaldot node with no ink! caveat
+- **Language:** Python 3.11+ (CLI), with [`substrate-interface`](https://github.com/polkascan/py-substrate-interface) for chain RPC
+- **CLI framework:** [`typer`](https://typer.tiangolo.com/) + [`rich`](https://github.com/Textualize/rich) for terminal UI; [`pyyaml`](https://pyyaml.org/) for the knowledge base
+- **Optional AI layer:** standard-library `urllib` → OpenAI-compatible endpoint (defaults to OpenRouter's free `openai/gpt-oss-120b:free`); zero hard dependency
+- **Web companion:** [Next.js 14](https://nextjs.org/) (App Router, React), deployed on Vercel
+- **Test + CI:** `pytest` (35 unit tests) on Python 3.11 & 3.12 via GitHub Actions
+
+## Demo
+
+- **Video (narrated, ~63 s):** `docs/pitch.mp4` — YouTube link added after upload
+- **Live page:** https://portaldot-pdk.vercel.app
+- **Interactive dashboard** (in-browser FailLens you can type into): https://portaldot-pdk.vercel.app/dashboard
+- **Searchable error reference:** https://portaldot-pdk.vercel.app/errors
+- **Pitch deck:** https://portaldot-pdk.vercel.app/slide
+- **Test accounts:** `//Alice`, `//Bob`, `//Charlie` — pre-funded with POT on `--dev`. Run `pdk accounts` to see addresses + balances.
+- **Native-deployment proof tx hash:** see [Native deployment proof](#native-deployment-proof) below.
+
 ## Architecture
 
 ```
@@ -242,6 +262,11 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests/ -q
 The env var avoids a clash with unrelated third-party pytest plugins in a polluted
 global environment; a clean venv (or CI) does not need it. CI runs the suite on
 every push (Python 3.11 and 3.12).
+
+## Team
+
+- **Pugar Huda Mantoro** ([@PugarHuda](https://github.com/PugarHuda)) — solo full-stack developer (CLI, web, design, knowledge base).
+- Contact: **hudapugar@gmail.com** (for hackathon communication only).
 
 ## License
 
