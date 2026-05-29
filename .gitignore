@@ -27,8 +27,9 @@ start_node.sh
 build_combined_pitch.sh
 docs/_vid/
 docs/screens/pitch-seg*.png
-docs/screens/pitch-livedemo.png
+docs/screens/pitch-livedemo*.png
 docs/screens/pitch-t*.png
+docs/screens/demo-ai-check.png
 
 # Render-only copy of slide.html used to dodge a Chromium headless quirk
 # (URLs containing /slide trigger "Multiple targets are not supported")

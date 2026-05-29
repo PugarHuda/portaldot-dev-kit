@@ -3,6 +3,26 @@
 All notable changes to **pdk — Portaldot Dev Kit**. Published to PyPI:
 `pip install portaldot-pdk`. Format follows [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+### Changed
+- **AI is now auto-on whenever `PDK_AI_KEY` is set** — no `--ai` flag needed.
+  `pdk debug` and `pdk explain` automatically attach the "AI-suggested —
+  UNVERIFIED" panel next to the verified KB entry. The `--ai` flag is still
+  accepted as a force-attempt that surfaces the setup hint when no key is
+  configured; new `--no-ai` opts out per-command.
+- Pitch video re-rendered as a hybrid: slide intro + **live asciinema
+  recording** of the full demo flow (with AI auto-on visible) + uniqueness
+  slide + outro. Slide images regenerated with the correct repo URL and the
+  updated 35-test count; reveal-style navigation footer removed via a new
+  `?clean=1` screenshot mode on slide.html.
+- Web pitch deck (`/slide`) synced — was claiming "twelve commands · 29 tests";
+  now matches the canonical thirteen-commands / 35-tests numbers.
+### Fixed
+- `test_debug_help_advertises_ci_gating` asserts on the option's description
+  text (CI pipeline gating) instead of the flag name; Rich was wrapping
+  `--exit-code` on CI's narrow no-TTY terminal which made the literal
+  substring check brittle. First green CI in nine commits.
+
 ## [0.1.5] — 2026-05-27
 ### Fixed
 - `--ai` hint now references OpenRouter (matches the default provider).
