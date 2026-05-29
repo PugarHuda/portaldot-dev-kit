@@ -4,9 +4,11 @@ Stage-ready companion for the live screen demo. Every number here is **real**
 — captured by `demo_capture.sh` against a freshly purged local Portaldot node
 (runtime `portaldot-1002`) on 2026-05-29.
 
-> Use this script alongside the pitch video (`docs/pitch.mp4`, narration in
-> `VIDEO_SCRIPT.md`). On stage you typically play the pitch video first
-> (1:07) for the story, then run this live demo for the proof.
+> The shipped pitch video (`docs/pitch.mp4`, ~59 s) already includes a
+> *short* live-terminal demo of this same flow. On stage, use this script
+> when you want to walk reviewers through the demo at your own pace, take
+> questions between commands, or improvise around blockers. Narration ref:
+> `VIDEO_SCRIPT.md`.
 
 ---
 

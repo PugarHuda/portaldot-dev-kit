@@ -13,7 +13,7 @@ Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
 ![pdk — FailLens decoding a Portaldot transaction failure, live](docs/demo.gif)
 
-*Real recording of pdk running against a live Portaldot node. Full **narrated pitch video** (slides + demo, voiced, subtitled): [`docs/pitch.mp4`](docs/pitch.mp4) — also [demo MP4](docs/demo.mp4).*
+*Real recording of pdk running against a live Portaldot node. Full **narrated pitch video** (slide intro → live terminal demo → uniqueness → outro, voiced, subtitled, ~59 s): [`docs/pitch.mp4`](docs/pitch.mp4).*
 
 <!-- Demo GIF: record per docs/RECORD_GIF.md, then add here: ![pdk demo](docs/demo.gif) -->
 
@@ -210,7 +210,7 @@ How to fix
 
 ## Demo
 
-- **Video (narrated, ~63 s):** `docs/pitch.mp4` — YouTube link added after upload
+- **Pitch video (~59 s):** `docs/pitch.mp4` — slide intro + **live terminal demo** (doctor → accounts → debug --demo → explain raw code → debug --fix → report) + outro, voiced and subtitled. YouTube link added after upload.
 - **Live page:** https://portaldot-pdk.vercel.app
 - **Interactive dashboard** (in-browser FailLens you can type into): https://portaldot-pdk.vercel.app/dashboard
 - **Searchable error reference:** https://portaldot-pdk.vercel.app/errors

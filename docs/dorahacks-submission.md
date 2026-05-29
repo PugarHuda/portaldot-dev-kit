@@ -76,7 +76,7 @@ https://github.com/PugarHuda
 
 FailLens resolves errors against the **chain's own metadata** (no hard-coded tables), so it adapts to any runtime version. Every entry in its knowledge base is verified against the live `portaldot-1002` runtime.
 
-**Portaldot-native (mandatory).** `pdk up` and `pdk debug --demo` submit **real transactions to a local Portaldot node, paying POT as gas.** Sample proof tx: `0x8b605579d6b512892f4394aa43937e1d762d34411b43c6a4aa9fa8a5dd4d546a` (local dev node, `portaldot_dev 2.0.0`).
+**Portaldot-native (mandatory).** `pdk up` and `pdk debug --demo` submit **real transactions to a local Portaldot node, paying POT as gas.** The pitch video (≈59 s) is a hybrid: slides frame the problem, then a real asciinema recording shows the full live flow (`doctor → accounts → debug --demo → explain --module 6 --error 2 → debug --demo --fix → report`) executing against a fresh `portaldot_dev 2.0.0` node. Sample proof tx: `0x8b605579d6b512892f4394aa43937e1d762d34411b43c6a4aa9fa8a5dd4d546a`.
 
 **Why it matters.** This hackathon exists to acquire developers; pdk removes the #1 barrier to onboarding. It's adoption-ready: `pip install portaldot-pdk`, a CI-gating mode (`pdk debug --json --exit-code`) so teams depend on it in pipelines, a community-owned error knowledge base, and a zero-install web error reference (https://portaldot-pdk.vercel.app/errors). The moat is Portaldot-specific, metadata-verified knowledge — not liftable from a generic Substrate tool.
 

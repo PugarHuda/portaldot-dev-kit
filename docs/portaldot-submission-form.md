@@ -20,28 +20,28 @@ Aligned to the official **🌀 PortalDot Hackathon 2026 Submission Template**
 
 ## Demo Scene Description  *(max 200 words)*
 
-The pitch video walks one core flow reviewers can verify end-to-end on a real
-Portaldot node:
+The pitch video (≈59 s, voiced and subtitled) opens with two slides framing
+the problem (Portaldot prints raw `Module { index, error }` codes with no
+message), then cuts to a **live terminal recording** of pdk against a fresh
+local Portaldot node (`portaldot_dev 2.0.0`, runtime `portaldot-1002`):
 
-1. `pdk up` boots a local Portaldot node (`portaldot_dev 2.0.0`, runtime
-   `portaldot-1002`), shows the pre-funded dev accounts, and submits a real
-   verification transaction paying POT as gas — its hash is the native-deployment
-   proof.
-2. `pdk debug --demo` submits a real *failing* transaction (`Balances.transfer`
-   with an impossible amount), then FailLens decodes the resulting
-   `System.ExtrinsicFailed` event against the chain's own metadata into a
-   plain-language panel: ✗ `Balances.InsufficientBalance`, what happened, how to
-   fix.
-3. `pdk explain --module 6 --error 2` decodes the raw
-   `DispatchError { Module: { index, error } }` code itself — no hash, no name —
-   via a verified 202-entry runtime index. This is the cryptic thing a node
-   actually prints; nothing else in the ecosystem decodes it.
-4. `pdk debug --demo --fix` then submits the *corrected* transaction and shows
-   it succeed (diagnose → fix → success on-chain).
-5. `pdk report` lists every failed extrinsic in recent blocks, grouped by error
-   type — triage analytics for the chain.
+1. `pdk doctor` confirms the chain — runtime 1002, 31 pallets, contracts
+   API v5 caveat surfaced.
+2. `pdk accounts` shows the pre-funded dev accounts and their POT balances.
+3. `pdk debug --demo` submits a real *failing* `Balances.transfer` and
+   FailLens decodes `System.ExtrinsicFailed` against the chain's own
+   metadata into a plain-language panel: ✗ `Balances.InsufficientBalance`,
+   what happened, how to fix.
+4. `pdk explain --module 6 --error 2` decodes the *raw* `DispatchError`
+   code — no hash, no name — via a 202-entry runtime index. This is the
+   cryptic thing a node actually prints; nothing else in the ecosystem
+   decodes it.
+5. `pdk debug --demo --fix` submits the corrected transaction and shows
+   it succeed.
+6. `pdk report` summarises every failure on recent blocks.
 
-All steps consume real POT gas; nothing is mocked.
+The closing slide reinforces the uniqueness. Every step consumes real POT
+gas; nothing is mocked.
 
 ---
 

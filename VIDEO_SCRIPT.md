@@ -1,27 +1,26 @@
 # pdk — Pitch Video Narration (as rendered)
 
-This is the **shipped** narration in `docs/pitch.mp4` (≈67s, six segments).
-Timings are measured from the actual segment durations — use them when
-re-recording or re-cutting.
+This is the **shipped** narration in `docs/pitch.mp4` (≈59 s, five segments).
+The video is a hybrid: two slide-deck segments frame the problem, a real
+asciinema recording of the pdk CLI runs the live demo, and two more slide
+segments close with the uniqueness + outro.
 
-The video is a **slide-deck pitch**, not a screen recording. The live screen
-walkthrough lives in `DEMODAY_SCRIPT.md` (rehearsal companion) and is the
-artifact used in the on-stage demo.
+Timings are measured from the actual rendered segments — use them when
+re-recording or re-cutting.
 
 ---
 
 ## Segments
 
-| # | Title slide                          | Start  | End    | Duration |
-|---|--------------------------------------|--------|--------|----------|
-| 0 | pdk — Portaldot Dev Kit (title)      | 0:00.0 | 0:07.0 | 7.0s     |
-| 1 | The pain (raw error code)            | 0:07.0 | 0:14.6 | 7.6s     |
-| 2 | One CLI, thirteen commands           | 0:14.6 | 0:28.6 | 14.0s    |
-| 3 | Live demo highlights                 | 0:28.6 | 0:51.7 | 23.2s    |
-| 4 | Why pdk wins (raw-code unique)       | 0:51.7 | 1:02.4 | 10.7s    |
-| 5 | Outro                                | 1:02.4 | 1:07.2 | 4.8s     |
+| # | Type      | Title slide / scene                       | Start  | End    | Duration |
+|---|-----------|-------------------------------------------|--------|--------|----------|
+| 0 | slide     | pdk — Portaldot Dev Kit (title)           | 0:00.0 | 0:07.0 | 7.0s     |
+| 1 | slide     | The pain (raw `Module { index, error }`)  | 0:07.0 | 0:14.6 | 7.6s     |
+| 2 | **live**  | **terminal recording (asciinema → mp4)**  | 0:14.6 | 0:43.6 | ~29.0s   |
+| 3 | slide     | Why pdk wins (raw-code unique + POT gas)  | 0:43.6 | 0:54.3 | 10.7s    |
+| 4 | slide     | Outro                                     | 0:54.3 | 0:59.1 | 4.8s     |
 
-Total: **1:07.2** (`ffprobe docs/pitch.mp4`).
+Total: **0:59.1** (`ffprobe docs/pitch.mp4`).
 
 ---
 
@@ -33,52 +32,73 @@ Total: **1:07.2** (`ffprobe docs/pitch.mp4`).
 **[0:07 — seg-1 · the pain]** *(slide: raw `Module { index, error }` code)*
 > "Portaldot is brand-new and Rust-first. When a transaction fails, you get a raw error code, with no message and no fix."
 
-**[0:14 — seg-2 · the solution]** *(slide: 13 commands list — `up · accounts · debug · explain · doctor · simulate · seed · pallets · send · storage · watch · keys · report`)*
-> "pdk is one command line tool for the whole local dev loop — thirteen commands, from starting a node and finding your POT, to sending, debugging, simulating, seeding, exploring the chain, and reporting every failure."
+**[0:14 — seg-2 · LIVE DEMO]** *(terminal recording — typed commands and their real outputs)*
+> "Now watch pdk decode a real failure on a real local Portaldot node. Doctor confirms the chain. Accounts shows funded developers. Demo submits a failing transfer; FailLens decodes Balances Insufficient Balance with the fix. Explain decodes the raw module error code itself. Demo fix retries the corrected tx, and report summarises every failure on chain."
 
-**[0:28 — seg-3 · live highlights]** *(slide: FailLens panel + simulate fee + storage/pallets/keys)*
-> "Watch it live. Funded dev accounts. A real POT transfer. FailLens decodes a failing transaction into plain language, with a fix. Simulate previews a fee before you send. Storage reads chain state, pallets browses the runtime, and keys manages accounts."
+Commands executed on-screen during seg-2 (in order, real outputs):
 
-**[0:51 — seg-4 · why it wins]** *(slide: uniqueness — raw-code decoder + POT gas + tests)*
+1. `pdk doctor --no-liveness`
+2. `pdk accounts`
+3. `pdk debug --demo`
+4. `pdk explain --module 6 --error 2`
+5. `pdk debug --demo --fix`
+6. `pdk report`
+
+**[0:43 — seg-3 · why it wins]** *(slide: uniqueness — raw-code decoder + POT gas + tests)*
 > "pdk is the only debugger for Portaldot — even decoding the raw error code itself. Real transactions, paying POT as gas. Open source, and fully tested."
 
-**[1:02 — seg-5 · outro]** *(slide: outro / call-to-action)*
+**[0:54 — seg-4 · outro]** *(slide: outro / call-to-action)*
 > "pdk, the standard Portaldot dev toolkit. Thank you for watching."
 
 ---
 
 ## How this was built
 
-- TTS: **piper** (`en_US-lessac-medium.onnx`) on WSL.
-- Slides: `site/public/slide.html` (Next.js page) rendered to PNG via Edge
-  headless → `docs/_vid/slide{1..6}.png`.
-- Composer: `rerender_pitch.sh` (six `-loop 1 -i slide -i narr.wav` ffmpeg
-  builds, then `concat=n=6:v=1:a=1` and burn-in subtitles from `subs.srt`).
-- Output: `docs/pitch.mp4` (H.264 + AAC, 1920×1080-ish, ≤30fps).
+- **TTS:** `piper` (`en_US-lessac-medium.onnx`) on WSL for the slide narrations.
+- **Slide segments:** `site/public/slide.html` rendered to PNG via Edge headless
+  → `docs/_vid/slide{1,2,5,6}.png`; built with `-loop 1 -i <png> -i <narr.wav>`.
+- **Live segment:** `record_demo.sh` runs the full demo flow under
+  `asciinema rec`; `agg --speed 1.2 --theme monokai` converts the cast to GIF;
+  ffmpeg converts the GIF to MP4 and overlays the seg-2 narration.
+- **Composer:** `build_combined_pitch.sh` (concat=n=5, then burn subtitles
+  from `subs.srt` measured against the rendered segment durations).
+- **Output:** `docs/pitch.mp4` — H.264 + AAC, 1280×720, 25 fps.
 
 ## Re-rendering
 
-To change a single segment without retouching the rest, edit `TEXT2` / `TEXT4`
-in `rerender_pitch.sh` and re-run:
+To change any segment:
+
+- **Slide narration** (seg-0/1/3/4) → edit `TEXT2`/`TEXT4`-equivalent in
+  `rerender_pitch.sh` (now mostly superseded — slide builds live in
+  `build_combined_pitch.sh`).
+- **Live demo** → re-run `record_demo.sh` (it warms up two failures so
+  `pdk report` has rows, records via asciinema, renders to MP4).
+- **Final concat** → re-run `build_combined_pitch.sh` which re-builds
+  `seg-live.mp4` (demo + narration) and concats the five segments.
 
 ```bash
-wsl bash "/mnt/f/Hackathons/Hackathon Portaldot S1/rerender_pitch.sh"
+wsl bash "/mnt/f/Hackathons/Hackathon Portaldot S1/start_node.sh"
+wsl bash "/mnt/f/Hackathons/Hackathon Portaldot S1/record_demo.sh"
+wsl bash "/mnt/f/Hackathons/Hackathon Portaldot S1/build_combined_pitch.sh"
 ```
 
-The script reuses unchanged `seg-0`, `seg-1`, `seg-3`, `seg-5` from
-`~/vidwork/`, rebuilds the requested two, re-concats, and regenerates
-`subs.srt` from the **new** measured durations (so subtitles stay in sync
-even if the new TTS is a different length).
+The `subs.srt` is regenerated each build from the new measured durations, so
+subtitles stay aligned even if a re-recorded segment is longer or shorter.
 
 ## Verifying alignment
 
-The slide pixels and the subtitle text must say the same thing. Spot-check
-two frames after every re-render:
+The slide pixels and the subtitle text must say the same thing, and during
+seg-2 the subtitle must match what's typed in the terminal. Spot-check three
+frames after every re-render:
 
 ```bash
-wsl bash -lc 'cd "$(dirname "$0")/docs" && ffmpeg -ss 20 -i pitch.mp4 -frames:v 1 screens/pitch-seg2.png && ffmpeg -ss 60 -i pitch.mp4 -frames:v 1 screens/pitch-seg4.png'
+wsl bash -lc 'cd "/mnt/f/Hackathons/Hackathon Portaldot S1/docs" && \
+  ffmpeg -ss 10 -i pitch.mp4 -frames:v 1 screens/pitch-seg1.png && \
+  ffmpeg -ss 20 -i pitch.mp4 -frames:v 1 screens/pitch-livedemo.png && \
+  ffmpeg -ss 50 -i pitch.mp4 -frames:v 1 screens/pitch-seg3.png'
 ```
 
-…then open both PNGs and confirm the burned-in subtitle matches the slide
-copy (e.g. seg-2 should say *"thirteen commands"* on the slide and in the
-caption; seg-4 should say *"only debugger … raw error code"*).
+Open the three PNGs and confirm: seg-1 still shows the "raw error code"
+slide; the live-demo frame shows terminal output (e.g. `pdk doctor` panel)
+with the seg-2 subtitle visible at the bottom; seg-3 shows the uniqueness
+slide.

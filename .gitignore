@@ -22,5 +22,9 @@ build/
 # Local helper scripts (WSL-specific paths; not portable, not part of the submission)
 rerender_pitch.sh
 demo_capture.sh
+record_demo.sh
+start_node.sh
+build_combined_pitch.sh
 docs/_vid/
 docs/screens/pitch-seg*.png
+docs/screens/pitch-livedemo.png
