@@ -41,8 +41,12 @@ def test_simulate_rejects_negative_amount() -> None:
     assert "non-negative" in result.output.lower()
 
 
-def test_debug_help_advertises_ci_gating() -> None:
+def test_debug_help_advertises_ci_gating(monkeypatch) -> None:
     # The CI-gating contract must be discoverable from --help (no node needed).
+    # Force a wide terminal: Rich auto-detects the runner's width and wraps
+    # `--exit-code` to `--exit-\ncode` on the narrow no-TTY default that
+    # GitHub Actions exposes, which would make the substring check brittle.
+    monkeypatch.setenv("COLUMNS", "200")
     result = runner.invoke(app, ["debug", "--help"])
     assert result.exit_code == 0
     assert "--exit-code" in result.output
