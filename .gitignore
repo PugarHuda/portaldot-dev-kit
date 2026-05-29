@@ -40,3 +40,4 @@ extract_frames.sh
 rebuild_slide_segments.sh
 bench_ai.sh
 convert_cast.sh
+qa_all_commands.py
