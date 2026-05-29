@@ -43,13 +43,17 @@ def test_simulate_rejects_negative_amount() -> None:
 
 def test_debug_help_advertises_ci_gating(monkeypatch) -> None:
     # The CI-gating contract must be discoverable from --help (no node needed).
-    # Force a wide terminal: Rich auto-detects the runner's width and wraps
-    # `--exit-code` to `--exit-\ncode` on the narrow no-TTY default that
-    # GitHub Actions exposes, which would make the substring check brittle.
+    # We can't substring-check the flag name itself: typer/Rich on a no-TTY
+    # GitHub Actions runner inserts soft-wrap markers that break `--exit-code`
+    # apart even at COLUMNS=200. Check the description text instead — it
+    # word-wraps cleanly and is unique to this option.
     monkeypatch.setenv("COLUMNS", "200")
     result = runner.invoke(app, ["debug", "--help"])
     assert result.exit_code == 0
-    assert "--exit-code" in result.output
+    # The phrase "CI pipeline gating" appears only in the --exit-code option's
+    # description; finding it proves the flag is wired and documented.
+    output_normalised = " ".join(result.output.split())
+    assert "CI pipeline gating" in output_normalised
 
 
 def test_explain_lists_all_when_no_argument() -> None:
