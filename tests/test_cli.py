@@ -41,6 +41,19 @@ def test_simulate_rejects_negative_amount() -> None:
     assert "non-negative" in result.output.lower()
 
 
+def test_debug_help_documents_auto_ai_and_no_ai(monkeypatch) -> None:
+    # The auto-on AI UX is a deliberate design choice — make sure both
+    # opt-out (--no-ai) and the force-attempt flag (--ai) stay discoverable
+    # from the command's --help so reviewers can find them without docs.
+    monkeypatch.setenv("COLUMNS", "200")
+    result = runner.invoke(app, ["debug", "--help"])
+    assert result.exit_code == 0
+    output = " ".join(result.output.split())
+    # Both flags should be mentioned by their distinguishing description text.
+    assert "Skip the AI diagnosis" in output, "--no-ai opt-out is missing from help"
+    assert "Force the AI diagnosis" in output, "--ai force flag is missing from help"
+
+
 def test_debug_help_advertises_ci_gating(monkeypatch) -> None:
     # The CI-gating contract must be discoverable from --help (no node needed).
     # We can't substring-check the flag name itself: typer/Rich on a no-TTY
@@ -68,6 +81,31 @@ def test_explain_unknown_error_exits_nonzero_gracefully() -> None:
     result = runner.invoke(app, ["explain", "ZzzNotARealError"])
     assert result.exit_code == 1
     assert "No curated entry" in result.output
+
+
+def test_no_ai_flag_suppresses_ai_when_key_is_set(monkeypatch) -> None:
+    # Regression guard for the new auto-on AI UX: setting --no-ai must skip
+    # the AI call even when a key is configured. We assert via the helper that
+    # decides whether to run AI (avoids network), since `pdk explain <known>`
+    # would otherwise contact OpenRouter when a key is in env.
+    monkeypatch.setenv("PDK_AI_KEY", "test-key-not-used-because-we-skip")
+    from pdk.commands.explain import _should_run_ai
+    assert _should_run_ai(ai_flag=False, no_ai_flag=True) is False
+    # And the default (no flag, key set) DOES auto-run.
+    assert _should_run_ai(ai_flag=False, no_ai_flag=False) is True
+    # --ai forces even when no_ai also passed? --no-ai wins (explicit opt-out).
+    assert _should_run_ai(ai_flag=True, no_ai_flag=True) is False
+
+
+def test_force_ai_flag_runs_even_without_key(monkeypatch) -> None:
+    # --ai is the explicit-opt-in path — it should attempt the AI call even
+    # when PDK_AI_KEY is missing, so the user sees the setup hint instead of
+    # silently getting nothing.
+    monkeypatch.delenv("PDK_AI_KEY", raising=False)
+    from pdk.commands.explain import _should_run_ai
+    assert _should_run_ai(ai_flag=True, no_ai_flag=False) is True
+    # And without the flag + no key, auto-mode stays silent.
+    assert _should_run_ai(ai_flag=False, no_ai_flag=False) is False
 
 
 def test_unicode_output_on_non_utf8_pipe_does_not_crash() -> None:

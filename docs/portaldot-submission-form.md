@@ -75,7 +75,7 @@ real node, real POT gas, no asterisk.
   `pdk debug` / `pdk explain` attaches an AI diagnosis grounded in the chain
   metadata - no `--ai` flag, no friction. Labelled "AI-suggested - UNVERIFIED"
   so the verified KB stays the source of truth. `--no-ai` opts out.
-- 35 unit tests + 25 live E2E checks (graceful bad-node, edge cases, no-mock
+- 38 unit tests + 25 live E2E checks (graceful bad-node, edge cases, no-mock
   policy). Site (Next.js) live with interactive in-browser FailLens.
 
 ---

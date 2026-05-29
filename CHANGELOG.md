@@ -13,10 +13,13 @@ All notable changes to **pdk — Portaldot Dev Kit**. Published to PyPI:
 - Pitch video re-rendered as a hybrid: slide intro + **live asciinema
   recording** of the full demo flow (with AI auto-on visible) + uniqueness
   slide + outro. Slide images regenerated with the correct repo URL and the
-  updated 35-test count; reveal-style navigation footer removed via a new
+  current test count; reveal-style navigation footer removed via a new
   `?clean=1` screenshot mode on slide.html.
 - Web pitch deck (`/slide`) synced — was claiming "twelve commands · 29 tests";
-  now matches the canonical thirteen-commands / 35-tests numbers.
+  now matches the canonical thirteen-commands / 38-tests numbers.
+### Added
+- 3 unit tests for the new AI UX (`--no-ai`, `--ai` force, auto-on with key)
+  so the auto-on behavior can't silently regress. Test count: 38.
 ### Fixed
 - `test_debug_help_advertises_ci_gating` asserts on the option's description
   text (CI pipeline gating) instead of the flag name; Rich was wrapping

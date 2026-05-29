@@ -206,7 +206,7 @@ How to fix
 - **CLI framework:** [`typer`](https://typer.tiangolo.com/) + [`rich`](https://github.com/Textualize/rich) for terminal UI; [`pyyaml`](https://pyyaml.org/) for the knowledge base
 - **Optional AI layer:** standard-library `urllib` → OpenAI-compatible endpoint (defaults to OpenRouter's free `openai/gpt-oss-120b:free`); zero hard dependency
 - **Web companion:** [Next.js 14](https://nextjs.org/) (App Router, React), deployed on Vercel
-- **Test + CI:** `pytest` (35 unit tests) on Python 3.11 & 3.12 via GitHub Actions
+- **Test + CI:** `pytest` (38 unit tests) on Python 3.11 & 3.12 via GitHub Actions
 
 ## Demo
 
