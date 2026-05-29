@@ -28,3 +28,12 @@ build_combined_pitch.sh
 docs/_vid/
 docs/screens/pitch-seg*.png
 docs/screens/pitch-livedemo.png
+docs/screens/pitch-t*.png
+
+# Render-only copy of slide.html used to dodge a Chromium headless quirk
+# (URLs containing /slide trigger "Multiple targets are not supported")
+site/public/deck.html
+render_slides.ps1
+start_http.sh
+extract_frames.sh
+rebuild_slide_segments.sh
