@@ -80,7 +80,7 @@ FailLens resolves errors against the **chain's own metadata** (no hard-coded tab
 
 **Why it matters.** This hackathon exists to acquire developers; pdk removes the #1 barrier to onboarding. It's adoption-ready: `pip install portaldot-pdk`, a CI-gating mode (`pdk debug --json --exit-code`) so teams depend on it in pipelines, a community-owned error knowledge base, and a zero-install web error reference (https://portaldot-pdk.vercel.app/errors). The moat is Portaldot-specific, metadata-verified knowledge — not liftable from a generic Substrate tool.
 
-**Quality.** 29 automated tests (CI on Python 3.11 + 3.12), no mocks, MIT licensed, published to PyPI (`pip install portaldot-pdk`, v0.1.2).
+**Quality.** 35 automated tests (CI on Python 3.11 + 3.12), no mocks, MIT licensed, published to PyPI (`pip install portaldot-pdk`, v0.1.5).
 
 - Repo: https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
 - Install: `pip install portaldot-pdk`
