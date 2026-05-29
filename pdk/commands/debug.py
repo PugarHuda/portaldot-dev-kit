@@ -30,7 +30,8 @@ def run(
     json_out: bool = typer.Option(False, "--json", help="Emit the diagnosis as JSON (for scripts/CI)."),
     exit_code: bool = typer.Option(False, "--exit-code", help="Exit non-zero (2) when a failure is decoded — for CI pipeline gating."),
     fix: bool = typer.Option(False, "--fix", help="After diagnosing, apply a remediation (with --demo) or suggest one."),
-    ai: bool = typer.Option(False, "--ai", help="Add an AI-assisted diagnosis grounded in chain metadata (needs PDK_AI_KEY)."),
+    ai: bool = typer.Option(False, "--ai", help="Force the AI diagnosis even if key auto-detection fails (mostly: print the 'set PDK_AI_KEY' hint when missing)."),
+    no_ai: bool = typer.Option(False, "--no-ai", help="Skip the AI diagnosis even if PDK_AI_KEY is set."),
 ) -> None:
     """Diagnose a failed Portaldot transaction.
 
@@ -78,8 +79,9 @@ def run(
 
     suggestion = lookup_fix(decoded, load_knowledge())
     _emit(str(tx_hash), decoded, suggestion, json_out)
-    if ai and not json_out:
-        _ai_section(_resolve_pallet(decoded, suggestion), decoded.name, decoded.docs)
+    if _should_run_ai(ai, no_ai, json_out):
+        _ai_section(_resolve_pallet(decoded, suggestion), decoded.name, decoded.docs,
+                    explicit=ai)
     if fix:
         _remediate(substrate, demo, decoded, json_out)
     if exit_code:
@@ -87,13 +89,27 @@ def run(
         raise typer.Exit(code=2)
 
 
-def _ai_section(pallet: str, name: str, docs: str) -> bool:
+def _should_run_ai(ai_flag: bool, no_ai_flag: bool, json_out: bool) -> bool:
+    """AI auto-runs whenever a key is set. `--no-ai` is the off-switch;
+    `--ai` is still accepted as an explicit opt-in (which surfaces the setup
+    hint when no key is configured). JSON output never includes the AI panel."""
+    if json_out or no_ai_flag:
+        return False
+    if ai_flag:
+        return True
+    from pdk.core.ai import ai_available
+    return ai_available()
+
+
+def _ai_section(pallet: str, name: str, docs: str, *, explicit: bool = False) -> bool:
     """Print an AI-suggested diagnosis (clearly labelled unverified). Never raises;
-    prints a hint and returns False if no key / the call fails."""
+    returns False on missing key / failed call. ``explicit`` means the user passed
+    --ai so the missing-key hint is shown; otherwise we stay silent (auto-mode)."""
     from pdk.core.ai import ai_available, ai_diagnose
 
     if not ai_available():
-        console.print("[dim]--ai needs PDK_AI_KEY (e.g. a free OpenRouter key) to enable AI diagnosis.[/dim]")
+        if explicit:
+            console.print("[dim]--ai needs PDK_AI_KEY (e.g. a free OpenRouter key) to enable AI diagnosis.[/dim]")
         return False
     console.print("[dim]asking AI (grounded in chain metadata) …[/dim]")
     result = ai_diagnose(pallet, name, docs)

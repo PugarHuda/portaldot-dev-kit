@@ -65,7 +65,7 @@ https://github.com/PugarHuda
 - **`pdk explain --module 6 --error 2`** — decode the *raw* `DispatchError { Module: { index, error } }` code a node prints, with no hash and no name, via a verified 202-entry runtime index. The exact cryptic thing builders copy from logs — and nothing else decodes it.
 - **`pdk report`** — scan recent blocks and summarise every failure by type (triage analytics).
 - **`pdk debug --demo --fix`** — diagnose *and remediate*: submit the corrected tx and show it succeed.
-- **`pdk debug --ai`** — optional AI diagnosis for the long tail, grounded in chain metadata (labelled "AI-suggested"; verified KB stays source of truth).
+- **AI diagnosis, auto-on** — set `PDK_AI_KEY` (a free OpenRouter key) once and every `pdk debug` / `pdk explain` *automatically* attaches an AI section grounded in the chain metadata. No `--ai` flag, no friction. Clearly labelled "AI-suggested — UNVERIFIED"; the verified KB stays the source of truth. Opt out per-command with `--no-ai`.
 - `simulate`, `seed`, `send`, `keys` — preview fees, fund accounts, transact, manage keys.
 
 FailLens resolves errors against the **chain's own metadata** (no hard-coded tables), so it adapts to any runtime version. Every entry in its knowledge base is verified against the live `portaldot-1002` runtime.

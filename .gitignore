@@ -37,3 +37,4 @@ render_slides.ps1
 start_http.sh
 extract_frames.sh
 rebuild_slide_segments.sh
+bench_ai.sh

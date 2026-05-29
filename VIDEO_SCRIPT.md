@@ -39,15 +39,15 @@ Total: **0:59.1** (`ffprobe docs/pitch.mp4`).
 > "Portaldot is brand-new and Rust-first. When a transaction fails, you get a raw error code, with no message and no fix."
 
 **[0:14 — seg-2 · LIVE DEMO]** *(terminal recording — typed commands and their real outputs)*
-> "Now watch pdk decode a real failure on a real local Portaldot node. Doctor confirms the chain. Accounts shows funded developers. Demo submits a failing transfer; FailLens decodes Balances Insufficient Balance with the fix. Explain decodes the raw module error code itself. Demo fix retries the corrected tx, and report summarises every failure on chain."
+> "Now watch pdk decode a real failure on a real local Portaldot node. Doctor confirms the chain. Accounts shows funded developers. Demo submits a failing transfer; FailLens decodes Balances Insufficient Balance with the fix, and the AI section auto-runs because a key is in the environment, no flag needed. Explain decodes the raw module error code itself. Demo fix retries the corrected transaction, and report summarises every failure on chain."
 
 Commands executed on-screen during seg-2 (in order, real outputs):
 
 1. `pdk doctor --no-liveness`
 2. `pdk accounts`
-3. `pdk debug --demo`
-4. `pdk explain --module 6 --error 2`
-5. `pdk debug --demo --fix`
+3. `pdk debug --demo` — **AI auto-runs because `PDK_AI_KEY` is set** (no `--ai` flag; both the KB panel and the yellow "AI-suggested — UNVERIFIED" panel render side by side)
+4. `pdk explain --module 6 --error 2 --no-ai` — raw-code decoder, AI suppressed to keep the recording tight
+5. `pdk debug --demo --fix --no-ai`
 6. `pdk report`
 
 **[0:43 — seg-3 · why it wins]** *(slide: uniqueness — raw-code decoder + POT gas + tests)*

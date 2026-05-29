@@ -71,10 +71,10 @@ real node, real POT gas, no asterisk.
 - CI-gating: `pdk debug --json --exit-code` returns non-zero with a decoded
   diagnosis, so a Portaldot project can fail its pipeline with a clear reason
   (see `docs/ci-recipe.md`).
-- Optional AI layer (`--ai`): grounded in the chain's metadata via an
-  OpenAI-compatible endpoint (defaults to OpenRouter's free
-  `openai/gpt-oss-120b:free`); labelled "AI-suggested — UNVERIFIED" so the
-  verified KB stays the source of truth.
+- Auto-on AI layer: set `PDK_AI_KEY` once (free OpenRouter tier) and every
+  `pdk debug` / `pdk explain` attaches an AI diagnosis grounded in the chain
+  metadata - no `--ai` flag, no friction. Labelled "AI-suggested - UNVERIFIED"
+  so the verified KB stays the source of truth. `--no-ai` opts out.
 - 35 unit tests + 25 live E2E checks (graceful bad-node, edge cases, no-mock
   policy). Site (Next.js) live with interactive in-browser FailLens.
 

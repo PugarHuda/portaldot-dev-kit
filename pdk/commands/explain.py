@@ -33,7 +33,11 @@ def run(
     ),
     ai: bool = typer.Option(
         False, "--ai",
-        help="Add an AI-assisted diagnosis, grounded in chain metadata (needs PDK_AI_KEY). For the long tail.",
+        help="Force the AI diagnosis even when no key is set (prints the setup hint).",
+    ),
+    no_ai: bool = typer.Option(
+        False, "--no-ai",
+        help="Skip the AI diagnosis even if PDK_AI_KEY is set.",
     ),
 ) -> None:
     """Explain a Portaldot error — what it means and how to fix it — without a transaction.
@@ -73,7 +77,7 @@ def run(
 
     if not fix.known:
         console.print(f"[yellow]No curated entry for '{error}'.[/yellow]")
-        if ai and _ai_section(pallet or "Unknown", name, decoded.docs):
+        if _should_run_ai(ai, no_ai) and _ai_section(pallet or "Unknown", name, decoded.docs, explicit=ai):
             return  # AI provided a diagnosis for the long-tail error
         hits = [k for k in sorted(kb) if name.lower() in k.lower()]
         if hits:
@@ -90,20 +94,35 @@ def run(
         + "\n".join(f"  {i}. {step}" for i, step in enumerate(fix.steps, 1))
     )
     console.print(Panel(body, title="pdk explain", border_style="cyan"))
-    if ai:
-        _ai_section(pallet or (display.split(".")[0] if "." in display else "Unknown"), name, decoded.docs)
+    if _should_run_ai(ai, no_ai):
+        _ai_section(pallet or (display.split(".")[0] if "." in display else "Unknown"),
+                    name, decoded.docs, explicit=ai)
 
 
-def _ai_section(pallet: str, name: str, docs: str) -> bool:
+def _should_run_ai(ai_flag: bool, no_ai_flag: bool) -> bool:
+    """AI runs automatically whenever a key is configured; --no-ai is the
+    off-switch; --ai forces the attempt (so the setup hint surfaces when the
+    user explicitly asked for AI but forgot the key)."""
+    if no_ai_flag:
+        return False
+    if ai_flag:
+        return True
+    from pdk.core.ai import ai_available
+    return ai_available()
+
+
+def _ai_section(pallet: str, name: str, docs: str, *, explicit: bool = False) -> bool:
     """Print an AI-suggested diagnosis (clearly labelled unverified).
 
-    Returns True if a diagnosis was produced. Never raises — if no key or the
-    call fails, prints a hint and returns False so the caller can fall back.
+    Returns True if a diagnosis was produced. Never raises. When ``explicit``
+    is True (user passed --ai), the missing-key hint is printed; otherwise we
+    stay silent so auto-mode doesn't nag users without a key.
     """
     from pdk.core.ai import ai_available, ai_diagnose
 
     if not ai_available():
-        console.print("[dim]--ai needs PDK_AI_KEY (a free OpenRouter key) — set it to enable AI diagnosis.[/dim]")
+        if explicit:
+            console.print("[dim]--ai needs PDK_AI_KEY (a free OpenRouter key) — set it to enable AI diagnosis.[/dim]")
         return False
     console.print("[dim]asking AI (grounded in chain metadata) …[/dim]")
     result = ai_diagnose(pallet, name, docs)
