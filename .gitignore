@@ -18,3 +18,9 @@ build/
 
 # Claude Code local settings (not part of the submission)
 .claude/
+
+# Local helper scripts (WSL-specific paths; not portable, not part of the submission)
+rerender_pitch.sh
+demo_capture.sh
+docs/_vid/
+docs/screens/pitch-seg*.png
