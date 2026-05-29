@@ -12,7 +12,7 @@ export default function TopBar({ status }) {
           <a href="/errors">Errors</a>
           <a href="/slide">Pitch</a>
           <a href="https://portalscan.portaldot.io">Explorer ↗</a>
-          <a href="https://github.com/PugarHuda/portaldot-pdk">GitHub ↗</a>
+          <a href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang">GitHub ↗</a>
         </nav>
         {status ? (
           <span className="status">

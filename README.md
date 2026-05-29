@@ -2,7 +2,7 @@
 
 <img src="docs/logo.png" alt="pdk — Portaldot Dev Kit" width="116" align="right" />
 
-[![tests](https://github.com/PugarHuda/portaldot-pdk/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-pdk/actions/workflows/ci.yml)
+[![tests](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
@@ -111,8 +111,8 @@ pdk --help
 …or from source:
 
 ```bash
-git clone https://github.com/PugarHuda/portaldot-pdk
-cd portaldot-pdk
+git clone https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang pdk
+cd pdk
 pip install -e .
 ```
 
@@ -265,8 +265,9 @@ every push (Python 3.11 and 3.12).
 
 ## Team
 
-- **Pugar Huda Mantoro** ([@PugarHuda](https://github.com/PugarHuda)) — solo full-stack developer (CLI, web, design, knowledge base).
-- Contact: **hudapugar@gmail.com** (for hackathon communication only).
+- **Team name:** **AmpunBang**
+- **Members:** Pugar Huda Mantoro ([@PugarHuda](https://github.com/PugarHuda)) — solo full-stack developer (CLI, web, design, knowledge base).
+- **Contact:** hudapugar@gmail.com (for hackathon communication only).
 
 ## License
 

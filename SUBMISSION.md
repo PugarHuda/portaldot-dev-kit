@@ -75,7 +75,7 @@ fee     : paid in POT by the submitting account
 
 ## Links
 
-- **Repo:** https://github.com/PugarHuda/portaldot-pdk
+- **Repo:** https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
 - **Install:** `pip install portaldot-pdk`
 - **Landing page:** https://portaldot-pdk.vercel.app
 - **Developer dashboard (visual):** https://portaldot-pdk.vercel.app/dashboard

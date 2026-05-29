@@ -37,7 +37,7 @@ No
 
 ### GitHub link
 ```
-https://github.com/PugarHuda/portaldot-pdk
+https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
 ```
 
 ### Project website
@@ -82,7 +82,7 @@ FailLens resolves errors against the **chain's own metadata** (no hard-coded tab
 
 **Quality.** 29 automated tests (CI on Python 3.11 + 3.12), no mocks, MIT licensed, published to PyPI (`pip install portaldot-pdk`, v0.1.2).
 
-- Repo: https://github.com/PugarHuda/portaldot-pdk
+- Repo: https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
 - Install: `pip install portaldot-pdk`
 - Error reference: https://portaldot-pdk.vercel.app/errors
 - Pitch deck: https://portaldot-pdk.vercel.app/slide

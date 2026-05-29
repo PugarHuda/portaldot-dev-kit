@@ -19,7 +19,7 @@ post these where they genuinely answer someone.
 >
 > That prints each dev account's address + POT balance. Use `//Alice` etc. as the
 > signing URI. (I built `pdk` to smooth out exactly these first-hour questions —
-> repo: https://github.com/PugarHuda/portaldot-pdk)
+> repo: https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang)
 
 ---
 
@@ -54,7 +54,7 @@ post these where they genuinely answer someone.
 > never goes stale). There's also a zero-install error reference in the browser.
 >
 > - Install: `pip install portaldot-pdk`
-> - Code (MIT): https://github.com/PugarHuda/portaldot-pdk
+> - Code (MIT): https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
 > - Error reference: https://portaldot-pdk.vercel.app/errors
 > - 1-min demo: <YouTube link>
 >
@@ -65,7 +65,7 @@ post these where they genuinely answer someone.
 
 ## D. One-line replies (for quick threads)
 
-- *"how do I start a node?"* → `pdk up` brings a local node up and proves it with a real tx. https://github.com/PugarHuda/portaldot-pdk
+- *"how do I start a node?"* → `pdk up` brings a local node up and proves it with a real tx. https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
 - *"is there an error list anywhere?"* → Yes, searchable + no install: https://portaldot-pdk.vercel.app/errors
 - *"how do I check a balance / read storage?"* → `pdk storage Balances TotalIssuance`, or `pdk accounts` for the dev accounts.
 

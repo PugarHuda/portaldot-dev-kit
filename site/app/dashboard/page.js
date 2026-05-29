@@ -127,7 +127,7 @@ export default function Dashboard() {
       <footer className="site-foot">
         <div className="wrap-wide row">
           <span>pdk — Portaldot Dev Kit · a visual companion to the CLI · verified against runtime <span className="mono">portaldot-1002</span></span>
-          <span><a href="https://github.com/PugarHuda/portaldot-pdk">github.com/PugarHuda/portaldot-pdk</a></span>
+          <span><a href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang">github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang</a></span>
         </div>
       </footer>
     </>

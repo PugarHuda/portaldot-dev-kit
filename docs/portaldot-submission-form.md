@@ -9,8 +9,10 @@ Aligned to the official **🌀 PortalDot Hackathon 2026 Submission Template**
 
 **Project Name:** pdk — Portaldot Dev Kit
 
-**Repository URL:** `https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-pugarhuda`
-*(renamed to comply with § 2.1; GitHub redirects from the older `portaldot-pdk` URL)*
+**Team Name:** AmpunBang
+
+**Repository URL:** `https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang`
+*(per § 2.1 `portaldot-hackathon-2026-[project]-[team]`; GitHub redirects from earlier names)*
 
 **Demo Video URL:** `<YouTube link>` ⏳ *(upload `docs/pitch.mp4` and paste here)*
 

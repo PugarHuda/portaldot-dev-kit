@@ -28,8 +28,8 @@ pdk = "pdk.cli:main"
 
 [project.urls]
 Homepage = "https://portaldot-pdk.vercel.app"
-Repository = "https://github.com/PugarHuda/portaldot-pdk"
-Changelog = "https://github.com/PugarHuda/portaldot-pdk/blob/master/CHANGELOG.md"
+Repository = "https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang"
+Changelog = "https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/blob/master/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling"]
