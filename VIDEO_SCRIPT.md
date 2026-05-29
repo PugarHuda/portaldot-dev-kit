@@ -1,39 +1,84 @@
-# pdk — Demo Video Narration (word-for-word, ~2:45)
+# pdk — Pitch Video Narration (as rendered)
 
-English narration for an international audience. Pair with the scenes in
-`DEMO.md`. Speak calmly; let each command's output land before talking over it.
-Purge + restart the node first (see DEMO.md pre-flight).
+This is the **shipped** narration in `docs/pitch.mp4` (≈67s, six segments).
+Timings are measured from the actual segment durations — use them when
+re-recording or re-cutting.
 
----
-
-**[0:00 — Title / hook]**
-> "Portaldot is a brand-new Substrate chain — Rust-first. In Season 1, every developer runs a local node. And when something breaks, the chain doesn't help you."
-
-**[0:12 — Scene 1: the pain]** *(show a raw failed transaction)*
-> "Here's a failed transaction. This is all you get: a module error code. No message, no explanation, no idea how to fix it. You're on your own."
-
-**[0:30 — Scene 2: pdk up]** *(run `pdk up`)*
-> "Meet pdk — the Portaldot Dev Kit. One command brings up a local node and proves it works with a real on-chain transaction — paying POT as gas. There's your transaction hash."
-
-**[0:52 — Scene 3: FailLens, the hero]** *(run `pdk debug --demo`)*
-> "Now the core. `pdk debug` is FailLens. It takes that same failed transaction, reads the failure event, and decodes the error against the chain's own metadata. Watch."
-> *(panel appears)*
-> "Balances, Insufficient Balance. In plain English: you tried to send more POT than the account holds — and here's exactly how to fix it. The cryptic code is now a conversation."
-
-**[1:25 — Scene 4: the wow — live monitor]** *(left pane `pdk debug --watch`, right pane submit failures)*
-> "FailLens also runs live. In watch mode it monitors the chain, and the moment any transaction fails, it's decoded in real time — right here. For anyone building or testing on Portaldot, this is a window into what's actually going wrong."
-
-**[1:55 — Scene 5: error reference]** *(run `pdk explain InsufficientBalance`)*
-> "And you don't even need a transaction. `pdk explain` is a queryable reference for every Portaldot error — what it means, and how to fix it. Every entry is verified against the live runtime."
-
-**[2:15 — Scene 6: doctor + close]** *(run `pdk doctor`)*
-> "Finally, `pdk doctor` checks your node — runtime, ink! compatibility, and whether the chain is actually producing blocks. Everything a Portaldot developer needs, in one CLI."
-> "pdk is open source, tested against a live node, and built to become the standard Portaldot dev toolkit. Repo and live page are in the description. Thanks for watching."
+The video is a **slide-deck pitch**, not a screen recording. The live screen
+walkthrough lives in `DEMODAY_SCRIPT.md` (rehearsal companion) and is the
+artifact used in the on-stage demo.
 
 ---
 
-## Delivery tips
-- Total ~2:45. Keep it under 3 minutes.
-- Re-record any take where a command stalls — the submission is a video, so only ship a clean run.
-- Biggest moments: the FailLens decode (1:00) and the live `--watch` (1:30). Pause and let them breathe.
-- On screen at least once: a real local-node tx hash, POT as the fee, and the raw-error → decoded before/after.
+## Segments
+
+| # | Title slide                          | Start  | End    | Duration |
+|---|--------------------------------------|--------|--------|----------|
+| 0 | pdk — Portaldot Dev Kit (title)      | 0:00.0 | 0:07.0 | 7.0s     |
+| 1 | The pain (raw error code)            | 0:07.0 | 0:14.6 | 7.6s     |
+| 2 | One CLI, thirteen commands           | 0:14.6 | 0:28.6 | 14.0s    |
+| 3 | Live demo highlights                 | 0:28.6 | 0:51.7 | 23.2s    |
+| 4 | Why pdk wins (raw-code unique)       | 0:51.7 | 1:02.4 | 10.7s    |
+| 5 | Outro                                | 1:02.4 | 1:07.2 | 4.8s     |
+
+Total: **1:07.2** (`ffprobe docs/pitch.mp4`).
+
+---
+
+## Narration (word-for-word, matches `subs.srt`)
+
+**[0:00 — seg-0 · title]** *(slide: pdk title)*
+> "pdk, the Portaldot Dev Kit. It turns cryptic transaction failures into clear, actionable diagnoses."
+
+**[0:07 — seg-1 · the pain]** *(slide: raw `Module { index, error }` code)*
+> "Portaldot is brand-new and Rust-first. When a transaction fails, you get a raw error code, with no message and no fix."
+
+**[0:14 — seg-2 · the solution]** *(slide: 13 commands list — `up · accounts · debug · explain · doctor · simulate · seed · pallets · send · storage · watch · keys · report`)*
+> "pdk is one command line tool for the whole local dev loop — thirteen commands, from starting a node and finding your POT, to sending, debugging, simulating, seeding, exploring the chain, and reporting every failure."
+
+**[0:28 — seg-3 · live highlights]** *(slide: FailLens panel + simulate fee + storage/pallets/keys)*
+> "Watch it live. Funded dev accounts. A real POT transfer. FailLens decodes a failing transaction into plain language, with a fix. Simulate previews a fee before you send. Storage reads chain state, pallets browses the runtime, and keys manages accounts."
+
+**[0:51 — seg-4 · why it wins]** *(slide: uniqueness — raw-code decoder + POT gas + tests)*
+> "pdk is the only debugger for Portaldot — even decoding the raw error code itself. Real transactions, paying POT as gas. Open source, and fully tested."
+
+**[1:02 — seg-5 · outro]** *(slide: outro / call-to-action)*
+> "pdk, the standard Portaldot dev toolkit. Thank you for watching."
+
+---
+
+## How this was built
+
+- TTS: **piper** (`en_US-lessac-medium.onnx`) on WSL.
+- Slides: `site/public/slide.html` (Next.js page) rendered to PNG via Edge
+  headless → `docs/_vid/slide{1..6}.png`.
+- Composer: `rerender_pitch.sh` (six `-loop 1 -i slide -i narr.wav` ffmpeg
+  builds, then `concat=n=6:v=1:a=1` and burn-in subtitles from `subs.srt`).
+- Output: `docs/pitch.mp4` (H.264 + AAC, 1920×1080-ish, ≤30fps).
+
+## Re-rendering
+
+To change a single segment without retouching the rest, edit `TEXT2` / `TEXT4`
+in `rerender_pitch.sh` and re-run:
+
+```bash
+wsl bash "/mnt/f/Hackathons/Hackathon Portaldot S1/rerender_pitch.sh"
+```
+
+The script reuses unchanged `seg-0`, `seg-1`, `seg-3`, `seg-5` from
+`~/vidwork/`, rebuilds the requested two, re-concats, and regenerates
+`subs.srt` from the **new** measured durations (so subtitles stay in sync
+even if the new TTS is a different length).
+
+## Verifying alignment
+
+The slide pixels and the subtitle text must say the same thing. Spot-check
+two frames after every re-render:
+
+```bash
+wsl bash -lc 'cd "$(dirname "$0")/docs" && ffmpeg -ss 20 -i pitch.mp4 -frames:v 1 screens/pitch-seg2.png && ffmpeg -ss 60 -i pitch.mp4 -frames:v 1 screens/pitch-seg4.png'
+```
+
+…then open both PNGs and confirm the burned-in subtitle matches the slide
+copy (e.g. seg-2 should say *"thirteen commands"* on the slide and in the
+caption; seg-4 should say *"only debugger … raw error code"*).
