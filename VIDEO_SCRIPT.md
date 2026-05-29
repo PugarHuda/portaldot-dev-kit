@@ -5,6 +5,12 @@ The video is a hybrid: two slide-deck segments frame the problem, a real
 asciinema recording of the pdk CLI runs the live demo, and two more slide
 segments close with the uniqueness + outro.
 
+**Subtitles are intentionally NOT burned in** — they covered the terminal
+output during the live-demo segment. Narration is in the audio track only.
+If you need on-screen captions later, generate them from `subs.srt` as a
+sidecar `.vtt` for YouTube to display (YouTube renders captions in its own
+overlay area, below the player viewport).
+
 Timings are measured from the actual rendered segments — use them when
 re-recording or re-cutting.
 

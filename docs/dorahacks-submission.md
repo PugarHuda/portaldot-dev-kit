@@ -13,17 +13,11 @@ pdk — Portaldot Dev Kit
 ### Logo (480×480, PNG, <2MB)
 Use `docs/logo.png` (exactly 480×480). ✅ ready in the repo.
 
-### Vision  *(short — the problem + what it does)*
+### Vision  *(max 256 chars)*
 ```
-Portaldot is a brand-new, Rust-first chain where developers run a local node and
-debugging is painful: a failed transaction returns a raw code like
-"Module error: 0x0600…" with no message and no fix. pdk is a single CLI that owns
-the local dev loop and, with its hero feature FailLens (`pdk debug`), decodes any
-failed transaction into a plain-language diagnosis + fix — resolved against the
-chain's own metadata, so it never goes stale. Thirteen commands, real on-chain
-transactions (no mocks), one-command install. Built to become the standard
-Portaldot developer toolkit and remove the #1 barrier to onboarding new builders.
+Portaldot prints a raw error code when a tx fails — no message, no fix. pdk's FailLens decodes it into a plain-language diagnosis + fix using the chain's own metadata. 13 commands cover the local dev loop, no mocks. pip install portaldot-pdk.
 ```
+*(242 chars — fits inside the 256-char limit on the DoraHacks BUIDL form.)*
 
 ### Category
 ```
