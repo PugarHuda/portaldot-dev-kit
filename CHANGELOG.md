@@ -3,6 +3,28 @@
 All notable changes to **pdk — Portaldot Dev Kit**. Published to PyPI:
 `pip install portaldot-pdk`. Format follows [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased — infra]
+### Changed
+- **Release pipeline now uses an API token, not OIDC.** PyPI Trusted Publisher
+  records pin to a specific owner+repo pair, and the mid-hackathon repo
+  rename broke them. `release.yml` now reads `PYPI_API_TOKEN` from GitHub
+  Secrets, so renames no longer require a manual reconfig on pypi.org.
+  Added `workflow_dispatch` so a maintainer can re-trigger publish without
+  pushing a new tag, and `skip-existing: true` so re-runs are idempotent.
+  Verified by manually dispatching the workflow against v0.1.6 — green run.
+- Re-linked the Vercel project to the renamed GitHub repo via
+  `vercel git connect`. Future master pushes auto-deploy again.
+- Web pages (`/`, `/demo`, `/dashboard`, `/errors`, `/slide`) all sync to
+  v0.1.6 numbers; `/demo` page hosts an interactive asciinema replay of all
+  14 commands plus an embedded 90 s narrated pitch video.
+### Added
+- README documents the Windows-Store-Python PATH caveat so first-time users
+  don't hit "'pdk' is not recognized" after `pip install`.
+- Comprehensive QA harness (gitignored, developer-local): 30 CLI smoke
+  cases, 30 live-node integration cases, 24 stress + edge cases. Total
+  ground-truth coverage = 40 pytest + 84 QA-harness = 124 deterministic
+  checks across the 14 commands.
+
 ## [0.1.6] — 2026-05-29
 ### Added
 - **`pdk ai-setup`** (new command — total now 14) — first-run wizard that

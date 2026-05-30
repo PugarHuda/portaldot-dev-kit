@@ -11,11 +11,16 @@ Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
 **[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Submission](SUBMISSION.md) · [Changelog](CHANGELOG.md)
 
+> **v0.1.6 ([on PyPI](https://pypi.org/project/portaldot-pdk/)).**
+> **14 commands** for the whole local dev loop · **AI auto-on** when `PDK_AI_KEY`
+> is set (no `--ai` flag; the verified KB stays the source of truth) ·
+> **`/demo` web page** replays the actual asciinema cast in your browser ·
+> **40 pytest cases + 84 integration & stress cases** verified locally against
+> a real `portaldot-1002` node.
+
 ![pdk — FailLens decoding a Portaldot transaction failure, live](docs/demo.gif)
 
-*Real recording of pdk running against a live Portaldot node. Full **narrated pitch video** (slide intro → live terminal demo → uniqueness → outro, voiced, subtitled, ~59 s): [`docs/pitch.mp4`](docs/pitch.mp4).*
-
-<!-- Demo GIF: record per docs/RECORD_GIF.md, then add here: ![pdk demo](docs/demo.gif) -->
+*Real recording of pdk running against a live Portaldot node. Full **narrated pitch video** (slide intro → 14-command live terminal demo → uniqueness slide → outro, voiced, ~90 s): [`docs/pitch.mp4`](docs/pitch.mp4). Replay interactively at [/demo](https://portaldot-pdk.vercel.app/demo).*
 
 ---
 
@@ -105,8 +110,8 @@ The node listens on `ws://127.0.0.1:9944`. Leave it running.
 **2. Install pdk** — from PyPI:
 
 ```bash
-pip install portaldot-pdk
-pdk --help
+pip install -U portaldot-pdk          # -U forces an upgrade if an old version is cached
+pdk --help                            # if `pdk` isn't on PATH, run `python -m pdk.cli --help`
 ```
 
 …or from source:
@@ -116,6 +121,12 @@ git clone https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang pd
 cd pdk
 pip install -e .
 ```
+
+> **Windows Store Python users:** the `pdk` entry point lands in
+> `%LOCALAPPDATA%\Packages\PythonSoftwareFoundation.Python.*\LocalCache\local-packages\Python*\Scripts\`,
+> which isn't on PATH by default. Either add that directory to PATH, use
+> a venv (`python -m venv .venv && .venv\Scripts\activate && pip install
+> portaldot-pdk`), or just invoke as `python -m pdk.cli`.
 
 ## Windows
 

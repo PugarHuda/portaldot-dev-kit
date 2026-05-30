@@ -43,8 +43,9 @@ Keep command modules in `pdk/commands/` thin; chain logic lives in `pdk/core/`.
 ## Cutting a release
 
 Releases publish to PyPI automatically via
-[`.github/workflows/release.yml`](.github/workflows/release.yml) using PyPI
-**Trusted Publishing** (OIDC — no token in the repo).
+[`.github/workflows/release.yml`](.github/workflows/release.yml) on any
+`v*` tag push, and can also be re-triggered manually with
+`gh workflow run release.yml`.
 
 Auth uses a PyPI API token stored as the `PYPI_API_TOKEN` GitHub Actions
 secret. Token-based auth was chosen over Trusted Publishing (OIDC) after

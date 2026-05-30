@@ -56,7 +56,7 @@ fee     : paid in POT by the submitting account
 
 **Adoption path — built to spread, not to demo once:**
 
-- **One-command install.** `pip install portaldot-pdk` — published to PyPI, no clone, no build. (Release pipeline is automated via tag → PyPI Trusted Publishing.)
+- **One-command install.** `pip install portaldot-pdk` — published to PyPI (v0.1.6), no clone, no build. Release pipeline auto-publishes on every `v*` tag (token auth, survives repo renames; re-runnable on demand via `gh workflow run release.yml`).
 - **A CI citizen, not just a REPL.** `pdk debug --json --exit-code` returns a non-zero code with a decoded diagnosis, so a Portaldot project can *gate its pipeline* on transaction failures (see [`docs/ci-recipe.md`](docs/ci-recipe.md)). That turns pdk from a personal convenience into team infrastructure.
 - **A community-owned knowledge base.** FailLens reads fixes from `error_fixes.yaml`; every contributor who adds an entry improves debugging for the whole ecosystem. [`CONTRIBUTING.md`](CONTRIBUTING.md) makes that a five-line PR. The value compounds with adoption.
 - **Machine-readable everywhere.** `--json` output is the integration surface for the editor extensions and bots on the roadmap.
@@ -68,16 +68,24 @@ fee     : paid in POT by the submitting account
 
 ## Quality
 
-- Verified end-to-end against a live Portaldot node (every command).
-- 40 automated tests (CI on Python 3.11 + 3.12); graceful handling of unreachable nodes, missing/invalid hashes, short-chain scans, successful txs, and repeated demo runs.
-- Packaged for PyPI (sdist + wheel build clean); automated release pipeline.
+- Verified end-to-end against a live Portaldot node (every one of the 14 commands).
+- **124 deterministic checks** across four tiers: 40 pytest unit tests (CI on
+  Python 3.11 + 3.12), 30 CLI smoke cases, 30 live-node integration cases
+  (every command runs against a real `portaldot-1002` node), and 24 stress
+  + edge cases (rapid-fire submissions, redirected-stdout / cp1252,
+  garbage tx hashes, --json shape validation, --no-ai/--ai gate consistency).
+- Graceful handling of unreachable nodes, missing/invalid hashes,
+  short-chain scans, successful txs, and repeated demo runs.
+- Packaged for PyPI (sdist + wheel build clean); automated release pipeline
+  (token auth; survives repo renames; re-runnable on demand).
 - MIT licensed, open source, with a contributor guide.
 
 ## Links
 
 - **Repo:** https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
-- **Install:** `pip install portaldot-pdk`
+- **Install:** `pip install portaldot-pdk` (currently v0.1.6)
 - **Landing page:** https://portaldot-pdk.vercel.app
+- **In-browser live demo:** https://portaldot-pdk.vercel.app/demo *(asciinema replay of all 14 commands + embedded 90 s narrated pitch video)*
 - **Developer dashboard (visual):** https://portaldot-pdk.vercel.app/dashboard
 - **Error reference (zero-install):** https://portaldot-pdk.vercel.app/errors
 - **Pitch deck:** https://portaldot-pdk.vercel.app/slide
