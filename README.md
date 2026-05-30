@@ -190,8 +190,9 @@ pdk debug 0x<txhash> --json --exit-code   # exits 2 (with a decoded diagnosis) i
 
 ## Troubleshooting
 
-Real problems users have hit, with fixes that work. If anything else
-breaks, open an issue with the command + the output.
+Real problems users have hit, with fixes that work. **Full catalogue
+(50+ failure modes) in [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)**.
+If anything else breaks, open an issue with the command + the output.
 
 ### `'pdk' is not recognized` (Windows)
 
