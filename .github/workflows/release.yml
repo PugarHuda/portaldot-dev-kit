@@ -1,22 +1,27 @@
 name: release
 
 # Publishes pdk to PyPI when a version tag (v*) is pushed.
-# Uses PyPI Trusted Publishing (OIDC) — no API token stored in the repo.
-# One-time setup: on PyPI, add a Trusted Publisher for project "portaldot-pdk"
-# pointing at this repo + workflow (release.yml) + environment "pypi".
-# See CONTRIBUTING.md → "Cutting a release".
+#
+# Auth: uses an API token stored in the repo as the PYPI_API_TOKEN secret.
+# Token-based auth was chosen over Trusted Publishing (OIDC) because the
+# repo was renamed mid-hackathon and PyPI's Trusted Publisher records pin
+# to a specific owner+repo pair — every rename forces a manual reconfig
+# on pypi.org, which doesn't survive automation. Token auth is stable
+# across renames. Rotate the token periodically (Settings → Secrets).
+#
+# manual dispatch: lets a maintainer re-run a failed release without
+# pushing a new tag (useful if PyPI rate-limits or a network blip
+# kills an upload partway through).
 
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch: {}
 
 jobs:
   pypi-publish:
     name: Build and publish to PyPI
     runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write  # required for Trusted Publishing (OIDC)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,3 +33,6 @@ jobs:
           python -m build
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true

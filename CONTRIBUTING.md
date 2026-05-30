@@ -46,10 +46,20 @@ Releases publish to PyPI automatically via
 [`.github/workflows/release.yml`](.github/workflows/release.yml) using PyPI
 **Trusted Publishing** (OIDC — no token in the repo).
 
-One-time setup (maintainer): on PyPI, open the `portaldot-pdk` project →
-*Publishing* → add a Trusted Publisher with
-owner `PugarHuda`, repo `portaldot-hackathon-2026-pdk-AmpunBang`,
-workflow `release.yml`, environment `pypi`.
+Auth uses a PyPI API token stored as the `PYPI_API_TOKEN` GitHub Actions
+secret. Token-based auth was chosen over Trusted Publishing (OIDC) after
+the repo was renamed mid-hackathon: Trusted Publisher records pin to a
+specific owner + repo pair, and every rename forces a manual reconfig on
+pypi.org that web-only auth (with 2FA) makes hard to automate. Tokens
+survive renames; rotate periodically.
+
+To rotate the token:
+
+1. Open https://pypi.org/manage/account/token/ → create a project-scoped
+   token for `portaldot-pdk`.
+2. `gh secret set PYPI_API_TOKEN -b <new-token>` (or paste in the GitHub
+   Settings → Secrets UI).
+3. Revoke the old token on PyPI.
 
 To release:
 
@@ -61,32 +71,31 @@ git push origin v0.1.0
 
 The workflow builds the sdist + wheel and publishes them.
 
-### If release.yml fails after a repo rename
+### Manually trigger a release without a new tag
 
-Trusted Publishers on PyPI are pinned to a specific GitHub owner + repo
-name. When the repo is renamed (e.g. `portaldot-pdk` → `portaldot-hackathon-
-2026-pdk-AmpunBang`), the OIDC token from GitHub no longer matches the
-Trusted Publisher's repo field, and the release step fails with a 403 plus
-a pointer to PyPI's [Trusted Publishers troubleshooting guide][tp].
-
-To fix:
-
-1. Open https://pypi.org/manage/project/portaldot-pdk/settings/publishing/.
-2. Under "Trusted publisher management", delete the stale entry that
-   references the old repo name.
-3. Add a new Trusted Publisher with the *new* repo name (the rest
-   stays the same: owner `PugarHuda`, workflow `release.yml`, environment
-   `pypi`).
-4. Re-run the failed release run from GitHub Actions, or push a new tag.
-
-Until that's done, releases can be uploaded manually as a one-off:
+`release.yml` supports `workflow_dispatch`, so a maintainer can re-run the
+publish step without pushing a new tag (useful if PyPI rate-limited the
+last attempt or a network blip killed the upload mid-stream):
 
 ```bash
-python -m build                          # build sdist + wheel
-python -m twine upload dist/*            # uses ~/.pypirc, or pass --username __token__ --password $TOKEN
+gh workflow run release.yml
 ```
 
-[tp]: https://docs.pypi.org/trusted-publishers/troubleshooting/
+The publish step is configured with `skip-existing: true`, so re-running
+against a version that's already on PyPI is a no-op rather than a fatal
+"file already exists" error.
+
+### Falling back to a fully-manual upload
+
+If everything CI-side is hosed, the release also works straight from a
+developer machine:
+
+```bash
+python -m build                                          # build sdist + wheel
+python -m twine upload --username __token__ \
+                       --password "$PYPI_API_TOKEN" \
+                       dist/*
+```
 
 ## License
 
