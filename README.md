@@ -24,19 +24,48 @@ Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
 ---
 
-## The problem
+## Project Overview
 
-Portaldot is a brand-new, Substrate-based, Rust-first chain. In Season 1
-developers run it from a **local node** (the organizers' intended environment),
-and the developer experience is rough:
+**Problem Statement.** Portaldot is a brand-new, Substrate-based, Rust-first
+chain. In Season 1 developers run it from a **local node** (the organizers'
+intended environment), and the developer experience is rough:
 
 - When a transaction fails, the node returns a raw error like
-  `Module error: 0x0600…` — no message, no explanation, no fix.
-- Newcomers don't know how to get POT or where to start (the hackathon Q&A is
-  full of *"how do I get POT?"* and *"where's the RPC / faucet?"*).
+  `Module error: 0x0600…` — no message, no explanation, no fix. The
+  cryptic `Module: { index, error }` code is what blocks every new
+  Portaldot builder; nothing in the ecosystem decodes it.
+- Newcomers don't know how to get POT or where to start (the hackathon Q&A
+  channel is full of *"how do I get POT?"* and *"where's the RPC / faucet?"*).
 
-`pdk` is the answer to both: it turns cryptic failures into clear diagnoses, and
-gives every developer a one-command local dev loop.
+**Solution.** `pdk` (Portaldot Dev Kit) is a single Python CLI with
+**14 commands** that owns the local development loop end-to-end:
+
+1. **FailLens** (`pdk debug`) — the hero. Decode any failed transaction
+   against the chain's own metadata + a verified 29-entry knowledge base.
+2. **Raw-code decoder** (`pdk explain --module 6 --error 2`) — the
+   *unique* feature. Resolves the bare `Module { index, error }` code via
+   a verified 202-entry runtime index. Nothing else in the Portaldot
+   ecosystem does this.
+3. **`pdk debug --demo --fix`** — diagnose AND remediate: submit the
+   corrected transaction and show it succeed on-chain.
+4. **AI auto-on** — set `PDK_AI_KEY` once and every diagnose call
+   automatically attaches an "AI-suggested — UNVERIFIED" panel next to
+   the verified KB entry; opt out with `--no-ai`.
+5. **CI gating** — `pdk debug --json --exit-code` returns rc 2 with a
+   machine-readable diagnosis, so a team can fail a build on a decoded
+   transaction failure.
+6. **Adoption-ready** — `pip install portaldot-pdk` (PyPI v0.1.6),
+   cross-platform (Linux + macOS + Windows native).
+
+**Blockchain Relevance.** pdk talks directly to the Portaldot runtime via
+Substrate's WebSocket RPC. It uses **native pallets** (not ink! contracts),
+which means it works on the real Portaldot node with no ink! caveat —
+every command consumes **real POT as gas**, paid by the signing dev
+account. The verified knowledge base (`pdk/data/error_fixes.yaml`) is
+keyed by `<pallet>.<ErrorName>` matched against live `portaldot-1002`
+metadata. The toolkit is *Portaldot-specific*: legacy `LookupSource`
+types, contracts API v5 / ink! 3.x quirks, the unique raw-code mapping
+that doesn't exist on any other Substrate chain.
 
 ## Concept — how FailLens works
 
@@ -323,19 +352,57 @@ How to fix
   2. Lower the amount, or fund the account first.
 ```
 
-## Tech stack
+## Technical Architecture
 
-- **Blockchain platform:** Portaldot (Substrate-based, runtime `portaldot-1002`, Contracts API v5)
-- **Smart contracts:** *none* — pdk uses **native pallets + metadata-driven decoding**, so it works on the real Portaldot node with no ink! caveat
-- **Language:** Python 3.11+ (CLI), with [`substrate-interface`](https://github.com/polkascan/py-substrate-interface) for chain RPC
-- **CLI framework:** [`typer`](https://typer.tiangolo.com/) + [`rich`](https://github.com/Textualize/rich) for terminal UI; [`pyyaml`](https://pyyaml.org/) for the knowledge base
-- **Optional AI layer:** standard-library `urllib` → OpenAI-compatible endpoint (defaults to OpenRouter's free `openai/gpt-oss-120b:free`); zero hard dependency
-- **Web companion:** [Next.js 14](https://nextjs.org/) (App Router, React), deployed on Vercel
-- **Test + CI:** `pytest` (40 unit tests) on Python 3.11 & 3.12 via GitHub Actions
+**Overall flow:**
+
+```
+┌──────────────┐   typer CLI   ┌──────────────┐   substrate-interface   ┌────────────────┐
+│  pdk <cmd>   │ ───────────▶  │  pdk/core/   │ ─────────────────────▶ │  Portaldot     │
+│ (14 commands)│               │  chain.py    │   websocket RPC        │  node (1002)   │
+└──────────────┘               │  decoder.py  │ ◀───────────────────── └────────────────┘
+                               │  knowledge.py│      ExtrinsicFailed event
+                               │  report.py   │      DispatchError { Module: idx,err }
+                               │  ai.py       │
+                               └──────┬───────┘
+                                      │ 3-tier lookup (exact key → name-only → metadata-doc)
+                                      ▼
+                               ┌──────────────┐   optional: opt-in       ┌────────────────┐
+                               │ verified KB  │   PDK_AI_KEY set         │ OpenRouter LLM │
+                               │ 29 entries   │ ─────────────────────▶  │ (gpt-oss-120b) │
+                               │ + 202-entry  │                          └────────────────┘
+                               │ runtime idx  │
+                               └──────────────┘
+```
+
+**Core tech stack:**
+
+- **Blockchain platform:** Portaldot (Substrate-based, runtime `portaldot-1002`, Contracts API v5 / ink! 3.x)
+- **Smart contracts:** *none* — pdk uses **native pallets + metadata-driven decoding**, so it works on the real Portaldot node with no ink! caveat. The hackathon's native-deployment requirement is satisfied by real `Balances.transfer` calls; sample tx hash below.
+- **CLI language:** Python 3.11+
+- **Chain RPC client:** [`substrate-interface`](https://github.com/polkascan/py-substrate-interface) (with the `substrate-node-template` type-registry preset for Portaldot's legacy `LookupSource`)
+- **CLI framework:** [`typer`](https://typer.tiangolo.com/) + [`rich`](https://github.com/Textualize/rich) (terminal UI), [`pyyaml`](https://pyyaml.org/) (knowledge base)
+- **Optional AI layer:** standard-library `urllib` → any OpenAI-compatible endpoint (defaults to OpenRouter's free `openai/gpt-oss-120b:free`); zero hard dependency, auto-on when `PDK_AI_KEY` is set
+- **Web companion:** Next.js 14 (App Router, React) deployed on Vercel — landing, in-browser dashboard, error reference, pitch deck, **interactive asciinema replay of all 14 commands**
+- **Test + CI:** `pytest` (40 unit tests) on Python 3.11 & 3.12 via GitHub Actions; comprehensive QA harness (gitignored) covers 84 additional integration + stress cases against a live node
+- **Release pipeline:** auto-publish to PyPI on `v*` tag push (token-auth, survives repo renames; manually re-triggerable via `gh workflow run release.yml`)
+
+## Smart Contracts
+
+*Skip — this project does not use smart contracts.* pdk talks to native
+Substrate pallets (Balances, System, Assets, Contracts pallet for *reading*
+metadata, etc.) via WebSocket RPC. The native-deployment requirement is
+satisfied by real `Balances.transfer` extrinsics paying POT as gas — sample
+proof tx hash below.
+
+The "Contracts pallet present, but ink! 3.x only" caveat that `pdk doctor`
+surfaces is one of the reasons pdk avoids ink! and uses native pallets: most
+ink! 4.x+ contracts won't deploy on the current Portaldot node, and pdk is
+designed to work on the real chain without that caveat.
 
 ## Demo
 
-- **Pitch video (~59 s):** `docs/pitch.mp4` — slide intro + **live terminal demo** (doctor → accounts → debug --demo → explain raw code → debug --fix → report) + outro, voiced and subtitled. YouTube link added after upload.
+- **Pitch video (~81 s, voiced):** `docs/pitch.mp4` — slide intro + **52 s live terminal demo** (fresh venv → `pip install portaldot-pdk` → all 14 commands against a real node) + uniqueness slide + outro. YouTube link added after upload.
 - **Live page:** https://portaldot-pdk.vercel.app
 - **Interactive dashboard** (in-browser FailLens you can type into): https://portaldot-pdk.vercel.app/dashboard
 - **Searchable error reference:** https://portaldot-pdk.vercel.app/errors
