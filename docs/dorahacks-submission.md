@@ -41,7 +41,7 @@ https://portaldot-pdk.vercel.app
 
 ### Demo video
 ```
-<YouTube link>   ⏳ you — upload docs/pitch.mp4 to YouTube, paste the link here
+https://youtu.be/EPNIRRc3qnw
 ```
 
 ### Social link (at least one required)

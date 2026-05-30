@@ -90,7 +90,7 @@ fee     : paid in POT by the submitting account
 - **Error reference (zero-install):** https://portaldot-pdk.vercel.app/errors
 - **Pitch deck:** https://portaldot-pdk.vercel.app/slide
 - **CI recipe:** [docs/ci-recipe.md](docs/ci-recipe.md)
-- **Demo video:** <add link>
+- **Demo video:** https://youtu.be/EPNIRRc3qnw
 
 ## Roadmap
 

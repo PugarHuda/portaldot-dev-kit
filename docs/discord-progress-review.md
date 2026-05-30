@@ -78,8 +78,8 @@ in POT.
 - Code path: `pdk/core/chain.py → submit_call()`, `pdk/core/decoder.py →
   decode_receipt()`, `pdk/core/knowledge.py → lookup_fix()`
 - README: https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/blob/master/README.md
-- Demo video: https://portaldot-pdk.vercel.app/demo *(pitch.mp4, 81 s,
-  narrated; YouTube link will be added)*
+- Demo video (YouTube): https://youtu.be/EPNIRRc3qnw *(pitch.mp4, 81 s, narrated)*
+- In-browser interactive replay: https://portaldot-pdk.vercel.app/demo
 
 ## **POT Gas / Fee Usage**
 
@@ -126,12 +126,10 @@ in POT.
 
 ## **Demo Video**
 
-- **Pitch video (90 s, voiced):** in repo at `docs/pitch.mp4`,
-  hosted at https://portaldot-pdk.vercel.app/pitch.mp4 — YouTube link
-  will be added shortly
+- **Pitch video (YouTube, 81 s, voiced):** https://youtu.be/EPNIRRc3qnw
 - **In-browser interactive replay:** https://portaldot-pdk.vercel.app/demo
   *(asciinema-player; visitors can scrub the timeline + copy text from the
-  terminal output of all 14 commands)*
+  terminal output of all 14 commands; also embeds the same pitch video)*
 
 ---
 

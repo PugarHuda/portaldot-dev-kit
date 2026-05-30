@@ -14,7 +14,7 @@ Aligned to the official **🌀 PortalDot Hackathon 2026 Submission Template**
 **Repository URL:** `https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang`
 *(per § 2.1 `portaldot-hackathon-2026-[project]-[team]`; GitHub redirects from earlier names)*
 
-**Demo Video URL:** `<YouTube link>` ⏳ *(upload `docs/pitch.mp4` and paste here)*
+**Demo Video URL:** https://youtu.be/EPNIRRc3qnw
 
 ---
 
