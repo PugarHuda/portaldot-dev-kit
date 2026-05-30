@@ -187,10 +187,36 @@
         <div class="cmd-card"><div class="c">pdk storage</div><div class="d">Read any chain storage</div></div>
         <div class="cmd-card"><div class="c">pdk watch</div><div class="d">Stream chain events live</div></div>
         <div class="cmd-card"><div class="c">pdk keys</div><div class="d">Generate / inspect a keypair</div></div>
+        <div class="cmd-card"><div class="c">pdk report</div><div class="d">Group + count every failure</div></div>
+        <div class="cmd-card"><div class="c">pdk ai-setup</div><div class="d">Wire up the optional AI layer</div></div>
       </div>
       <div style="margin-top:14px; color:var(--muted); font-size:13.5px;">
-        <span class="mono">pip install portaldot-pdk</span> · runs on Linux, macOS &amp; Windows ·
+        <span class="mono">pip install portaldot-pdk</span> (v0.1.6) · Linux, macOS &amp; Windows ·
         CI-gating with <span class="mono">pdk debug --json --exit-code</span>.
+      </div>
+    </div>
+
+    <!-- AI layer (new in v0.1.6) -->
+    <div class="card col-12">
+      <h2>Optional AI layer — auto-on <span class="cmd">PDK_AI_KEY</span></h2>
+      <p style="color:var(--muted); font-size:14.5px; max-width:80ch;">
+        Set one environment variable and every diagnose command attaches a yellow
+        <strong style="color:var(--text)">AI-suggested — UNVERIFIED</strong> panel
+        next to the verified KB entry. Grounded in the chain's own metadata so it
+        cannot drift from the runtime. The verified knowledge base stays the
+        source of truth; the AI section is the long-tail safety net.
+      </p>
+      <div class="cmds" style="margin-top:12px">
+        <div class="cmd-card"><div class="c">pdk debug --demo</div><div class="d">AI runs automatically next to FailLens</div></div>
+        <div class="cmd-card"><div class="c">pdk explain</div><div class="d">AI fallback for long-tail errors</div></div>
+        <div class="cmd-card"><div class="c">pdk simulate</div><div class="d">AI explains the fee breakdown</div></div>
+        <div class="cmd-card"><div class="c">pdk report</div><div class="d">AI summarises failure patterns</div></div>
+      </div>
+      <div style="margin-top:12px; color:var(--muted); font-size:13px;">
+        <span class="mono">--no-ai</span> opts out per-command · <span class="mono">--ai</span> forces an attempt
+        (surfaces the setup hint when no key is configured) · model swappable via
+        <span class="mono">PDK_AI_MODEL</span>; endpoint via <span class="mono">PDK_AI_BASE_URL</span>.
+        Free default: <span class="mono">openai/gpt-oss-120b:free</span> via OpenRouter.
       </div>
     </div>
 
