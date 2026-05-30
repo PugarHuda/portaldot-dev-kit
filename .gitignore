@@ -29,6 +29,7 @@ docs/_vid/
 docs/screens/pitch-seg*.png
 docs/screens/pitch-livedemo*.png
 docs/screens/pitch-t*.png
+docs/screens/pitch-e2e-mid.png
 docs/screens/demo-ai-check.png
 
 # Render-only copy of slide.html used to dodge a Chromium headless quirk
