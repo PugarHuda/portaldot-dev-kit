@@ -41,3 +41,5 @@ rebuild_slide_segments.sh
 bench_ai.sh
 convert_cast.sh
 qa_all_commands.py
+qa_live.py
+qa_stress.py
