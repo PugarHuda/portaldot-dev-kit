@@ -4,6 +4,17 @@ All notable changes to **pdk — Portaldot Dev Kit**. Published to PyPI:
 `pip install portaldot-pdk`. Format follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased — infra]
+### Documented troubleshooting
+- README now has a **Troubleshooting** section covering every real-world
+  problem encountered while building / installing pdk this hackathon:
+  Microsoft-Store-Python PATH (`'pdk' is not recognized`), pip cache
+  serving v0.1.0, WSL2 localhost edge cases, stalled dev chain
+  (BABE epoch error), AI key not picked up, fee-estimator quirk that
+  rejects sends after Alice has paid demo fees, Rich Unicode crash on
+  Windows cp1252 stdout, release.yml after repo rename, Vercel canonical
+  domain 404 after rename. Each entry has the exact command to fix it.
+
+
 ### Changed
 - **Release pipeline now uses an API token, not OIDC.** PyPI Trusted Publisher
   records pin to a specific owner+repo pair, and the mid-hackathon repo

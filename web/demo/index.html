@@ -91,14 +91,15 @@
 <header class="hero">
   <div class="wrap">
     <div class="kicker">Voiced pitch · in-browser terminal · all 14 commands</div>
-    <h1>See pdk run on a real Portaldot node<span class="dot">.</span></h1>
+    <h1>From <span class="mono" style="font-size:0.7em;">pip install</span> to all 14 commands<span class="dot">.</span></h1>
     <p class="lede">
       Two ways to watch: the <strong>narrated pitch video</strong> tells the
-      story in 90 seconds; the <strong>interactive terminal recording</strong>
-      below it is a real asciinema cast you can scrub through and copy text
-      from. Both were captured against a freshly purged local Portaldot node
-      (<span class="mono">portaldot-1002</span>); every command pays POT as
-      gas; the AI panel is live OpenRouter output.
+      story in 90 seconds. The <strong>interactive terminal recording</strong>
+      below is a real asciinema cast starting from a <em>fresh Python venv</em>
+      — you'll see <span class="mono">pip install portaldot-pdk</span> run live,
+      then every one of the 14 commands against a real
+      <span class="mono">portaldot-1002</span> node. Scrub the timeline, copy
+      text — it's a terminal, not a video.
     </p>
   </div>
 </header>
@@ -113,9 +114,22 @@
     <a href="/pitch.mp4">/pitch.mp4</a>
   </video>
   <p style="color:var(--muted);font-size:14px;margin-bottom:36px;">
-    Voiced (piper TTS). Slide intro · live terminal demo of all 14 commands ·
-    uniqueness slide · outro. No burned-in subtitles — narration is in the
-    audio track only.
+    Voiced (piper TTS). Slide intro · live terminal demo · uniqueness slide ·
+    outro. No burned-in subtitles — narration is in the audio track only.
+  </p>
+
+  <h2 style="font-size:22px;color:#fff;margin-bottom:12px;letter-spacing:-.01em;">▶ End-to-end install demo (~52 s, no audio)</h2>
+  <video controls preload="metadata" poster="/logo.png"
+         style="width:100%;max-height:540px;background:var(--panel);border:1px solid var(--border);border-radius:12px;display:block;margin-bottom:14px;">
+    <source src="/demo-e2e.mp4" type="video/mp4" />
+    Your browser cannot play MP4. Download:
+    <a href="/demo-e2e.mp4">/demo-e2e.mp4</a>
+  </video>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:36px;">
+    The complete "from scratch" experience captured live: fresh
+    <span class="mono">python -m venv</span> → <span class="mono">pip install
+    portaldot-pdk</span> → every one of the 14 commands. Real install from
+    PyPI, real Portaldot node, real POT gas. Zero post-production.
   </p>
 
   <h2 style="font-size:22px;color:#fff;margin-bottom:12px;letter-spacing:-.01em;">▶ Interactive terminal (replay or scrub)</h2>
@@ -131,8 +145,11 @@
   </div>
 
   <section class="commands">
-    <h2>What you'll see — all 14 commands</h2>
+    <h2>What you'll see — install + all 14 commands</h2>
     <ol>
+      <li><code>python3 -m venv ~/demo-venv && source ~/demo-venv/bin/activate</code> <span class="why">Fresh, isolated environment. Anyone can reproduce this from scratch.</span></li>
+      <li><code>pip install portaldot-pdk</code> <span class="why">Live install from PyPI (v0.1.6). Takes ~3 seconds to download + unpack.</span></li>
+      <li><code>pdk --version</code> <span class="why">Confirms v0.1.6 just-installed.</span></li>
       <li><code>pdk doctor --no-liveness</code> <span class="why">Node + runtime health, plus the new "AI (optional)" status row.</span></li>
       <li><code>pdk accounts</code> <span class="why">Pre-funded dev accounts and POT balances — no faucet needed.</span></li>
       <li><code>pdk pallets</code> <span class="why">Browse the 31 runtime pallets straight from metadata.</span></li>

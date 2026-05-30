@@ -188,6 +188,118 @@ pdk keys                          # generate a new keypair
 pdk debug 0x<txhash> --json --exit-code   # exits 2 (with a decoded diagnosis) if it failed
 ```
 
+## Troubleshooting
+
+Real problems users have hit, with fixes that work. If anything else
+breaks, open an issue with the command + the output.
+
+### `'pdk' is not recognized` (Windows)
+
+You installed pdk but `pdk --version` says `'pdk' is not recognized`. This
+is a Microsoft Store Python quirk: it installs `pdk.exe` to a Scripts
+directory that isn't on PATH. Three options:
+
+```cmd
+:: Option A — invoke as a module (no setup, works immediately)
+python -m pdk.cli --version
+
+:: Option B — add Scripts to PATH (one-time)
+setx PATH "%PATH%;C:\Users\ASUS\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\Scripts"
+:: then close + reopen your terminal
+
+:: Option C — use a venv (cleanest)
+python -m venv .venv
+.venv\Scripts\activate
+pip install portaldot-pdk
+pdk --version
+```
+
+### `pip install` gives me v0.1.0 (stale)
+
+```bash
+pip install --upgrade --force-reinstall portaldot-pdk
+```
+
+pip caches wheel files and `Requirement already satisfied` can mean "old
+version already installed, skipping upgrade". `-U` (`--upgrade`) plus
+`--force-reinstall` always re-fetches.
+
+### `Cannot reach a Portaldot node at ws://127.0.0.1:9944`
+
+The node binary isn't running, or it's running in WSL but pdk can't reach
+WSL from Windows. Fixes:
+
+- **Confirm node is up**: in the terminal where you started it, look for
+  `Imported #N` lines scrolling past.
+- **WSL2 localhost forwarding** is on by default — but if `127.0.0.1`
+  doesn't work, get the WSL IP and use that:
+  ```bash
+  wsl hostname -I        # e.g. 172.21.144.5
+  pdk doctor --node ws://172.21.144.5:9944
+  ```
+- **Dev chain stalled?** Sometimes a `--dev` DB wedges with
+  `BABE: Unexpected epoch change`. Reset:
+  ```bash
+  ./portaldot_dev purge-chain --dev -y
+  ./portaldot_dev --dev --base-path /tmp/portaldot-dev
+  ```
+  `pdk doctor` (without `--no-liveness`) detects this for you.
+
+### AI section doesn't appear even with a key set
+
+1. Confirm the env var is set **in the shell you're running `pdk` in**:
+   ```bash
+   echo $PDK_AI_KEY    # POSIX
+   echo %PDK_AI_KEY%   # cmd
+   ```
+2. Run the wizard to actually round-trip a request:
+   ```bash
+   pdk ai-setup --test
+   ```
+   It tells you whether the key reaches OpenRouter and the configured
+   model responds.
+3. If `--no-ai` is in your shell history or wrapping script, it wins over
+   auto-on. Try `pdk debug --demo` with no flags.
+
+### `Send failed: Inability to pay some fees` even though I have balance
+
+The fee estimator is conservative. If you've been running `pdk debug --demo`
+warm-ups, Alice's balance is slightly under 50,000 POT (each demo costs a
+small fee). Use a smaller amount, or restart the node to reset state:
+
+```bash
+pkill -f portaldot_dev
+./portaldot_dev purge-chain --dev -y && ./portaldot_dev --dev --base-path /tmp/portaldot-dev
+```
+
+### Rich output crashes on Windows with `UnicodeEncodeError`
+
+Fixed in v0.1.1+ — pdk forces UTF-8 stdout at startup. If you're on an
+older version, upgrade:
+
+```bash
+pip install -U portaldot-pdk
+```
+
+### `release.yml` fails after a repo rename
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) — the release workflow uses an API
+token (`PYPI_API_TOKEN` secret) rather than PyPI Trusted Publishing because
+the latter pins to a specific repo name and any rename breaks it.
+`workflow_dispatch` lets a maintainer re-trigger the publish from the
+Actions tab without pushing a new tag.
+
+### Vercel canonical domain returns 404 after repo rename
+
+```bash
+# from web/ directory, using cached Vercel CLI auth:
+vercel git connect https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
+vercel deploy --prod
+vercel alias set <new-deploy-url> portaldot-pdk.vercel.app
+```
+
+The first push after this fixes auto-deploy permanently.
+
 ## Use in CI
 
 `pdk` is built to gate a pipeline, not just to run interactively.
