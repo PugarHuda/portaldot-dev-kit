@@ -47,3 +47,5 @@ qa_stress.py
 record_e2e.sh
 record_live_demo.sh
 probe.sh
+stop_and_verify.sh
+docs/screens/live-demo-t90.png
