@@ -92,7 +92,7 @@ Showcase flow now is a single continuous deck-driven walkthrough — no app-swit
 
 > **"Here's the actual recording."**
 >
-> *(immediately click the video play button — then read `docs/live-demo-narration.md` straight through while the video plays. Pace yourself with the on-screen action; the script has [CUE: ...] markers that match. Don't talk over the very first few seconds — let the audience see the empty venv.)*
+> *(immediately click the video play button — then read the **QUICK 2:27 MODE** section at the top of `docs/live-demo-narration.md` straight through while the video plays. ~370 words paced for 2:30. The [CUE: ...] markers match the on-screen commands; let the video set the pace, don't stop to pause. Hold the first 2 s of silence so the audience sees the empty venv.)*
 >
 > *(when the video ends and the closing line "# 14 commands. Real POT gas. No mocks. Portaldot Online Mini Hackathon S1 — 1st place." is on screen, pause 1 second, then press → for slide 7.)*
 

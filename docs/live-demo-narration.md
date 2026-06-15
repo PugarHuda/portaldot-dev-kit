@@ -2,6 +2,102 @@
 
 **For: a full live-demo video covering all 14 commands of pdk.**
 
+This file has **two** versions of the narration:
+
+1. **QUICK 2:27 MODE** (below) — paced to match `web/live-demo.mp4`, the
+   2 min 27 s deliberate-pace recording that's embedded as slide #6 of the
+   pitch deck. Use this when reading **live** over the in-deck video at
+   the showcase. ~370 words at ~150 wpm.
+2. **FULL SCRIPT** (further down) — verbose, ~3 min 50 s at 145 wpm.
+   Use when pre-recording over `web/demo-e2e.mp4` (52 s) or a longer
+   asciinema replay, or as the basis for an OBS approach-B re-record.
+
+The PITCH-DECK narration script (`docs/pitch-deck-narration.md`) hands off
+to **QUICK 2:27 MODE** at slide #6.
+
+---
+
+## QUICK 2:27 MODE — read this live over the embedded video
+
+*Total ~2:30 at a steady 150 wpm. Don't pause between sections — the video
+moves you forward. If a command's screen comes up before you've finished
+the previous line, just stop mid-sentence and pick up at the new command's
+line. The video is the metronome, not the script.*
+
+[CUE: pdk logo / title frame — wait 2 s before speaking]
+
+> **"Portaldot is brand new. When a transaction fails, this is what the chain returns — a module index, an error index, no name, no message. My name is Pugar; I built pdk to fix that, and then went further. Watch the whole thing, fresh venv to fourteen commands, in two and a half minutes."**
+
+[CUE: `python3 -m venv` → `pip install portaldot-pdk` → `pdk --version` 0.1.6]
+
+> **"Fresh venv. Install pdk from PyPI — version 0.1.6, already public."**
+
+[CUE: `pdk doctor` table]
+
+> **"doctor checks endpoint, chain, runtime 1002, 31 pallets, ink! compat. And AI configured — that's pre-emptive."**
+
+[CUE: `pdk accounts`]
+
+> **"accounts shows pre-funded Alice, Bob, Charlie. Solves the most-asked Discord question: how do I get POT? You don't need a faucet."**
+
+[CUE: `pdk pallets`]
+
+> **"pallets lists all 31, straight from chain metadata."**
+
+[CUE: `pdk storage System Number`]
+
+> **"storage reads any chain value — here the current block."**
+
+[CUE: `pdk keys //Alice`]
+
+> **"keys inspects or generates keypairs. SS58 format 42 — Portaldot's standard."**
+
+[CUE: `pdk simulate`]
+
+> **"simulate previews fee and feasibility before you send. Built from the live fee oracle plus real balance."**
+
+[CUE: `pdk send` → ✓ sent tx hash]
+
+> **"send is a real on-chain transfer. One POT, Alice to Bob, gas paid in POT. No mocks."**
+
+[CUE: `pdk seed` → Dave / Eve / Ferdie funded]
+
+> **"seed funds extra dev accounts from a YAML fixture."**
+
+[CUE: `pdk debug --demo` — FailLens + AI panels render]
+
+> **"And here's the hero. debug submits a real failing transaction and decodes it. Red panel — FailLens, verified KB. Yellow panel — AI-suggested, clearly labelled UNVERIFIED."**
+
+[CUE: `pdk explain --module 6 --error 2`]
+
+> **"explain decodes the raw module-and-error code that the node prints. Nothing else in the Portaldot ecosystem does this."**
+
+[CUE: `pdk debug --demo --fix` → ✓ Fixed]
+
+> **"debug with fix diagnoses then submits the correction. Diagnose-to-remediate in one command."**
+
+[CUE: `pdk report`]
+
+> **"report groups recent failures by type. Triage at a glance."**
+
+[CUE: `pdk watch` events stream]
+
+> **"watch streams chain events live. Filter by pallet — only Balances here."**
+
+[CUE: `pdk ai-setup` wizard]
+
+> **"And ai-setup is the wizard for the optional AI layer — first-time onboarding made trivial."**
+
+[CUE: last frame — repo + PyPI banner]
+
+> **"Fourteen commands. Real POT gas. Zero mocks. First place, Portaldot Mini Hackathon Season One, Builder Tools track. Available right now: `pip install portaldot-pdk`."**
+
+[CUE: hold]
+
+---
+
+## FULL SCRIPT (3:50, for pre-recording use)
+
 Pair this with **one of**:
 - `web/demo-e2e.mp4` (52 s silent terminal cast, pip install → 14 cmds)
 - The asciinema replay at `web/demo/cast.json` rendered live
