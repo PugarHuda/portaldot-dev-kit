@@ -1,4 +1,89 @@
-# Showcase Q&A — short, honest answers for the panel
+# Showcase Q&A — answers for the panel
+
+This file has **two** versions of each answer:
+
+1. **SPOKEN MODE** (below) — 2–3 sentences each, ready to read or
+   recite verbatim during the panel. Use this live.
+2. **PROSE MODE** (further down) — the same answers expanded with
+   reasoning and producer notes. Use this when preparing or if a
+   judge follows up.
+
+---
+
+## SPOKEN MODE — read live during the panel
+
+### Q1. What was the biggest challenge during the hackathon?
+
+> "The Python library `substrate-interface` mis-signs custom-pallet
+> calls on Portaldot's V13 metadata. I spent half a day debugging it
+> and filed the upstream issue, number nine. The lesson was bigger
+> than the bug — Python builders are second-class on Portaldot today,
+> and that's why a TypeScript SDK is the first item in v0.2."
+
+### Q2. What was the most exciting moment while building?
+
+> "Day one, a two-hour spike. I walked the chain metadata manually,
+> just to test one assumption — that every Portaldot error has a name
+> on-chain. It did. The instant I saw the raw module-and-error code
+> resolve programmatically to `Balances.InsufficientBalance`, the
+> whole product clicked. I wrote the first version of the decoder
+> that night."
+
+### Q3. Which PortalDOT feature, infrastructure, or ecosystem resource was most useful?
+
+> "The runtime metadata. Portaldot inherits Substrate's type registry,
+> and that single design choice is what made FailLens possible at all.
+> Two hundred and two error indices extracted live from
+> `portaldot-1002`, regenerable across runtime upgrades. The explorer
+> at portalscan dot portaldot dot io was the cross-check that
+> confirmed my decoded outputs matched the chain's truth."
+
+### Q4. What feedback did you receive during the hackathon?
+
+> "The most useful feedback was implicit. The Discord channel was full
+> of *how do I get POT* — a question that already had an answer in
+> the runtime, just not a discoverable one. That recurring pattern is
+> what made me add `pdk accounts` as a top-level command. Direct
+> mentor feedback was limited, but the upstream maintainer engaging
+> on issue nine was real validation."
+
+### Q5. If you had two more weeks, what would you improve first?
+
+> "The TypeScript companion SDK. Python currently can't sign Assets
+> calls or deploy ink! contracts on Portaldot's metadata version. A
+> TypeScript layer on top of `@polkadot/api` solves both. Three weeks
+> of focused work, shipping as `pdk-ts` alongside the existing Python
+> core."
+
+### Q6. What kind of support does your project need next?
+
+> "Three things. First — recognition in official Portaldot developer
+> onboarding, so every new builder finds pdk in their first hour.
+> Second — a grant to fund v0.2, which is roughly four weeks of
+> engineering. Third — builder-channel access so I can stay close to
+> runtime upgrades and add decoder entries *before* they hit
+> mainnet."
+
+### Q7. Are you planning to continue building this project after the hackathon?
+
+> "Yes, and the infrastructure for it already exists. The release
+> pipeline auto-publishes to PyPI on every `v*` tag. CI runs on
+> every push. Forty unit tests plus eighty-four integration and
+> stress checks, all green. pdk was built from day one to outlast
+> this hackathon — v0.2 is the next concrete milestone."
+
+### Q8. What would help your project move from demo to real users?
+
+> "Four things. A public Portaldot testnet RPC — pdk is one-flag-
+> ready. The first five community pull requests to `error_fixes.yaml`,
+> which kicks off a network effect. Inclusion in the official
+> Portaldot docs. And honestly — real-world friction. Every
+> undiagnosed error is a chance for the knowledge base to grow. pdk
+> needs to be in the hands of people who *will* hit weird errors."
+
+---
+
+## PROSE MODE — same answers, expanded for prep + follow-up
 
 Read each as a 20–40 second answer. Don't over-prepare phrasing —
 audiences hear sincerity, not polish. The story beats are concrete
