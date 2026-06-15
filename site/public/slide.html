@@ -173,7 +173,19 @@ FailLens watching from block #14 …
     </ul>
   </section>
 
-  <!-- 7 — What's next (post-hackathon roadmap, for the Winners Showcase) -->
+  <!-- 7 — Hackathon journey (showcase prompt: "share dev experience") -->
+  <section class="slide">
+    <div class="kicker">The journey</div>
+    <h2>Three honest moments from this hackathon<span class="dot">.</span></h2>
+    <ul style="margin-top:14px">
+      <li><strong>Day 1 spike</strong> — two-hour metadata-walk proved every Portaldot error has a name on-chain. That single proof convinced me the whole CLI was possible. Started writing the decoder that night.</li>
+      <li><strong>The signing bug</strong> — extending pdk to <span class="mono">Assets</span> revealed <span class="mono">substrate-interface</span> mis-signs custom-pallet calls on Portaldot V13. Half a day debugging, filed <a href="https://github.com/polkascan/py-substrate-interface/issues/9">polkascan/py-substrate-interface#9</a>. Lesson → Python builders are 2nd-class on Portaldot today. v0.2 TypeScript SDK exists because of this.</li>
+      <li><strong>The mid-event repo rename</strong> — naming convention announced after publish broke <em>three</em> integrations: PyPI Trusted Publishing (OIDC pinned to old name), Vercel webhook, GitHub release flow. Two hours of recovery. Switched <span class="mono">release.yml</span> to token auth — now rename-proof. Documented in <span class="mono">CONTRIBUTING.md</span> for every team that hits this next.</li>
+    </ul>
+    <div class="mono muted" style="margin-top:14px">Each pain became part of the product. Every fix is in the repo.</div>
+  </section>
+
+  <!-- 8 — What's next (post-hackathon roadmap, for the Winners Showcase) -->
   <section class="slide">
     <div class="kicker" style="color:var(--green);">🌱 What's next — beyond the hackathon</div>
     <h2>From hackathon entry to ecosystem infrastructure<span class="dot">.</span></h2>
@@ -186,7 +198,7 @@ FailLens watching from block #14 …
     </ul>
   </section>
 
-  <!-- 8 — Close -->
+  <!-- 9 — Close -->
   <section class="slide">
     <div class="kicker">The ask</div>
     <h1 style="font-size:clamp(32px,6vw,64px)">The standard Portaldot dev toolkit<span class="dot">.</span></h1>
@@ -202,7 +214,7 @@ FailLens watching from block #14 …
 </main>
 
 <div class="foot mono"><a href="/" style="color:inherit; text-decoration:none;">pdk — Portaldot Dev Kit</a> &nbsp;·&nbsp; <a href="/" style="color:var(--green);">← back to pdk</a></div>
-<div class="hud"><span id="counter">1 / 8</span><span class="hint">← →  /  space  ·  click sides</span></div>
+<div class="hud"><span id="counter">1 / 9</span><span class="hint">← →  /  space  ·  click sides</span></div>
 
 <script>
   const slides = Array.from(document.querySelectorAll('.slide'));
