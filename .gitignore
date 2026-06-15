@@ -45,3 +45,5 @@ qa_all_commands.py
 qa_live.py
 qa_stress.py
 record_e2e.sh
+record_live_demo.sh
+probe.sh
