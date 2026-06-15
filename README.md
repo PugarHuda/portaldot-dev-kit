@@ -5,9 +5,13 @@
 [![tests](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
+![winner](https://img.shields.io/badge/🏆-1st%20Place%20·%20Portaldot%20Mini%20S1-3fb950)
+
+> 🏆 **1st Place — Portaldot Online Mini Hackathon S1, Builder Tools track.**
+> Featured in the [PortalDOT Hackathon Winners Showcase](https://discord.gg/portaldot) (2026-06-15).
 
 A developer toolkit for the [Portaldot](https://www.portaldot.io/) blockchain.
-Built for the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
+Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
 **[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Submission](SUBMISSION.md) · [Changelog](CHANGELOG.md)
 

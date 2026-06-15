@@ -78,13 +78,15 @@
 
 <main id="deck">
 
-  <!-- 1 — Title -->
+  <!-- 1 — Title (with winner banner) -->
   <section class="slide">
-    <div class="kicker">Portaldot Mini Hackathon S1 · Builder Tools</div>
+    <div class="kicker" style="color:var(--green); font-weight:600; letter-spacing:.14em;">
+      🏆 1st Place · Portaldot Online Mini Hackathon S1 · Builder Tools
+    </div>
     <h1>pdk<span class="dot">.</span></h1>
     <div class="lede">Portaldot Dev Kit — turn cryptic transaction failures into
       clear, actionable diagnoses. Live, as they happen.</div>
-    <div class="mono muted" style="margin-top:10px;">github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang · portaldot-pdk.vercel.app</div>
+    <div class="mono muted" style="margin-top:10px;">github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang · portaldot-pdk.vercel.app · pip install portaldot-pdk</div>
   </section>
 
   <!-- 2 — Problem -->
@@ -171,22 +173,36 @@ FailLens watching from block #14 …
     </ul>
   </section>
 
-  <!-- 7 — Close -->
+  <!-- 7 — What's next (post-hackathon roadmap, for the Winners Showcase) -->
+  <section class="slide">
+    <div class="kicker" style="color:var(--green);">🌱 What's next — beyond the hackathon</div>
+    <h2>From hackathon entry to ecosystem infrastructure<span class="dot">.</span></h2>
+    <ul style="margin-top:14px">
+      <li><strong>v0.2 — TypeScript companion SDK</strong> on <span class="mono">@polkadot/api</span>, unblocking Assets + ink! contract deploy that Python <span class="mono">substrate-interface</span> cannot sign on Portaldot V13 metadata (upstream bug I diagnosed mid-hackathon).</li>
+      <li><strong>Community-owned knowledge base</strong> — five-line PRs to <span class="mono">error_fixes.yaml</span>. Every Portaldot dev who hits a new error makes the next dev's life easier.</li>
+      <li><strong>Editor extensions</strong> — VS Code + Cursor that inline-decode a raw <span class="mono">Module&nbsp;{&nbsp;index,&nbsp;error&nbsp;}</span> code anywhere it appears in your terminal or logs.</li>
+      <li><strong>Public-RPC ready</strong> — pdk already works against any reachable Portaldot endpoint. When the official testnet RPC lands, it's a one-flag swap: <span class="mono">--node wss://testnet.portaldot.io</span>.</li>
+      <li><strong>Open to collaborate</strong> — pdk as the official debugging tool in Portaldot's developer onboarding. Builder-channel + grants conversations welcome.</li>
+    </ul>
+  </section>
+
+  <!-- 8 — Close -->
   <section class="slide">
     <div class="kicker">The ask</div>
     <h1 style="font-size:clamp(32px,6vw,64px)">The standard Portaldot dev toolkit<span class="dot">.</span></h1>
-    <div class="lede">On PyPI today. Roadmap: typed TypeScript SDK (unblocks contract deploy) · editor extensions · deeper CI integrations.</div>
+    <div class="lede">On PyPI today (<span class="mono">pip install portaldot-pdk</span>). 🏆 1st place · Portaldot Mini Hackathon S1 · Builder Tools.</div>
     <ul style="margin-top:6px">
       <li><a href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang">github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang</a></li>
       <li><a href="https://portaldot-pdk.vercel.app">portaldot-pdk.vercel.app</a> · <a href="https://portaldot-pdk.vercel.app/demo">in-browser live demo</a></li>
+      <li><a href="https://youtu.be/EPNIRRc3qnw">youtu.be/EPNIRRc3qnw</a> — 81 s pitch + e2e terminal demo</li>
     </ul>
-    <div class="mono muted" style="margin-top:8px">Thanks — let's make Portaldot easy to build on.</div>
+    <div class="mono muted" style="margin-top:8px">Thanks Portaldot team — let's make this chain easy to build on.</div>
   </section>
 
 </main>
 
 <div class="foot mono"><a href="/" style="color:inherit; text-decoration:none;">pdk — Portaldot Dev Kit</a> &nbsp;·&nbsp; <a href="/" style="color:var(--green);">← back to pdk</a></div>
-<div class="hud"><span id="counter">1 / 7</span><span class="hint">← →  /  space  ·  click sides</span></div>
+<div class="hud"><span id="counter">1 / 8</span><span class="hint">← →  /  space  ·  click sides</span></div>
 
 <script>
   const slides = Array.from(document.querySelectorAll('.slide'));
