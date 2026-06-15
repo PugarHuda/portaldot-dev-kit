@@ -1,16 +1,12 @@
 # Pitch Deck Narration — slide-by-slide voiceover
 
-**For: the 9-slide pitch deck at `/slide` (live URL: https://portaldot-pdk.vercel.app/slide).**
+**For: the 10-slide pitch deck at `/slide` (live URL: https://portaldot-pdk.vercel.app/slide).**
 
-What mas says **while each slide is on screen**, slide-by-slide. Calibrated for ~4 minutes total if read at a calm pace (~145 wpm). Each section's `Slide cue` is the visual hook that tells mas when to start reading the next block.
+What mas says **while each slide is on screen**, slide-by-slide. Calibrated for ~4 minutes of spoken slide content + ~3 min for the embedded live-demo video voiceover = ~7 min total. Calm pace (~145 wpm). Each section's `Slide cue` is the visual hook that tells mas when to start reading the next block.
 
-Tonight's showcase is ~6-8 min slot. Plan:
-1. Open with slide deck (Slides 1-5 ≈ 2 min)
-2. Switch to live demo video (≈ 3-4 min, separate narration file: `docs/live-demo-narration.md`)
-3. Return to slide deck (Slides 6-9 ≈ 2 min)
-4. Take Q&A
+**The deck now contains the live demo as slide #6** (embedded `<video>` element). Mas no longer needs to switch tabs — just press → onto slide 6, hit play, and read the demo narration from `docs/live-demo-narration.md` over the video. When the video ends, press → again for slide 7 (Why it wins).
 
-OR — if showcase prefers everything in the deck — keep slides on screen the whole time and read both narrations in sequence. The slide deck already has terminal screenshots on slides 4 and 5 that hint at the live flow.
+Showcase flow now is a single continuous deck-driven walkthrough — no app-switching, no broken screen-share.
 
 ---
 
@@ -84,21 +80,25 @@ OR — if showcase prefers everything in the deck — keep slides on screen the 
 >
 > *(pause 1s)*
 >
-> **"Let me show you the whole thing running end-to-end."**
+> **"Let me show you the whole thing running end-to-end — fresh install, every command, against a real Portaldot node."**
 >
-> *(switch tabs to the live demo video — or to your terminal — then read `docs/live-demo-narration.md`. Returns to slide 6 after the demo.)*
+> *(press → for slide 6 — the embedded video. Click play immediately.)*
 
 ---
 
-## ⏸ INTERMISSION — play the live demo video
+## SLIDE 6 — Live demo video (EMBEDDED IN-DECK)
 
-*Switch from slide deck to the live demo video.*
-*Read from `docs/live-demo-narration.md` (≈ 3 min 50 s).*
-*When narration ends, switch back to slide deck and advance to slide 6.*
+*Slide cue: a black video player fills most of the slide. Caption underneath reads "2:27 · silent (voiceover live) · fresh venv → pip install portaldot-pdk → 14 commands".*
+
+> **"Here's the actual recording."**
+>
+> *(immediately click the video play button — then read `docs/live-demo-narration.md` straight through while the video plays. Pace yourself with the on-screen action; the script has [CUE: ...] markers that match. Don't talk over the very first few seconds — let the audience see the empty venv.)*
+>
+> *(when the video ends and the closing line "# 14 commands. Real POT gas. No mocks. Portaldot Online Mini Hackathon S1 — 1st place." is on screen, pause 1 second, then press → for slide 7.)*
 
 ---
 
-## SLIDE 6 — Why it wins
+## SLIDE 7 — Why it wins
 
 *Slide cue: "The only debugger for Portaldot" + 6 bullet points (Unique / Native / Application value / Adoption-ready / Aligned / Quality)*
 
@@ -108,11 +108,11 @@ OR — if showcase prefers everything in the deck — keep slides on screen the 
 >
 > **"Unique — pdk is the only thing in the Portaldot ecosystem that decodes the raw `Module { index, error }` code. Nothing else does this. Native — real transactions, POT paid as gas, no ink! caveat because we use native pallets. Application value — directly solves the ecosystem's #1 documented onboarding pain. Adoption-ready — `pip install` works today, with CI-gating mode and a community-owned knowledge base. And the quality — 40 unit tests plus 84 integration and stress checks, all green, no mocks."**
 >
-> *(press → for slide 7)*
+> *(press → for slide 8)*
 
 ---
 
-## SLIDE 7 — The journey
+## SLIDE 8 — The journey
 
 *Slide cue: "Three honest moments from this hackathon" header + 3 bullet items*
 
@@ -134,11 +134,11 @@ OR — if showcase prefers everything in the deck — keep slides on screen the 
 >
 > **"Every pain became part of the product. Every fix is in the repo."**
 >
-> *(press → for slide 8)*
+> *(press → for slide 9)*
 
 ---
 
-## SLIDE 8 — What's next
+## SLIDE 9 — What's next
 
 *Slide cue: "From hackathon entry to ecosystem infrastructure" + 5 roadmap bullets*
 
@@ -164,11 +164,11 @@ OR — if showcase prefers everything in the deck — keep slides on screen the 
 >
 > **"And the ask — I'd love to see pdk become the official debugging tool in the new-developer onboarding flow. Builder-channel access, a grant to fund the v0.2 TypeScript work, and ongoing collaboration with the Portaldot core team."**
 >
-> *(press → for slide 9)*
+> *(press → for slide 10)*
 
 ---
 
-## SLIDE 9 — Close
+## SLIDE 10 — Close
 
 *Slide cue: "The standard Portaldot dev toolkit" + links (GitHub, vercel, YouTube)*
 
@@ -178,7 +178,7 @@ OR — if showcase prefers everything in the deck — keep slides on screen the 
 >
 > **"Thanks again to the Portaldot team for an excellent hackathon, and to the mentors who helped throughout. Let's make this chain easy to build on. I'm happy to take questions."**
 >
-> *(hold on slide 9 during Q&A)*
+> *(hold on slide 10 during Q&A)*
 
 ---
 
