@@ -63,6 +63,12 @@ export const PdkVoting: React.FC = () => {
       >
         <Outro />
         <Audio src={staticFile('audio/vo-outro.mp3')} volume={1} />
+        <Sequence from={0} durationInFrames={20}>
+          <Audio src={staticFile('audio/sfx-chime.mp3')} volume={0.5} />
+        </Sequence>
+        <Sequence from={2} durationInFrames={25}>
+          <Audio src={staticFile('audio/sfx-impact.mp3')} volume={0.55} />
+        </Sequence>
       </Sequence>
     </AbsoluteFill>
   );

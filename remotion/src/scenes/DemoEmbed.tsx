@@ -31,6 +31,9 @@ const GLOSSARY: Array<{
 ];
 
 const CLICK_SFX_TIMES = [6, 20, 28, 38, 42, 47, 52, 62, 72, 95, 107, 115, 127, 133, 140];
+const DING_SFX_TIMES = [70, 84, 86, 88, 120];
+const ANNOT_WHOOSH_TIMES = ANNOTATIONS.map((a) => a.fromSec);
+const GLOSSARY_WHOOSH_TIMES = GLOSSARY.map((g) => g.fromSec);
 
 export const DemoEmbed: React.FC = () => {
   const frame = useCurrentFrame();
@@ -49,8 +52,23 @@ export const DemoEmbed: React.FC = () => {
   return (
     <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', opacity: fadeIn * fadeOut}}>
       {CLICK_SFX_TIMES.map((t, i) => (
-        <Sequence key={i} from={Math.round(t * fps)} durationInFrames={Math.round(0.2 * fps)}>
+        <Sequence key={`c${i}`} from={Math.round(t * fps)} durationInFrames={Math.round(0.2 * fps)}>
           <Audio src={staticFile('audio/sfx-click.mp3')} volume={0.5} />
+        </Sequence>
+      ))}
+      {DING_SFX_TIMES.map((t, i) => (
+        <Sequence key={`d${i}`} from={Math.round(t * fps)} durationInFrames={Math.round(0.4 * fps)}>
+          <Audio src={staticFile('audio/sfx-ding.mp3')} volume={0.45} />
+        </Sequence>
+      ))}
+      {ANNOT_WHOOSH_TIMES.map((t, i) => (
+        <Sequence key={`w${i}`} from={Math.round(t * fps)} durationInFrames={Math.round(0.5 * fps)}>
+          <Audio src={staticFile('audio/sfx-whoosh.mp3')} volume={0.32} />
+        </Sequence>
+      ))}
+      {GLOSSARY_WHOOSH_TIMES.map((t, i) => (
+        <Sequence key={`gw${i}`} from={Math.round(t * fps)} durationInFrames={Math.round(0.5 * fps)}>
+          <Audio src={staticFile('audio/sfx-whoosh.mp3')} volume={0.22} />
         </Sequence>
       ))}
 

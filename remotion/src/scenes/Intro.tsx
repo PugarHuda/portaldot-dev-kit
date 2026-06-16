@@ -1,6 +1,10 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Sequence, interpolate, random, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
+const TYPING_KEY_FRAMES = [
+  3, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 36, 40, 44, 48, 52, 56, 60, 65, 70, 75, 80, 85,
+];
+
 const ShotTyping: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -333,31 +337,63 @@ export const Intro: React.FC = () => {
     <AbsoluteFill>
       <Sequence from={0} durationInFrames={90}>
         <ShotTyping />
+        {TYPING_KEY_FRAMES.map((f, i) => (
+          <Sequence key={i} from={f} durationInFrames={3}>
+            <Audio src={staticFile('audio/sfx-type.mp3')} volume={0.55} />
+          </Sequence>
+        ))}
       </Sequence>
 
       <Sequence from={90} durationInFrames={120}>
         <ShotErrorReveal />
         <Audio src={staticFile('audio/vo-intro-hook.mp3')} volume={1} />
+        <Sequence from={10} durationInFrames={20}>
+          <Audio src={staticFile('audio/sfx-error.mp3')} volume={0.85} />
+        </Sequence>
+        <Sequence from={36} durationInFrames={10}>
+          <Audio src={staticFile('audio/sfx-glitch.mp3')} volume={0.4} />
+        </Sequence>
       </Sequence>
 
       <Sequence from={210} durationInFrames={120}>
         <ShotZoomGlitch />
         <Audio src={staticFile('audio/vo-intro-no-fix.mp3')} volume={1} />
+        <Sequence from={0} durationInFrames={10}>
+          <Audio src={staticFile('audio/sfx-glitch.mp3')} volume={0.7} />
+        </Sequence>
+        <Sequence from={45} durationInFrames={8}>
+          <Audio src={staticFile('audio/sfx-glitch.mp3')} volume={0.4} />
+        </Sequence>
       </Sequence>
 
       <Sequence from={330} durationInFrames={90}>
         <ShotZoomGlitch />
         <Audio src={staticFile('audio/vo-intro-what.mp3')} volume={1} />
+        <Sequence from={2} durationInFrames={10}>
+          <Audio src={staticFile('audio/sfx-ping.mp3')} volume={0.65} />
+        </Sequence>
       </Sequence>
 
       <Sequence from={420} durationInFrames={90}>
         <ShotTransition />
         <Audio src={staticFile('audio/vo-intro-reveal.mp3')} volume={1} />
+        <Sequence from={0} durationInFrames={20}>
+          <Audio src={staticFile('audio/sfx-whoosh.mp3')} volume={0.7} />
+        </Sequence>
+        <Sequence from={28} durationInFrames={20}>
+          <Audio src={staticFile('audio/sfx-chime.mp3')} volume={0.55} />
+        </Sequence>
       </Sequence>
 
       <Sequence from={510} durationInFrames={150}>
         <ShotLogoReveal />
         <Audio src={staticFile('audio/vo-intro-install.mp3')} volume={1} />
+        <Sequence from={0} durationInFrames={25}>
+          <Audio src={staticFile('audio/sfx-impact.mp3')} volume={0.75} />
+        </Sequence>
+        <Sequence from={28} durationInFrames={20}>
+          <Audio src={staticFile('audio/sfx-chime.mp3')} volume={0.55} />
+        </Sequence>
       </Sequence>
     </AbsoluteFill>
   );
