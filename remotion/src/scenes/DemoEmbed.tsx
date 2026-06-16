@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring} from 'remotion';
+import {AbsoluteFill, Audio, OffthreadVideo, Sequence, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring} from 'remotion';
 
 const ANNOTATIONS: Array<{
   fromSec: number;
@@ -15,6 +15,22 @@ const ANNOTATIONS: Array<{
   {fromSec: 107, toSec: 115, text: 'UNIQUE — only thing that decodes raw codes', badge: 'pdk explain', side: 'left'},
   {fromSec: 115, toSec: 127, text: 'diagnose + auto-apply fix', badge: 'pdk debug --fix', side: 'left'},
 ];
+
+const GLOSSARY: Array<{
+  fromSec: number;
+  toSec: number;
+  term: string;
+  meaning: string;
+}> = [
+  {fromSec: 30, toSec: 36, term: 'POT', meaning: 'Portaldot’s native token — like ETH on Ethereum. Pays gas.'},
+  {fromSec: 38, toSec: 44, term: 'Pallet', meaning: 'Runtime module. How Portaldot organizes features (balances, staking, etc.)'},
+  {fromSec: 48, toSec: 54, term: 'SS58', meaning: 'Portaldot’s address format. Format 42 means dev chain.'},
+  {fromSec: 96, toSec: 105, term: 'FailLens', meaning: 'pdk’s decoder. Reads chain runtime metadata — never goes stale.'},
+  {fromSec: 108, toSec: 114, term: 'Module index / error index', meaning: 'The raw integers a Portaldot node prints when it rejects a transaction.'},
+  {fromSec: 142, toSec: 146, term: 'AI panel', meaning: 'Optional. Always labelled UNVERIFIED — verified KB is the source of truth.'},
+];
+
+const CLICK_SFX_TIMES = [6, 20, 28, 38, 42, 47, 52, 62, 72, 95, 107, 115, 127, 133, 140];
 
 export const DemoEmbed: React.FC = () => {
   const frame = useCurrentFrame();
@@ -32,6 +48,12 @@ export const DemoEmbed: React.FC = () => {
 
   return (
     <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', opacity: fadeIn * fadeOut}}>
+      {CLICK_SFX_TIMES.map((t, i) => (
+        <Sequence key={i} from={Math.round(t * fps)} durationInFrames={Math.round(0.2 * fps)}>
+          <Audio src={staticFile('audio/sfx-click.mp3')} volume={0.5} />
+        </Sequence>
+      ))}
+
       <div
         style={{
           position: 'relative',
@@ -80,6 +102,23 @@ export const DemoEmbed: React.FC = () => {
         }}
       >
         github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          top: 36,
+          left: 56,
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 14,
+          color: '#7d8590',
+          background: 'rgba(20,23,29,0.7)',
+          padding: '6px 12px',
+          borderRadius: 6,
+          border: '1px solid #21262d',
+        }}
+      >
+        🎙 with narration · 🎧 use headphones for full feel
       </div>
 
       {ANNOTATIONS.map((a, i) => {
@@ -132,6 +171,63 @@ export const DemoEmbed: React.FC = () => {
             )}
             <div style={{fontSize: 22, color: '#ffffff', lineHeight: 1.3}}>
               {a.text}
+            </div>
+          </div>
+        );
+      })}
+
+      {GLOSSARY.map((g, i) => {
+        const startFrame = g.fromSec * fps;
+        const endFrame = g.toSec * fps;
+        if (frame < startFrame - 8 || frame > endFrame + 8) return null;
+
+        const popIn = spring({
+          frame: frame - startFrame,
+          fps,
+          config: {damping: 16},
+        });
+        const popOut = interpolate(frame, [endFrame - 8, endFrame], [1, 0], {
+          extrapolateLeft: 'clamp',
+          extrapolateRight: 'clamp',
+        });
+        const opacity = popIn * popOut;
+
+        const isLeft = i % 2 === 0;
+        return (
+          <div
+            key={`g${i}`}
+            style={{
+              position: 'absolute',
+              bottom: 110,
+              [isLeft ? 'left' : 'right']: 80,
+              opacity,
+              transform: `translateY(${(1 - popIn) * 12}px)`,
+              maxWidth: 320,
+              padding: '12px 16px',
+              background: 'rgba(11,14,20,0.95)',
+              border: '1px dashed #d29922',
+              borderRadius: 10,
+              fontFamily: 'Inter, sans-serif',
+              boxShadow: '0 6px 18px rgba(0,0,0,0.5)',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: 12,
+                color: '#d29922',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                marginBottom: 4,
+              }}
+            >
+              💡 for beginners
+            </div>
+            <div style={{fontSize: 18, color: '#ffffff', fontWeight: 600, marginBottom: 4}}>
+              {g.term}
+            </div>
+            <div style={{fontSize: 16, color: '#c9d1d9', lineHeight: 1.35}}>
+              {g.meaning}
             </div>
           </div>
         );
