@@ -1,0 +1,5 @@
+node_modules/
+out/
+.cache/
+# Large mp4 asset — copy from ../web/live-demo-captioned.mp4 before render
+public/*.mp4

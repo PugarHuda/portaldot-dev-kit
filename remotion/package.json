@@ -1,0 +1,25 @@
+{
+  "name": "pdk-remotion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion production video for pdk (Portaldot Dev Kit) — community voting submission",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion render PdkVoting out/pdk-voting.mp4 --codec h264 --crf 22",
+    "build:fast": "remotion render PdkVoting out/pdk-voting.mp4 --codec h264 --crf 28 --concurrency 1",
+    "still": "remotion still PdkVoting out/poster.png --frame 30"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.477",
+    "@remotion/cli": "^4.0.477",
+    "@remotion/google-fonts": "^4.0.477",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.477"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.5.0"
+  }
+}
