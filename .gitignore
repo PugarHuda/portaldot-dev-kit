@@ -49,3 +49,13 @@ record_live_demo.sh
 probe.sh
 stop_and_verify.sh
 docs/screens/live-demo-t90.png
+calibration frames + Remotion build artifacts
+
+# Subtitle calibration screenshots (regenerable via scripts)
+docs/screens/cal/
+docs/screens/captioned/
+
+# Remotion build output
+remotion/node_modules/
+remotion/out/
+remotion/.cache/

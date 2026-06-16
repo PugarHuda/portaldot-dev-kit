@@ -1,0 +1,30 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 978
+PlayResY: 900
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Caption,Inter,22,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,3,3,0,2,40,40,18,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:05.50,Caption,,0,0,0,,Portaldot is brand-new. When a transaction fails, the chain returns a raw code — no name, no message, no fix.
+Dialogue: 0,0:00:05.50,0:00:20.00,Caption,,0,0,0,,pdk decodes those codes. Fresh venv → pip install portaldot-pdk — v0.1.6 already on PyPI.
+Dialogue: 0,0:00:20.00,0:00:28.00,Caption,,0,0,0,,pdk doctor — endpoint, chain, runtime 1002, 31 pallets, ink! 3.x compat.
+Dialogue: 0,0:00:28.00,0:00:38.00,Caption,,0,0,0,,pdk accounts — pre-funded Alice / Bob / Charlie. Answers the most-asked Discord question: "how do I get POT?"
+Dialogue: 0,0:00:38.00,0:00:42.00,Caption,,0,0,0,,pdk pallets — all 31 pallets, straight from chain metadata.
+Dialogue: 0,0:00:42.00,0:00:47.00,Caption,,0,0,0,,pdk storage — read any chain value. Here: the current block number.
+Dialogue: 0,0:00:47.00,0:00:52.00,Caption,,0,0,0,,pdk keys //Alice — inspect or generate keypairs. SS58 format 42 — Portaldot's standard.
+Dialogue: 0,0:00:52.00,0:01:02.00,Caption,,0,0,0,,pdk simulate — preview fee + feasibility before sending. Built from the real fee oracle.
+Dialogue: 0,0:01:02.00,0:01:12.00,Caption,,0,0,0,,pdk send — a real on-chain transfer. 1 POT Alice → Bob. Gas paid in POT. No mocks.
+Dialogue: 0,0:01:12.00,0:01:35.00,Caption,,0,0,0,,pdk seed — fund extra dev accounts from a YAML fixture (Dave, Eve, Ferdie).
+Dialogue: 0,0:01:35.00,0:01:47.00,Caption,,0,0,0,,pdk debug --demo — the hero. Submits a real failing tx and decodes it: named error, plain English, numbered fix.
+Dialogue: 0,0:01:47.00,0:01:55.00,Caption,,0,0,0,,pdk explain --module 6 --error 2 — decodes the RAW module-and-error code. Nothing else in the Portaldot ecosystem does this.
+Dialogue: 0,0:01:55.00,0:02:07.00,Caption,,0,0,0,,pdk debug --fix — diagnose AND apply the fix. One command, end-to-end remediation.
+Dialogue: 0,0:02:07.00,0:02:13.00,Caption,,0,0,0,,pdk report — group recent failures by type. Triage at a glance.
+Dialogue: 0,0:02:13.00,0:02:20.00,Caption,,0,0,0,,pdk watch — stream chain events live. Filter by pallet.
+Dialogue: 0,0:02:20.00,0:02:26.60,Caption,,0,0,0,,pdk ai-setup — wizard for the optional AI layer.   ·   14 commands. Real POT gas. 1st place — Builder Tools.
+
