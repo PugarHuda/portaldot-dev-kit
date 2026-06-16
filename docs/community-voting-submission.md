@@ -60,26 +60,41 @@ harness. Vote pdk if you want Portaldot to be easier to build on. 🛠️
 
 ## DEMO VIDEO — which one to send
 
-**Recommended:** the existing YouTube link — `https://youtu.be/EPNIRRc3qnw`
+Three versions exist; pick by audience:
 
-Why this one (vs. the silent 2:27 `live-demo.mp4`):
-- It's already public, hosted, indexed — no upload friction for the
-  voting channel.
-- It has voiceover/narration baked in, so judges + community can
-  watch it without context.
-- It's 81 seconds — short enough that voters actually finish it.
-- The longer 2:27 `live-demo.mp4` is silent (built for live
-  voiceover during the showcase). Without narration it doesn't
-  read as well outside a presentation setting.
+### 🏆 Recommended for the voting channel — `docs/pdk-voting.mp4`
 
-**Alternative**, if Titus prefers a longer/more thorough cut:
-- Upload `web/live-demo.mp4` (2:27, silent) to YouTube with the
-  QUICK 2:27 MODE narration script from `docs/live-demo-narration.md`
-  as either a voiceover or subtitle track. Roughly 30 minutes of
-  extra work in any video editor (record voice, sync, export, upload).
+- **1920×1080, 2:42, 11.7 MB, h264**
+- Production cut, made for this voting submission:
+  - Animated title sequence (winner badge → pdk logo → tagline)
+  - Full captioned terminal demo embedded as the middle
+  - On-screen annotation popups during the hero moments
+    (THE HERO at `debug --demo`, UNIQUE at `explain`, etc.)
+  - Persistent corner watermark + GitHub URL
+  - Vote-CTA outro card with `pip install portaldot-pdk`
+- Local path: `docs/pdk-voting.mp4`
+- Built with Remotion v4 — source at `remotion/`, regenerable
+  with `npm run build`.
 
-**Backup link to reference in DM** if Titus asks for raw file:
-- Direct CDN: https://portaldot-pdk.vercel.app/live-demo.mp4 (3.88 MB)
+**Upload steps:**
+1. Upload `docs/pdk-voting.mp4` to YouTube (unlisted is fine).
+2. Send Titus the YouTube link + the text intro below.
+
+### Backup A — captioned terminal only (`web/live-demo-captioned.mp4`)
+
+- 978×900, 2:27, 4.5 MB
+- Same captioned demo that's embedded in `pdk-voting.mp4`, without
+  the Remotion wrapper. Use this if Titus wants the raw demo with
+  no production framing, or if upload size is constrained.
+- Direct CDN: https://portaldot-pdk.vercel.app/live-demo.mp4 is the
+  uncaptioned source — for the captioned version, use the local file
+  or upload to YouTube.
+
+### Backup B — existing YouTube (`https://youtu.be/EPNIRRc3qnw`)
+
+- 81 seconds, already public
+- Older 1-minute pitch+demo; lacks the production polish of
+  `pdk-voting.mp4` but has its own narration and is already indexed.
 
 ---
 
@@ -91,8 +106,11 @@ Why this one (vs. the silent 2:27 `live-demo.mp4`):
 > 1st place in Builder Tools — turns raw Portaldot transaction
 > failures into human-readable diagnoses, 14 commands, on PyPI today).
 >
-> **Demo video:** https://youtu.be/EPNIRRc3qnw (81 s, narrated
-> pitch + end-to-end walkthrough).
+> **Demo video:** [YouTube link to docs/pdk-voting.mp4 once uploaded]
+> — 2:42, 1080p, full terminal walkthrough wrapped with title
+> animation, on-screen annotations during the hero commands, and
+> a CTA outro. Older 81-second cut also available at
+> https://youtu.be/EPNIRRc3qnw.
 >
 > Links bundle:
 > - GitHub: https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
