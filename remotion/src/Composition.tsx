@@ -13,28 +13,48 @@ export const FPS = 30;
 export const WIDTH = 1920;
 export const HEIGHT = 1080;
 
-const INTRO_DURATION = 280;
-const DEMO_DURATION = 4400;
-const OUTRO_DURATION = 400;
-
+export const INTRO_DURATION = 660;
+export const DEMO_DURATION = 4400;
+export const OUTRO_DURATION = 400;
 export const DURATION_FRAMES = INTRO_DURATION + DEMO_DURATION + OUTRO_DURATION;
+
+const FPS_INT = FPS;
+const s = (sec: number) => Math.round(sec * FPS_INT);
+
+const DEMO_VO: Array<{key: string; atSec: number}> = [
+  {key: 'install', atSec: 5.5},
+  {key: 'doctor', atSec: 20},
+  {key: 'accounts', atSec: 28},
+  {key: 'pallets', atSec: 38},
+  {key: 'storage', atSec: 42},
+  {key: 'keys', atSec: 47},
+  {key: 'simulate', atSec: 52},
+  {key: 'send', atSec: 62},
+  {key: 'seed', atSec: 72},
+  {key: 'debug', atSec: 95},
+  {key: 'explain', atSec: 107},
+  {key: 'fix', atSec: 115},
+  {key: 'report', atSec: 127},
+  {key: 'watch', atSec: 133},
+  {key: 'aisetup', atSec: 140},
+];
 
 export const PdkVoting: React.FC = () => {
   return (
     <AbsoluteFill style={{backgroundColor: '#0a0c10'}}>
-      <Audio src={staticFile('audio/bg-pad.mp3')} volume={0.35} />
+      <Audio src={staticFile('audio/bg-pad.mp3')} volume={0.32} />
 
       <Sequence from={0} durationInFrames={INTRO_DURATION}>
         <Intro />
-        <Audio src={staticFile('audio/vo-intro.mp3')} volume={1} />
       </Sequence>
 
-      <Sequence
-        from={INTRO_DURATION}
-        durationInFrames={DEMO_DURATION}
-      >
+      <Sequence from={INTRO_DURATION} durationInFrames={DEMO_DURATION}>
         <DemoEmbed />
-        <Audio src={staticFile('audio/vo-demo.mp3')} volume={1} />
+        {DEMO_VO.map((seg) => (
+          <Sequence key={seg.key} from={s(seg.atSec)}>
+            <Audio src={staticFile(`audio/vo-demo-${seg.key}.mp3`)} volume={1} />
+          </Sequence>
+        ))}
       </Sequence>
 
       <Sequence
