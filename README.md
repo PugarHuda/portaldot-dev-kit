@@ -124,6 +124,26 @@ $ pdk-ts explain --module 6 --error 2
 Add `--live` to force a full metadata walk against any Substrate chain.
 See [`pdk-ts/`](pdk-ts/) for the alpha roadmap.
 
+## PDK vs raw Substrate SDKs
+
+PDK does not compete with the low-level SDKs — it sits on top of them.
+
+| Layer | `@polkadot/api` | PAPI | subxt (Rust) | `substrate-interface` (Py) | **PDK** |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Low-level RPC + codec | ✅ | ✅ | ✅ | ✅ | uses these |
+| Light-client first | — | ✅ | — | — | future (α.6) |
+| Ready-made CLI | — | — | — | — | ✅ |
+| Metadata-driven error decoder | — | — | — | — | ✅ |
+| Curated fix knowledge base | — | — | — | — | ✅ |
+| Portaldot-specific quirks (legacy `LookupSource`) | manual | manual | manual | manual | ✅ built-in |
+| Community 5-line YAML PR flow | — | — | — | — | ✅ |
+| Cross-language coverage (Python + TS) | — | — | — | — | ✅ |
+
+PAPI wins on bundle size and light-client design; that is why PDK will
+benchmark against it at α.6 and adopt what fits. But no low-level SDK
+ships FailLens, the KB, or the 14-command dev-loop surface — that is
+PDK's layer.
+
 ## Commands
 
 | Command | What it does |

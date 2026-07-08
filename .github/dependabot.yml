@@ -1,17 +1,24 @@
 version: 2
 updates:
-  # Python — root pyproject.toml
+  # Python — root pyproject.toml (dependabot uv/pip does not read
+  # pyproject dependency block, so pip is best-effort here — a
+  # `requirements.txt` would be needed for full coverage)
   - package-ecosystem: pip
     directory: /
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     labels:
       - dependencies
       - python
     commit-message:
       prefix: "deps(py)"
+    ignore:
+      # substrate-interface upstream is on a slow cadence — skip
+      # patch bumps to avoid noise, only surface minor/major
+      - dependency-name: substrate-interface
+        update-types: ["version-update:semver-patch"]
 
   # TypeScript companion
   - package-ecosystem: npm

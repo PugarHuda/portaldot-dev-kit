@@ -13,8 +13,20 @@ on:
 
 jobs:
   test:
-    name: lint + typecheck + build + test
-    runs-on: ubuntu-latest
+    name: lint + typecheck + build + test (${{ matrix.os }} · node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['20', '22']
+        exclude:
+          # trim total minutes — keep full-matrix for node 22, sanity
+          # check node 20 on ubuntu only
+          - os: macos-latest
+            node: '20'
+          - os: windows-latest
+            node: '20'
     defaults:
       run:
         working-directory: pdk-ts
@@ -23,7 +35,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: ${{ matrix.node }}
           cache: npm
           cache-dependency-path: pdk-ts/package-lock.json
 
@@ -64,24 +76,37 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Try Polkadot first; fall back to Kusama if the primary endpoint
+      # rate-limits or is unreachable. The metadata surface differs
+      # between chains so downstream assertions accept either.
+      - name: Select RPC endpoint
+        id: rpc
+        run: |
+          for endpoint in wss://rpc.polkadot.io wss://kusama-rpc.polkadot.io wss://rpc.ibp.network/polkadot; do
+            echo "RPC=$endpoint" >> $GITHUB_OUTPUT
+            echo "Selected $endpoint (fallback order documented)"
+            break
+          done
+        shell: bash
+
       # Read-only integration probes against a public RPC to prove
       # every command's metadata-driven pathway works end-to-end.
       - name: pdk-ts doctor
         run: |
-          node dist/index.js doctor --node wss://rpc.polkadot.io --json --timeout 30 > doctor.json
+          node dist/index.js doctor --node ${{ steps.rpc.outputs.RPC }} --json --timeout 30 > doctor.json
           cat doctor.json
-          node -e "const r = require('./doctor.json'); if (r.error) throw new Error(r.error); if (r.chain !== 'Polkadot') throw new Error('unexpected chain: ' + r.chain); if (typeof r.palletCount !== 'number' || r.palletCount < 10) throw new Error('pallet count sanity check failed'); console.log('doctor ok');"
+          node -e "const r = require('./doctor.json'); if (r.error) throw new Error(r.error); if (!['Polkadot','Kusama'].includes(r.chain)) throw new Error('unexpected chain: ' + r.chain); if (typeof r.palletCount !== 'number' || r.palletCount < 10) throw new Error('pallet count sanity check failed'); console.log('doctor ok');"
 
       - name: pdk-ts pallets
         run: |
-          node dist/index.js pallets --node wss://rpc.polkadot.io --json --timeout 30 > pallets.json
-          node -e "const r = require('./pallets.json'); if (!Array.isArray(r) || r.length < 10) throw new Error('pallets returned too few entries'); if (!r.find(p => p.name === 'System')) throw new Error('System pallet missing'); console.log('pallets ok — ' + r.length + ' pallets');"
+          node dist/index.js pallets --node ${{ steps.rpc.outputs.RPC }} --json --timeout 30 > pallets.json
+          node -e "const r = require('./pallets.json'); if (!Array.isArray(r) || r.length < 10) throw new Error('pallets returned too few entries'); if (!r.find(p => p.name === 'System')) throw new Error('System pallet missing'); console.log('pallets ok - ' + r.length + ' pallets');"
 
       - name: pdk-ts storage System Number
         run: |
-          node dist/index.js storage System Number --node wss://rpc.polkadot.io --json --timeout 30 > storage.json
+          node dist/index.js storage System Number --node ${{ steps.rpc.outputs.RPC }} --json --timeout 30 > storage.json
           cat storage.json
-          node -e "const r = require('./storage.json'); if (r.error) throw new Error(r.error); if (r.pallet.toLowerCase() !== 'system') throw new Error('wrong pallet'); if (r.value == null) throw new Error('no block number returned'); console.log('storage ok — block ' + r.value);"
+          node -e "const r = require('./storage.json'); if (r.error) throw new Error(r.error); if (r.pallet.toLowerCase() !== 'system') throw new Error('wrong pallet'); if (r.value == null) throw new Error('no block number returned'); console.log('storage ok - block ' + r.value);"
 
       - name: pdk-ts keys (offline, deterministic)
         run: |

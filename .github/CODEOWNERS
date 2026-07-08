@@ -1,0 +1,9 @@
+# Default reviewer for anything in the repo.
+*       @PugarHuda
+
+# Scoped rules (kept for when co-maintainers land after α.4)
+/pdk/            @PugarHuda
+/pdk-ts/         @PugarHuda
+/pdk/data/       @PugarHuda
+/.github/        @PugarHuda
+/docs/           @PugarHuda

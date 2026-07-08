@@ -29,7 +29,27 @@ const program = new Command();
 program
   .name('pdk-ts')
   .description('TypeScript companion CLI for pdk (Portaldot Dev Kit)')
-  .version(VERSION);
+  .version(VERSION)
+  .addHelpText(
+    'after',
+    `
+Examples:
+  $ pdk-ts doctor --node ws://127.0.0.1:9944
+  $ pdk-ts accounts --json
+  $ pdk-ts pallets Balances
+  $ pdk-ts storage System Number
+  $ pdk-ts keys //Alice
+  $ pdk-ts explain --module 6 --error 2       (offline fast path)
+  $ pdk-ts explain --name balances.InsufficientBalance
+  $ pdk-ts explain --module 6 --error 2 --live  (force metadata walk)
+
+Environment:
+  PDK_TS_NODE            override the default ws://127.0.0.1:9944
+  PDK_KB_PATH            custom path to error_fixes.yaml (shared with pdk)
+  PDK_INDEX_PATH         custom path to error_index.json
+  DEBUG_POLKADOT_API=1   restore @polkadot/api verbose logs
+`,
+  );
 
 program
   .command('doctor')

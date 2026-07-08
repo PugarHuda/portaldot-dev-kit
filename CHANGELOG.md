@@ -19,7 +19,11 @@ here for repo-level chronology.
   `@polkadot/api` chain queries, shared KB parser reads Python's
   `error_fixes.yaml`. `doctor` verified against `wss://rpc.polkadot.io`.
 
-## [Unreleased — infra]
+## [0.1.7] — 2026-07-09
+### Description
+- `pyproject.toml` description regenerated to mention the TS companion
+  (`pdk-ts`). PyPI project page reflects reality on next tag push.
+
 ### Documented troubleshooting
 - README now has a **Troubleshooting** section covering every real-world
   problem encountered while building / installing pdk this hackathon:

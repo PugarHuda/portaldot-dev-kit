@@ -21,7 +21,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint src tests",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "prepack": "npm run clean && npm run build",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "keywords": [
     "portaldot",
@@ -46,6 +48,7 @@
     "yaml": "^2.6.0"
   },
   "devDependencies": {
+    "@acala-network/chopsticks": "^1.5.0",
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.7.4",
     "rimraf": "^6.0.1",

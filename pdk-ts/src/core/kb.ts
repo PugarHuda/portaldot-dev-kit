@@ -58,6 +58,17 @@ const INDEX_CANDIDATES = [
   resolve(__dirname, '..', 'pdk-data/error_index.json'),
 ].filter((p): p is string => Boolean(p));
 
+/**
+ * Runtime index fingerprint. The bundled `error_index.json` was
+ * extracted against `portaldot-1002` — if a caller queries a chain
+ * with a different spec version, the fast path may return stale names.
+ * The `--live` flag on `pdk-ts explain` forces a metadata walk to
+ * bypass. `indexSpecVersion` lets commands surface the mismatch when
+ * they know both values.
+ */
+export const INDEX_SPEC_NAME = 'portaldot';
+export const INDEX_SPEC_VERSION = 1002;
+
 let indexCache: Record<string, string> | null = null;
 
 export function loadIndex(force = false): Record<string, string> {
@@ -78,6 +89,11 @@ export function indexLookup(moduleIdx: number, errorIdx: number): string | undef
 
 export function indexSize(): number {
   return Object.keys(loadIndex()).length;
+}
+
+/** True when the offline index is safe to use against the given spec. */
+export function indexMatchesChain(specName: string, specVersion: number): boolean {
+  return specName.toLowerCase() === INDEX_SPEC_NAME && specVersion === INDEX_SPEC_VERSION;
 }
 
 let cache: Map<string, KbEntry> | null = null;
