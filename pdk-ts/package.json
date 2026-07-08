@@ -1,0 +1,50 @@
+{
+  "name": "portaldot-pdk-ts",
+  "version": "0.2.0-alpha.1",
+  "description": "TypeScript companion SDK for pdk (Portaldot Dev Kit) — covers what Python substrate-interface cannot sign on Portaldot's V13 metadata.",
+  "type": "module",
+  "bin": {
+    "pdk-ts": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "portaldot",
+    "substrate",
+    "cli",
+    "typescript",
+    "polkadot",
+    "blockchain",
+    "developer-tools"
+  ],
+  "author": "Pugar Huda Mantoro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang.git",
+    "directory": "pdk-ts"
+  },
+  "dependencies": {
+    "@polkadot/api": "^12.4.2",
+    "commander": "^12.1.0",
+    "picocolors": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
