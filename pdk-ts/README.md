@@ -10,6 +10,41 @@ deploy, and any custom-pallet that ships with the chain going forward.
 
 Same 14-command surface, Node-backed, same terminal UX.
 
+## Architecture
+
+```
+                   pdk/data/error_fixes.yaml
+                    (shared KB — one PR = both CLIs)
+                              │
+                ┌─────────────┴─────────────┐
+                │                           │
+        ┌───────▼───────┐          ┌────────▼────────┐
+        │  pdk (Python) │          │  pdk-ts (TS)    │
+        │  v0.1.6 · PyPI│          │  v0.2 alpha · npm-next│
+        │               │          │                 │
+        │ substrate-    │          │ @polkadot/api   │
+        │ interface     │          │ (PAPI at α.5)   │
+        └───────┬───────┘          └────────┬────────┘
+                │                           │
+                └───────────┬───────────────┘
+                            ▼
+                    Portaldot node
+                (WebSocket · runtime metadata)
+```
+
+Both CLIs speak the chain via WebSocket + read the chain's runtime
+metadata at every invocation — no hardcoded pallet or error tables on
+either side. The shared YAML KB adds human-authored fix steps on top.
+
+## Why v0.2 while Python pdk is still v0.1?
+
+Version numbers here are **per-package**, not a global release. Python
+pdk shipped stable at 0.1.6 during the hackathon. pdk-ts starts fresh
+at 0.2 to signal that this whole track is the *v0.2 initiative* —
+covering the parts of the runtime Python can't sign — and the first
+`.0` release lands only when it reaches feature parity. Alpha.1 is
+today's read-only slice; alpha.3 lights up signing.
+
 ## Roadmap
 
 | Alpha | Scope |

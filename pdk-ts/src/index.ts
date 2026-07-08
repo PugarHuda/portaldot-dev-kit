@@ -31,6 +31,7 @@ program
   .command('doctor')
   .description('Health probe against a Portaldot node')
   .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds (default 15)')
   .option('--json', 'emit machine-readable JSON')
   .action((opts) => doctor.run(opts));
 

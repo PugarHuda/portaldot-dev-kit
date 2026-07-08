@@ -17,6 +17,7 @@ import {resolveNode} from '../core/config.js';
 export interface DoctorOptions {
   node?: string;
   json?: boolean;
+  timeout?: string; // seconds, from commander
 }
 
 export interface DoctorReport {
@@ -30,8 +31,11 @@ export interface DoctorReport {
   contractsPresent: boolean;
 }
 
-export async function collectReport(node: string): Promise<DoctorReport> {
-  const api = await getApi(node);
+export async function collectReport(
+  node: string,
+  timeoutMs?: number,
+): Promise<DoctorReport> {
+  const api = await getApi(node, timeoutMs);
   const [chain, nodeName, nodeVersion] = await Promise.all([
     api.rpc.system.chain(),
     api.rpc.system.name(),
@@ -76,9 +80,10 @@ function renderText(r: DoctorReport): string {
 
 export async function run(opts: DoctorOptions): Promise<void> {
   const node = resolveNode(opts.node);
+  const timeoutMs = opts.timeout ? Math.round(Number(opts.timeout) * 1000) : undefined;
   const t0 = Date.now();
   try {
-    const report = await collectReport(node);
+    const report = await collectReport(node, timeoutMs);
     const dt = Date.now() - t0;
     if (opts.json) {
       console.log(JSON.stringify(report, null, 2));

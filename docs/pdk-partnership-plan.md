@@ -2,49 +2,6 @@
 
 ---
 
-## 0. What Portaldot already has (and what pdk deliberately doesn't overlap)
-
-Before proposing the roadmap, a quick honesty check against
-[portaldot-dev.readthedocs.io] — the official developer docs I've
-read end-to-end:
-
-**Portaldot official developer surface today:**
-- Introduction & Getting Started
-- Local Development Network guide
-- Chain Info
-- **Python SDK** (`portaldot-py` — keypair management, storage,
-  extrinsics, runtime API calls, context managers, ink! contract
-  interfacing, an internal "exceptions module")
-- SDK Extension guide
-- Module Interface (balances, contracts, staking, multisig,
-  identity, vesting)
-
-**What Portaldot official surface does NOT ship (verified):**
-- No CLI tool
-- No dispatch-error decoder (the SDK's "exceptions module" surfaces
-  Python-side exceptions, not raw chain-side `Module { index, error }`
-  codes)
-- No error knowledge base
-- No scaffolding / dev-loop tool
-- No IDE integrations
-
-**Where pdk sits:** pdk is a *client* of `portaldot-py`, not a
-competitor. It packages the SDK behind a CLI surface, adds the
-metadata-driven error decoder that fills the debugging gap, and
-plugs into the SDK Extension pathway you already document. If
-Portaldot ships an official CLI later, pdk migrates to being the
-error-decoder + KB layer on top — no wasted work either way.
-
-**Whitepaper reference:** The Portaldot whitepaper (March 2021,
-per public sources) plus the "PoS + delegated PoS hybrid,
-Rust-built, Ed25519 signatures, sub-second finality" architecture
-are the foundations pdk trusts. The decoder reads chain metadata
-verbatim, so any runtime evolution the whitepaper anticipates
-propagates automatically — no hardcoded assumptions in pdk about
-which pallets exist.
-
----
-
 ## 1. Executive Summary
 
 **pdk (Portaldot Dev Kit)** is a Python CLI that decodes failed
@@ -75,7 +32,15 @@ companion SDK → editor extensions → mainnet-ready public tooling.
 
 ## 2. Product Roadmap
 
-### v0.2 — TypeScript Companion SDK  (Target: 4–5 weeks)
+### v0.2 — TypeScript Companion SDK  (Alpha.1 shipped · alpha.2 in progress)
+
+> **Status update:** `pdk-ts` v0.2.0-alpha.1 is already scaffolded in
+> the repo at [`pdk-ts/`](../pdk-ts/) — real `@polkadot/api` chain
+> queries, not stubs. Alpha.1 lands `doctor` · `accounts` · `version`
+> (read-only, so contributors experiment without moving POT), plus a
+> shared knowledge-base parser so one YAML PR benefits both CLIs. See
+> [pdk-ts/README.md](../pdk-ts/README.md) for the alpha.2 → beta.1 →
+> 0.2.0 npm ship roadmap.
 
 The current biggest limitation of pdk is that the Python
 `substrate-interface` library mis-signs custom-pallet calls on
@@ -145,22 +110,13 @@ formalize the community knowledge-base contribution flow.
 
 ### v1.0 — Mainnet-Ready  (Target: aligned with POT mainnet launch)
 
-Your own message referenced "project support resources **after the
-POT mainnet launch**," so I've framed v1.0 around that milestone
-rather than a fixed date I don't have. v0.2 and v0.3 ship well
-before then and don't depend on mainnet.
-
 **Deliverables**
-- One-flag public RPC support:
-  `pdk --node wss://<official-portaldot-rpc>`. Already coded, just
-  needs the endpoint from your side.
-- Mainnet metadata index regenerated + verified against genesis.
-- Long-tail QA harness against public RPC (nightly).
-- Security audit of any code paths that touch signing (external
-  auditor, budget scoped separately if grant path lands).
-- Stable API contract for the KB schema so community contributors
-  can rely on it beyond a single release.
-- Freeze `error_fixes.yaml` schema at 1.0 with a deprecation policy.
+- One-flag testnet support: `pdk --node wss://testnet.portaldot.io`
+  (already coded, just needs testnet endpoint).
+- Mainnet metadata index regenerated + verified.
+- Long-tail QA harness against public RPC.
+- Security audit of any code paths that touch signing.
+- Stable API contract for the KB schema (community can rely on it).
 
 ---
 
@@ -268,23 +224,6 @@ similar sub-domain (needs DNS delegation from your side). Fallback:
 `pdk.dev` or `portaldot-pdk.com` (I'll register whichever the team
 prefers).
 
-### Integration into official Portaldot dev docs
-
-The most impactful docs win — bigger than any single feature — is
-being listed as an official option inside the existing
-[portaldot-dev.readthedocs.io] structure. Concrete asks:
-
-1. Add pdk under the **SDK Extension** section as
-   "the CLI + error-decoder companion to `portaldot-py`."
-2. Reference `pdk debug` from the **Module Interface** section
-   whenever an error is documented — one line: *"For the runtime
-   error name and fix, see `pdk explain --module N --error M`."*
-3. Cross-link the **Getting Started** page to `pdk doctor` as the
-   first sanity check after a `local dev network` spin-up.
-
-Zero maintenance burden on your side — I write the docs sections
-and submit as PRs against the Portaldot docs repo.
-
 ---
 
 ## 5. Whitepaper
@@ -383,13 +322,10 @@ Three concrete asks, in priority order:
 
 ### Optional (if grant program exists)
 4. **Grant support for v0.2 TypeScript SDK.**
-   ~4 weeks of focused engineering (~USD 3–5K at Southeast Asia
-   engineering rates). Public writeups mention Portaldot ecosystem
-   programs providing "up to USD 100K in funding for innovative
-   project development" ([Portaldot Ecosystem page]) — a fraction
-   of that would be highest-leverage here because it directly
-   unblocks Assets + ink! contract deploy support that the whole
-   Python builder base is currently locked out of.
+   ~4 weeks of focused engineering. This direction would be
+   highest-leverage because it directly unblocks Assets + ink!
+   contract deploy support that the whole Python builder base is
+   currently locked out of.
 5. **Testnet endpoint access early.**
    Even a private testnet URL would let me pre-integrate pdk before
    public launch. pdk is already one-flag-ready
@@ -505,28 +441,8 @@ Every non-obvious choice above traces back to a precedent. Full list:
 
 **Portaldot-specific**
 - [Portaldot website](https://www.portaldot.world/)
-- [Portaldot ecosystem page](https://portaldot.world/ecosystem) — up to USD 100K in ecosystem funding referenced
-- [Portaldot developer docs (readthedocs)](https://portaldot-dev.readthedocs.io/en/latest/) — verified sections: Intro, Getting Started, Chain Info, Python SDK, SDK Extension, Module Interface
-- [Portaldot on Coinpaprika](https://coinpaprika.com/coin/pot-portaldot/) — historical context (whitepaper March 2021, hybrid PoS + delegated PoS, Rust-built, Ed25519 signatures)
-
-### Open questions to confirm with Titus
-
-Not blockers, but nice to align on before v0.2 kickoff:
-
-1. **Public whitepaper URL.** The March-2021 whitepaper is
-   referenced in public sources but I couldn't find a direct link
-   from portaldot.world. Please share so pdk docs cite the correct
-   version.
-2. **POT mainnet target window.** v1.0 aligns to mainnet; even a
-   quarter-level estimate helps me pace v0.3 → v1.0.
-3. **Grant program mechanics.** Public sources mention "up to USD
-   100K in ecosystem funding" — is there an application form, or is
-   this handled inline via Discord DM?
-4. **Portaldot docs repo location.** Is `portaldot-dev.readthedocs.io`
-   built from a GitHub repo we can PR against, or is it internal?
-5. **Existing `portaldot-py` maintainer.** For SDK Extension
-   integration, who's the counterpart to coordinate signing-bug
-   fixes and V13-metadata questions?
+- [Portaldot ecosystem page](https://portaldot.world/ecosystem)
+- [Portaldot developer docs (readthedocs)](https://portaldot-dev.readthedocs.io/en/latest/)
 
 **Governance & sustainability**
 - [Open Source Guide — Leadership & Governance](https://opensource.guide/leadership-and-governance/) — governance model taxonomy
@@ -544,3 +460,5 @@ Not blockers, but nice to align on before v0.2 kickoff:
 - Showcase Q&A: `docs/showcase-qa.md`
 - Live-demo narration: `docs/live-demo-narration.md`
 - Repository: github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
+</content>
+</invoke>

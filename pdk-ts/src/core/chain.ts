@@ -12,7 +12,10 @@ import {ApiPromise, WsProvider} from '@polkadot/api';
 
 let cached: {node: string; api: ApiPromise} | null = null;
 
-const DEFAULT_CONNECT_TIMEOUT_MS = 5_000;
+// 15 s default — comfortable for cross-continent public RPCs while
+// still failing fast enough on typos and offline dev nodes. Override
+// per-command with the `--timeout <seconds>` flag.
+const DEFAULT_CONNECT_TIMEOUT_MS = 15_000;
 
 class ConnectTimeoutError extends Error {
   constructor(node: string, ms: number) {

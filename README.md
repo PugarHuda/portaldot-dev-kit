@@ -22,6 +22,15 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 > **40 pytest cases + 84 integration & stress cases** verified locally against
 > a real `portaldot-1002` node.
 
+> **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) is now in the repo.**
+> Alpha.1 shipped with `doctor` · `accounts` · `version` — real
+> `@polkadot/api` chain queries, not stubs. Signing (`send` · `seed`) lands
+> in alpha.3. Read the [pdk-ts roadmap](pdk-ts/README.md#roadmap) for the
+> alpha.2 → 0.2.0 npm ship plan.
+>
+> Both CLIs read the same knowledge base (`pdk/data/error_fixes.yaml`), so
+> one PR benefits both — details in [pdk-ts/CONTRIBUTING.md](pdk-ts/CONTRIBUTING.md).
+
 ![pdk — FailLens decoding a Portaldot transaction failure, live](docs/demo.gif)
 
 *Real recording of pdk running against a live Portaldot node. Full **narrated pitch video** (slide intro → 14-command live terminal demo → uniqueness slide → outro, voiced, ~90 s): [`docs/pitch.mp4`](docs/pitch.mp4). Replay interactively at [/demo](https://portaldot-pdk.vercel.app/demo).*
