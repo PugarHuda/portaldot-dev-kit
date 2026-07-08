@@ -18,7 +18,7 @@ classifiers = [
 ]
 dependencies = [
     "typer>=0.12",
-    "rich>=13.7",
+    "rich>=15.0.0",
     "substrate-interface>=1.7",
     "pyyaml>=6.0",
 ]
