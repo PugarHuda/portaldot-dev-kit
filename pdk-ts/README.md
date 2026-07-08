@@ -1,6 +1,6 @@
 # pdk-ts — TypeScript companion for pdk
 
-Status: **v0.2.0-alpha.1** (scaffolding phase — API surface expanding weekly).
+Status: **v0.2.0-alpha.2** (read-only surface expanding — signing next).
 
 pdk-ts is the TypeScript companion CLI to the Python
 [`portaldot-pdk`](https://pypi.org/project/portaldot-pdk/). It exists to
@@ -49,8 +49,8 @@ today's read-only slice; alpha.3 lights up signing.
 
 | Alpha | Scope |
 |---|---|
-| **alpha.1** (current) | `doctor` · `accounts` · `version` — read-only, real chain queries |
-| alpha.2 | `pallets` · `storage` · `keys` |
+| alpha.1 | `doctor` · `accounts` · `version` — real chain queries |
+| **alpha.2** (current) | `pallets` · `storage` · `keys` — full read-only surface |
 | alpha.3 | `simulate` · `send` · `seed` — signing lands here |
 | alpha.4 | `debug` · `explain` · `report` · `watch` · `ai-setup` |
 | alpha.5 | PAPI migration spike + benchmark vs `@polkadot/api` |
@@ -75,10 +75,25 @@ npm run dev -- doctor --node ws://127.0.0.1:9944
 ## Commands available today
 
 ```
-pdk-ts doctor    Health probe against a Portaldot node
-pdk-ts accounts  List pre-funded dev accounts + POT balance
-pdk-ts version   Print CLI version
+pdk-ts doctor              Health probe against a Portaldot node
+pdk-ts accounts            List pre-funded dev accounts + POT balance
+pdk-ts pallets [name]      Browse runtime pallets (all, or detail one)
+pdk-ts storage <p> <i> [k] Read any storage value from the runtime
+pdk-ts keys [source]       Inspect (//Alice, mnemonic) or generate a keypair
+pdk-ts version             Print CLI version
 ```
+
+### Windows / git-bash note
+
+Git Bash on Windows converts a single leading `/` in an argument to
+a full Windows path (`/Alice` → `C:/Program Files/Git/Alice`). Two
+workarounds:
+
+- Use `//Alice` (double slash preserved) or bare `Alice` (pdk-ts
+  auto-prepends `//`).
+- Or set `MSYS_NO_PATHCONV=1` for the invocation.
+
+PowerShell and Unix shells are unaffected.
 
 Every chain-touching command accepts:
 

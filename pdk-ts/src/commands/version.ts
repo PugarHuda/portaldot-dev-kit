@@ -9,6 +9,6 @@ import {VERSION} from '../core/config.js';
 export function run(): void {
   console.log();
   console.log(`  ${pc.bold('pdk-ts')} ${pc.green(VERSION)}`);
-  console.log(pc.dim('  TypeScript companion for pdk — v0.2 alpha (scaffolding phase)'));
+  console.log(pc.dim('  TypeScript companion for pdk — v0.2 alpha (alpha.2 · read-only surface)'));
   console.log();
 }

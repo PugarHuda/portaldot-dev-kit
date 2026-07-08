@@ -17,4 +17,4 @@ export function resolveNode(cliOverride?: string): string {
   return cliOverride ?? process.env.PDK_TS_NODE ?? DEFAULT_NODE;
 }
 
-export const VERSION = '0.2.0-alpha.1';
+export const VERSION = '0.2.0-alpha.2';
