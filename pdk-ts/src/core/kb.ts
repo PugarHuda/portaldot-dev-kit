@@ -45,6 +45,41 @@ function findKbFile(): string | null {
   return null;
 }
 
+/**
+ * Verified runtime error index — 202 entries mapping "<pallet_idx>.<err_idx>"
+ * → "Pallet.Error" for the offline fast-path in `pdk-ts explain
+ * --module N --error M`. Sourced from Python pdk's `error_index.json`
+ * which is regenerated from live `portaldot-1002` metadata via
+ * `extract_index.py`.
+ */
+const INDEX_CANDIDATES = [
+  process.env.PDK_INDEX_PATH,
+  resolve(__dirname, '../../..', 'pdk/data/error_index.json'),
+  resolve(__dirname, '..', 'pdk-data/error_index.json'),
+].filter((p): p is string => Boolean(p));
+
+let indexCache: Record<string, string> | null = null;
+
+export function loadIndex(force = false): Record<string, string> {
+  if (indexCache && !force) return indexCache;
+  const path = INDEX_CANDIDATES.find((p) => existsSync(p));
+  if (!path) {
+    indexCache = {};
+    return indexCache;
+  }
+  const raw = readFileSync(path, 'utf8');
+  indexCache = JSON.parse(raw) as Record<string, string>;
+  return indexCache;
+}
+
+export function indexLookup(moduleIdx: number, errorIdx: number): string | undefined {
+  return loadIndex()[`${moduleIdx}.${errorIdx}`];
+}
+
+export function indexSize(): number {
+  return Object.keys(loadIndex()).length;
+}
+
 let cache: Map<string, KbEntry> | null = null;
 
 export function loadKb(force = false): Map<string, KbEntry> {

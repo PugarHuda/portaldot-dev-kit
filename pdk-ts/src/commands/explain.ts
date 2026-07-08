@@ -16,7 +16,7 @@
 import pc from 'picocolors';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
-import {lookup, kbSize, kbPath} from '../core/kb.js';
+import {lookup, kbSize, kbPath, indexLookup, indexSize} from '../core/kb.js';
 
 export interface ExplainOptions {
   module?: string;
@@ -25,6 +25,7 @@ export interface ExplainOptions {
   node?: string;
   json?: boolean;
   timeout?: string;
+  live?: boolean; // skip offline index, force metadata walk
 }
 
 interface ExplainReport {
@@ -119,6 +120,37 @@ export function resolveByName(name: string): ExplainReport | null {
 
 export async function run(opts: ExplainOptions): Promise<void> {
   try {
+    // Fast-path: --module/--error resolves against the offline index
+    // (202 entries, Portaldot-1002 verified) unless --live is passed.
+    // Falls back to metadata walk if the index has no matching entry.
+    if (opts.module && opts.error && !opts.live) {
+      const moduleIdx = Number(opts.module);
+      const errorIdx = Number(opts.error);
+      if (Number.isInteger(moduleIdx) && moduleIdx >= 0 && Number.isInteger(errorIdx) && errorIdx >= 0) {
+        const named = indexLookup(moduleIdx, errorIdx);
+        if (named) {
+          const [palletName, ...rest] = named.split('.');
+          const errorName = rest.join('.');
+          const kbEntry = lookup(named);
+          output({
+            palletIndex: moduleIdx,
+            errorIndex: errorIdx,
+            palletName,
+            errorName,
+            key: named.toLowerCase(),
+            summary: kbEntry?.summary ?? null,
+            steps: kbEntry?.steps ?? [],
+            kbEntry: Boolean(kbEntry),
+          }, opts);
+          return;
+        }
+        if (indexSize() > 0) {
+          // Index loaded but no match — fall through to live metadata walk
+          // (user is likely querying a chain other than Portaldot-1002)
+        }
+      }
+    }
+
     // Name-only mode — no node call needed
     if (opts.name && !opts.module && !opts.error) {
       const r = resolveByName(opts.name);

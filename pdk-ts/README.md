@@ -105,6 +105,16 @@ Every chain-touching command accepts:
 
 `PDK_TS_NODE` environment variable also works as a fallback.
 
+## Bundle size
+
+Installed `pdk-ts` (node_modules included) is roughly **190 MB** —
+mostly `@polkadot/api` and its transitive dependencies for chain
+encoding, metadata handling, and crypto. The compiled distributable
+(`dist/`) is under **200 KB**; the size lives in the runtime
+dependencies, not our code. Bundle-size optimisation is scoped for
+α.6 alongside the PAPI migration spike, since PAPI's smaller
+footprint is one of its main selling points.
+
 ## Design bets
 
 **Metadata-driven, not hardcoded.** Same architecture as Python pdk:

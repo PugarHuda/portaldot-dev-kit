@@ -1,6 +1,18 @@
-# Contributing to pdk
+# Contributing to PDK
 
-pdk aims to be **the standard developer toolkit for Portaldot**. The fastest way
+PDK ships as two CLIs — `pdk` (Python) and `pdk-ts` (TypeScript
+companion) — in one repository. Both read the same shared knowledge
+base. This file covers the Python side and cross-cutting concerns;
+TypeScript-specific rules live at [`pdk-ts/CONTRIBUTING.md`](pdk-ts/CONTRIBUTING.md).
+
+Quick jump:
+- Adding a new fix to the shared KB → below
+- Working on `pdk` (Python) → below
+- Working on `pdk-ts` (TypeScript) → [`pdk-ts/CONTRIBUTING.md`](pdk-ts/CONTRIBUTING.md)
+- Security disclosure → [`SECURITY.md`](SECURITY.md)
+- Code of conduct → [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+
+PDK aims to be **the standard developer toolkit for Portaldot**. The fastest way
 to help is to grow the part that compounds for everyone: the error knowledge base.
 
 ## The knowledge base is community-owned

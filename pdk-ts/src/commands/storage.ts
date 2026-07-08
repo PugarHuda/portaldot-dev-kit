@@ -52,7 +52,21 @@ export async function run(
       process.exit(1);
     }
     const fn = palletObj[itemKey] as (...args: unknown[]) => Promise<unknown>;
-    const result = await fn(...keys);
+    // For map/double-map storage items, forward keys as-is — @polkadot/api
+    // knows to auto-encode SS58 addresses to AccountId, Hash strings to
+    // H256, etc, via its type registry. For tuple keys, use a JSON-array
+    // string: `pdk-ts storage <p> <i> '["0x...", 42]'`.
+    const decodedKeys = keys.map((k) => {
+      if (k.startsWith('[') || k.startsWith('{')) {
+        try {
+          return JSON.parse(k);
+        } catch {
+          return k;
+        }
+      }
+      return k;
+    });
+    const result = await fn(...decodedKeys);
     const readable = normalise(result);
 
     if (opts.json) {

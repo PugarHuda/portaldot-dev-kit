@@ -4,6 +4,8 @@
 
 [![pdk (Python) CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml)
 [![pdk-ts CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml)
+[![PyPI](https://img.shields.io/pypi/v/portaldot-pdk?label=pypi)](https://pypi.org/project/portaldot-pdk/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/portaldot-pdk?label=downloads)](https://pypistats.org/packages/portaldot-pdk)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![node](https://img.shields.io/badge/node-22%2B-green)
 ![license](https://img.shields.io/badge/license-MIT-green)
@@ -101,6 +103,26 @@ The knowledge base (`pdk/data/error_fixes.yaml`) has 29 curated entries, every
 name **verified against the live `portaldot-1002` runtime** (202 errors checked).
 Unknown errors fall back to the metadata doc comment, so FailLens is useful for
 the long tail too.
+
+**Same decoder on the TypeScript side.** `pdk-ts explain` reaches parity
+via the shared `error_fixes.yaml` + a bundled `error_index.json` fast
+path (offline, no node needed):
+
+```
+$ pdk-ts explain --module 6 --error 2
+
+  ✗ Balances.InsufficientBalance  (module 6, error 2)
+
+  What happened
+  You tried to transfer more POT than the sending account holds.
+
+  How to fix
+  1. Check the sender balance via the Portaldot explorer or `pdk doctor`.
+  2. Lower the transfer amount, or fund the account first.
+```
+
+Add `--live` to force a full metadata walk against any Substrate chain.
+See [`pdk-ts/`](pdk-ts/) for the alpha roadmap.
 
 ## Commands
 

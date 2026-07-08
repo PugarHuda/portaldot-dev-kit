@@ -9,6 +9,7 @@
 
 import {describe, it, expect} from 'vitest';
 import {resolveByName} from '../src/commands/explain.js';
+import {indexLookup, indexSize} from '../src/core/kb.js';
 
 describe('explain --name (KB-only path)', () => {
   it('resolves balances.InsufficientBalance to a report with summary + steps', () => {
@@ -33,5 +34,20 @@ describe('explain --name (KB-only path)', () => {
   it('returns null for an unknown key', () => {
     const r = resolveByName('made_up.NotARealError');
     expect(r).toBeNull();
+  });
+});
+
+describe('explain --module/--error offline fast path', () => {
+  it('resolves 6.2 to Balances.InsufficientBalance from the Portaldot-1002 index', () => {
+    const named = indexLookup(6, 2);
+    expect(named).toBe('Balances.InsufficientBalance');
+  });
+
+  it('loads the full 202-entry runtime index', () => {
+    expect(indexSize()).toBeGreaterThanOrEqual(200);
+  });
+
+  it('returns undefined for indexes outside the runtime surface', () => {
+    expect(indexLookup(255, 255)).toBeUndefined();
   });
 });

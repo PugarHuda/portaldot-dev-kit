@@ -36,12 +36,14 @@ knowledge base is community-owned: every new Portaldot dev who
 hits an undecoded error contributes a five-line YAML PR, and the
 next dev's life gets easier.
 
-**v0.2 update (2026-07-08)** — TypeScript companion `pdk-ts` is now
-scaffolded in-repo at [`pdk-ts/`](../pdk-ts/) with `doctor` · `accounts`
-· `version` shipped as alpha.1. Verified against public Polkadot RPC
-end-to-end. Both CLIs share the same `error_fixes.yaml` knowledge
-base — one PR benefits both. Signing (`send`, `seed`) lands in
-alpha.3 next.
+**v0.2 update (2026-07-09)** — TypeScript companion `pdk-ts` ships
+`doctor` · `accounts` · `pallets` · `storage` · `keys` · `explain` ·
+`version` as alpha.3 — **7 of the 14 commands live on the TS side,
+including the hero raw-code decoder `explain`**. All verified against
+public Polkadot RPC end-to-end. Both CLIs share the same
+`error_fixes.yaml` knowledge base — one PR benefits both. Signing tier
+(`simulate`/`send`/`seed`) lands in alpha.4 with an integration test
+using `@acala-network/chopsticks` in CI. Source at [`pdk-ts/`](../pdk-ts/).
 
 **Roadmap** — v0.2 brings a TypeScript companion SDK on
 `@polkadot/api` (unblocks Assets + ink! contract deploy that Python

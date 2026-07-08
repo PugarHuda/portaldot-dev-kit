@@ -6,18 +6,23 @@ Portaldot's official Discord.
 
 ---
 
-## X bio — updated (155 chars, fits 160-char X bio cap)
+## X bio — updated (updated after α.3 ship — 7/14 cmds on TS side)
 
-Paste this into `@PortaldotDevKit` bio field:
+Paste one of these into the `@PortaldotDevKit` bio field:
 
+**Version A (155 chars, tightest — RECOMMENDED after α.3):**
 ```
-Portaldot errors, decoded. 14-command CLI (Python) + TypeScript companion in progress. 🏆 1st · Builder Tools S1 · @Portaldot
+Portaldot errors, decoded. Python CLI (14 cmds) + TypeScript companion (7/14, α.3). 🏆 1st · Builder Tools S1 · @Portaldot
 ```
 
-Alt (140 chars, tighter):
-
+**Version B (150 chars, roadmap-focused):**
 ```
-Portaldot errors, decoded. Python CLI + TypeScript companion. 🏆 1st Builder Tools · Portaldot S1 · @Portaldot
+The debugger for Portaldot. Python + TypeScript. α.3 ships FailLens `explain` on both sides. 🏆 1st Builder Tools S1 · @Portaldot
+```
+
+**Version C (140 chars, product-first):**
+```
+Every failed Portaldot transaction, decoded. Python + TypeScript. 🏆 1st Builder Tools · Portaldot S1 · @Portaldot
 ```
 
 Website field: `portaldot-pdk.vercel.app`

@@ -75,6 +75,7 @@ program
   .option('--module <n>', 'pallet index (from the DispatchError code)')
   .option('--error <n>', 'error index within the pallet')
   .option('--name <pallet.error>', 'skip metadata walk, look up by name directly')
+  .option('--live', 'skip the offline index, always walk live runtime metadata')
   .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
   .option('--timeout <seconds>', 'connect timeout in seconds (default 15)')
   .option('--json', 'emit machine-readable JSON')
