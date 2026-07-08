@@ -245,6 +245,10 @@ Scope: 8–12 pages, technical + narrative.
 **Timeline:** first draft in 3 weeks, iteration + Portaldot review in
 weeks 4–5.
 
+> **Status:** first draft shipped 2026-07-08 — see
+> [`docs/pdk-whitepaper-draft.md`](pdk-whitepaper-draft.md). Ready for
+> Portaldot review; iteration + PDF publish next.
+
 ---
 
 ## 6. Community — Discord Channel

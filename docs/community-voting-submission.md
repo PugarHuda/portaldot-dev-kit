@@ -36,6 +36,13 @@ knowledge base is community-owned: every new Portaldot dev who
 hits an undecoded error contributes a five-line YAML PR, and the
 next dev's life gets easier.
 
+**v0.2 update (2026-07-08)** — TypeScript companion `pdk-ts` is now
+scaffolded in-repo at [`pdk-ts/`](../pdk-ts/) with `doctor` · `accounts`
+· `version` shipped as alpha.1. Verified against public Polkadot RPC
+end-to-end. Both CLIs share the same `error_fixes.yaml` knowledge
+base — one PR benefits both. Signing (`send`, `seed`) lands in
+alpha.3 next.
+
 **Roadmap** — v0.2 brings a TypeScript companion SDK on
 `@polkadot/api` (unblocks Assets + ink! contract deploy that Python
 `substrate-interface` can't sign on V13 metadata — an upstream bug

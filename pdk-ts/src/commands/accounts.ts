@@ -52,6 +52,10 @@ export async function collectAccounts(node: string): Promise<AccountRow[]> {
   return rows;
 }
 
+function allEmpty(rows: AccountRow[]): boolean {
+  return rows.every((r) => r.freeRaw === '0');
+}
+
 function formatBalance(raw: string): string {
   // Portaldot uses 12 decimals for POT (same as Substrate default). Present
   // the raw plancks divided by 10^12 with 4 dp so the number is legible.
@@ -84,7 +88,25 @@ export async function run(opts: AccountsOptions): Promise<void> {
         );
       }
       console.log();
-      console.log(pc.dim('  Pre-funded at genesis. Use them for gas — no faucet needed.'));
+      if (allEmpty(rows)) {
+        console.log(
+          pc.yellow(
+            '  ⚠  All zero balances — this endpoint is likely a public chain (mainnet/testnet)',
+          ),
+        );
+        console.log(
+          pc.dim(
+            '     rather than a local dev node. //Alice/Bob/Charlie are pre-funded only on `--dev` chains.',
+          ),
+        );
+        console.log(
+          pc.dim(
+            '     Point pdk-ts at a local Portaldot node: `pdk-ts accounts --node ws://127.0.0.1:9944`',
+          ),
+        );
+      } else {
+        console.log(pc.dim('  Pre-funded at genesis. Use them for gas — no faucet needed.'));
+      }
       console.log();
     }
   } catch (err) {

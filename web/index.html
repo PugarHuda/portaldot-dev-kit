@@ -303,13 +303,43 @@
   </div>
 </section>
 
+<section id="pdk-ts">
+  <div class="wrap">
+    <h2>v0.2 — TypeScript companion (α.1 shipped)</h2>
+    <h3><span class="mono">pdk-ts</span> covers what Python can't sign on Portaldot V13 metadata.</h3>
+    <p class="body">
+      The Python <span class="mono">substrate-interface</span> library
+      mis-signs custom-pallet calls on Portaldot's V13 metadata
+      (upstream <a href="https://github.com/polkascan/py-substrate-interface/issues/9">polkascan/py-substrate-interface#9</a>).
+      <span class="mono">pdk-ts</span> is a TypeScript companion CLI on
+      <span class="mono">@polkadot/api</span> that reaches the parts
+      Python can't — Assets pallet, ink! contract deploy, and any
+      custom-pallet Portaldot ships next.
+    </p>
+    <p class="body" style="margin-top:12px;">
+      Alpha.1 lands <span class="mono">doctor</span> ·
+      <span class="mono">accounts</span> ·
+      <span class="mono">version</span> — real
+      <span class="mono">@polkadot/api</span> chain queries, verified
+      end-to-end against public Polkadot RPC. Both CLIs read the same
+      knowledge base, so one YAML PR benefits both.
+    </p>
+    <div class="btns" style="margin-top:16px;">
+      <a class="btn primary" href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/tree/master/pdk-ts">Browse pdk-ts source</a>
+      <a class="btn" href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/blob/master/pdk-ts/README.md">Roadmap</a>
+    </div>
+  </div>
+</section>
+
 <section id="roadmap">
   <div class="wrap">
     <h2>Roadmap</h2>
     <h3>The standard Portaldot dev toolkit.</h3>
     <p class="body">
-      pdk is built to grow beyond this hackathon: a state seeder for local nodes, a
-      transaction simulator, a typed TypeScript SDK, and CI integration — all under one CLI.
+      pdk is built to grow beyond this hackathon: v0.2 TypeScript
+      companion (α.1 shipped), VS Code + Cursor editor extensions,
+      community-owned knowledge base, and public-RPC readiness for
+      Portaldot mainnet.
     </p>
   </div>
 </section>

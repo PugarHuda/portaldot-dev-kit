@@ -13,7 +13,7 @@ on:
 
 jobs:
   test:
-    name: typecheck + test
+    name: lint + typecheck + build + test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -30,11 +30,44 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Lint (biome)
+        run: npm run lint
+
       - name: Typecheck
         run: npm run typecheck
 
       - name: Build
         run: npm run build
 
-      - name: Test
+      - name: Test (unit)
         run: npm test
+
+  integration:
+    name: integration smoke (public Substrate RPC)
+    runs-on: ubuntu-latest
+    needs: test
+    defaults:
+      run:
+        working-directory: pdk-ts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: pdk-ts/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # Read-only doctor call against a public RPC to prove
+      # metadata-driven queries work end-to-end.
+      - name: pdk-ts doctor --node wss://rpc.polkadot.io --json
+        run: |
+          node dist/index.js doctor --node wss://rpc.polkadot.io --json --timeout 30 > doctor.json
+          cat doctor.json
+          node -e "const r = require('./doctor.json'); if (r.error) throw new Error(r.error); if (r.chain !== 'Polkadot') throw new Error('unexpected chain: ' + r.chain); if (typeof r.palletCount !== 'number' || r.palletCount < 10) throw new Error('pallet count sanity check failed'); console.log('integration ok');"

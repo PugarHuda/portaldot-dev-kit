@@ -1,0 +1,54 @@
+name: pdk-ts publish
+
+# Publishes pdk-ts to npm on tags of the form `pdk-ts-vX.Y.Z` or
+# `pdk-ts-vX.Y.Z-alpha.N`. Manual dispatch also supported.
+#
+# Prerequisites (one-time, in the repo Settings → Secrets):
+#   NPM_TOKEN — an automation token with publish scope on the
+#               `portaldot-pdk-ts` package.
+
+on:
+  push:
+    tags:
+      - 'pdk-ts-v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pdk-ts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: pdk-ts/package-lock.json
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Publish (dry run on non-tag runs)
+        run: npm publish --access public --provenance --dry-run
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish
+        run: npm publish --access public --provenance
+        if: startsWith(github.ref, 'refs/tags/pdk-ts-v')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

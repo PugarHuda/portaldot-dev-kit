@@ -59,3 +59,9 @@ docs/screens/captioned/
 remotion/node_modules/
 remotion/out/
 remotion/.cache/
+
+# pdk-ts build output
+pdk-ts/node_modules/
+pdk-ts/dist/
+pdk-ts/.cache/
+pdk-ts/*.log

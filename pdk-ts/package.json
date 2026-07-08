@@ -8,12 +8,19 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
+    "lint": "biome lint src tests",
     "clean": "rimraf dist"
   },
   "keywords": [
@@ -39,6 +46,7 @@
     "yaml": "^2.6.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.7.4",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.1",

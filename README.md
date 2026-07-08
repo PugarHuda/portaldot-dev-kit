@@ -2,8 +2,10 @@
 
 <img src="docs/logo.png" alt="pdk — Portaldot Dev Kit" width="116" align="right" />
 
-[![tests](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml)
+[![pdk (Python) CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml)
+[![pdk-ts CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
+![node](https://img.shields.io/badge/node-22%2B-green)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![winner](https://img.shields.io/badge/🏆-1st%20Place%20·%20Portaldot%20Mini%20S1-3fb950)
 
@@ -50,8 +52,11 @@ intended environment), and the developer experience is rough:
 - Newcomers don't know how to get POT or where to start (the hackathon Q&A
   channel is full of *"how do I get POT?"* and *"where's the RPC / faucet?"*).
 
-**Solution.** `pdk` (Portaldot Dev Kit) is a single Python CLI with
-**14 commands** that owns the local development loop end-to-end:
+**Solution.** `pdk` (Portaldot Dev Kit) is a Python CLI with
+**14 commands** that owns the local development loop end-to-end, plus a
+TypeScript companion (`pdk-ts`, [pdk-ts/](pdk-ts/), α.1 shipped with
+`doctor` · `accounts` · `version`) that will reach parity by beta.1 and
+cover what Python currently can't sign on Portaldot V13 metadata:
 
 1. **FailLens** (`pdk debug`) — the hero. Decode any failed transaction
    against the chain's own metadata + a verified 29-entry knowledge base.
