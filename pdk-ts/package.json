@@ -1,6 +1,6 @@
 {
   "name": "portaldot-pdk-ts",
-  "version": "0.2.0-alpha.2",
+  "version": "0.2.0-alpha.3",
   "description": "TypeScript companion SDK for pdk (Portaldot Dev Kit) — covers what Python substrate-interface cannot sign on Portaldot's V13 metadata.",
   "type": "module",
   "bin": {

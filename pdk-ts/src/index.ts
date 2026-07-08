@@ -22,6 +22,7 @@ import * as version from './commands/version.js';
 import * as pallets from './commands/pallets.js';
 import * as storage from './commands/storage.js';
 import * as keys from './commands/keys.js';
+import * as explain from './commands/explain.js';
 
 const program = new Command();
 
@@ -69,9 +70,21 @@ program
   .action((source, opts) => keys.run(source, opts));
 
 program
+  .command('explain')
+  .description('Decode a raw Module/error code into a named error + fix steps')
+  .option('--module <n>', 'pallet index (from the DispatchError code)')
+  .option('--error <n>', 'error index within the pallet')
+  .option('--name <pallet.error>', 'skip metadata walk, look up by name directly')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds (default 15)')
+  .option('--json', 'emit machine-readable JSON')
+  .action((opts) => explain.run(opts));
+
+program
   .command('version')
   .description('Print pdk-ts version and status')
-  .action(() => version.run());
+  .option('--json', 'emit machine-readable JSON')
+  .action((opts) => version.run(opts));
 
 // Default help when no command given
 if (process.argv.length <= 2) {

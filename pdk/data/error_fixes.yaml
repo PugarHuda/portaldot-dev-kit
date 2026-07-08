@@ -1,5 +1,18 @@
 # FailLens knowledge base — Portaldot/Substrate pallet errors -> human fixes.
 #
+# SCHEMA VERSION: 1
+#   Entry shape:
+#     "<pallet_lowercased>.<ErrorName>":
+#       summary: str        # ~1 sentence, 6th-grade reading level
+#       steps:              # ordered list, at least one item
+#         - "..."
+#   The pallet component is always lowercased; the error component keeps
+#   PascalCase to match the runtime metadata. Both pdk (Python) and
+#   pdk-ts (TypeScript) load this file directly and use the key form
+#   above for case-insensitive lookups.
+#   Schema changes are semver-versioned — bump this number in a
+#   dedicated commit, never mixed with content changes.
+#
 # Every key below is VERIFIED against the live Portaldot runtime metadata
 # (portaldot-1002, 202 pallet errors). Key format: "<pallet>.<ErrorName>" with
 # the pallet lowercased. "dispatch.*" keys are top-level DispatchError variants

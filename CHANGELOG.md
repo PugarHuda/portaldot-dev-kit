@@ -3,6 +3,22 @@
 All notable changes to **pdk — Portaldot Dev Kit**. Published to PyPI:
 `pip install portaldot-pdk`. Format follows [Keep a Changelog](https://keepachangelog.com).
 
+TypeScript companion (`pdk-ts`) tracks its own changelog at
+[`pdk-ts/CHANGELOG.md`](pdk-ts/CHANGELOG.md). Milestones cross-referenced
+here for repo-level chronology.
+
+## [Cross-repo milestones]
+- **2026-07-09** — pdk-ts **0.2.0-alpha.3** ships `explain` (raw-code
+  decoder — the unique feature). 7/14 commands now covered on the TS
+  side. Verbose polkadot.js logs silenced from stdout so `--json`
+  pipes cleanly. See `pdk-ts/CHANGELOG.md` for details.
+- **2026-07-09** — pdk-ts **0.2.0-alpha.2** ships `pallets` · `storage`
+  · `keys`. Read-only tier complete. Verified live against Polkadot
+  RPC (61 pallets listed, block 32M returned).
+- **2026-07-08** — pdk-ts **0.2.0-alpha.1** scaffold pushed. Real
+  `@polkadot/api` chain queries, shared KB parser reads Python's
+  `error_fixes.yaml`. `doctor` verified against `wss://rpc.polkadot.io`.
+
 ## [Unreleased — infra]
 ### Documented troubleshooting
 - README now has a **Troubleshooting** section covering every real-world

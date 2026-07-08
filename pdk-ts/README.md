@@ -1,6 +1,6 @@
 # pdk-ts — TypeScript companion for pdk
 
-Status: **v0.2.0-alpha.2** (read-only surface expanding — signing next).
+Status: **v0.2.0-alpha.3** — 7 of 14 commands live including the FailLens `explain` decoder.
 
 pdk-ts is the TypeScript companion CLI to the Python
 [`portaldot-pdk`](https://pypi.org/project/portaldot-pdk/). It exists to
@@ -50,10 +50,11 @@ today's read-only slice; alpha.3 lights up signing.
 | Alpha | Scope |
 |---|---|
 | alpha.1 | `doctor` · `accounts` · `version` — real chain queries |
-| **alpha.2** (current) | `pallets` · `storage` · `keys` — full read-only surface |
-| alpha.3 | `simulate` · `send` · `seed` — signing lands here |
-| alpha.4 | `debug` · `explain` · `report` · `watch` · `ai-setup` |
-| alpha.5 | PAPI migration spike + benchmark vs `@polkadot/api` |
+| alpha.2 | `pallets` · `storage` · `keys` — read-only surface |
+| **alpha.3** (current) | `explain` — hero raw-code decoder (skipped ahead of signing) |
+| alpha.4 | `simulate` · `send` · `seed` — signing lands here |
+| alpha.5 | `debug` · `report` · `watch` · `ai-setup` |
+| alpha.6 | PAPI migration spike + benchmark vs `@polkadot/api` |
 | beta.1  | Feature parity with Python `pdk` |
 | 0.2.0   | Ship as `portaldot-pdk-ts` on npm |
 
@@ -80,7 +81,9 @@ pdk-ts accounts            List pre-funded dev accounts + POT balance
 pdk-ts pallets [name]      Browse runtime pallets (all, or detail one)
 pdk-ts storage <p> <i> [k] Read any storage value from the runtime
 pdk-ts keys [source]       Inspect (//Alice, mnemonic) or generate a keypair
-pdk-ts version             Print CLI version
+pdk-ts explain --module N --error M   Decode a raw code → named error + fix
+pdk-ts explain --name <pallet.error>  KB-only lookup (no node required)
+pdk-ts version [--json]    Print CLI version
 ```
 
 ### Windows / git-bash note

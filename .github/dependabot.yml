@@ -1,0 +1,42 @@
+version: 2
+updates:
+  # Python — root pyproject.toml
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - python
+    commit-message:
+      prefix: "deps(py)"
+
+  # TypeScript companion
+  - package-ecosystem: npm
+    directory: /pdk-ts
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - pdk-ts
+    commit-message:
+      prefix: "deps(ts)"
+    groups:
+      polkadot:
+        patterns:
+          - "@polkadot/*"
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: "deps(ci)"

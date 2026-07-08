@@ -1,51 +1,37 @@
 # X progress update — @PortaldotDevKit
 
-Second post from `@PortaldotDevKit`. Titus asked for "latest progress"
-on X. Four angles below — pick whichever matches actual current
-work best. All under 280 chars.
+Second progress update after the launch tweet. Ship velocity: α.1 → α.2 → α.3 in two days. Pick one, post, DM Titus.
 
 ---
 
-## Version A — v0.2 tease (250 chars) — RECOMMENDED
+## Version A — velocity + hero shipped (255 chars) — RECOMMENDED
 
 ```
-Progress update on PDK.
+PDK progress — two days in.
 
-v0.2 in scaffolding — a TypeScript companion for the Python core. Unlocks the parts of Portaldot's runtime Python currently can't reach (Assets, ink! contract deploy).
+v0.2 alpha.3 shipped. That's 7 of 14 commands live on the TypeScript side, including the hero: `pdk-ts explain --module N --error M` decodes any raw Portaldot error code into a named fix.
 
-Same 14 commands. Same terminal UX. Full runtime coverage this time.
+The unique thing PDK does — now on both Python and TS.
 ```
 
-## Version B — behind the scenes (240 chars)
+## Version B — number-first (245 chars)
 
 ```
-Small update on PDK.
+Two days, three alphas.
 
-Been quietly working on v0.2 — a TypeScript companion for the core. It covers the corners of Portaldot's runtime Python can't sign yet.
+pdk-ts α.1 → α.2 → α.3. Seven commands. Doctor. Accounts. Pallets. Storage. Keys. Explain. Version.
 
-Design sketch locked. Kernel next.
-
-Same commands, more chain.
+Explain is the hero — decodes raw Portaldot error codes into names + fix steps. The unique thing PDK does, now on TypeScript too.
 ```
 
-## Version C — metadata-driven angle (260 chars)
+## Version C — behind the scenes (260 chars)
 
 ```
-Testing PDK against fresh Portaldot builds this week.
+Latest on PDK.
 
-Nothing rots. Every error still resolves cleanly — the metadata-driven approach earns its keep every time the runtime moves.
+Skipped ahead in the roadmap this week. Signing was scheduled next but I moved `explain` — the raw-code decoder — up because it's the unique thing PDK does. Ships α.3, works standalone from the shared KB.
 
-Next: v0.2 TypeScript companion, scaffolding starts now.
-```
-
-## Version D — community-flavored (255 chars)
-
-```
-Week one for PDK, quick check-in.
-
-Focus this week: v0.2 scoping. A TypeScript companion for the Python core so PDK covers the whole Portaldot runtime, not just the parts Python can reach.
-
-If you hit a Portaldot error PDK doesn't know yet — send it. 5-line YAML PR.
+Now 7 of 14 commands on the TS side.
 ```
 
 ---
@@ -53,15 +39,7 @@ If you hit a Portaldot error PDK doesn't know yet — send it. 5-line YAML PR.
 ## Posting checklist
 
 - [ ] Sign in as `@PortaldotDevKit`
-- [ ] Paste chosen version
+- [ ] Paste Version A (or B / C)
 - [ ] Post
-- [ ] Reply Titus in DM — "posted the progress update 🙏"
-
----
-
-## Which to pick
-
-- **A** — strongest forward-momentum signal. Concrete milestone (v0.2). Best if Titus wants "project alive & shipping" vibe.
-- **B** — humbler tone. Good if you have small progress but nothing shipped yet.
-- **C** — quality angle, no shipping claim. Best if this week is all testing/refactor.
-- **D** — invites contribution. Best if you want new community PRs to start rolling in.
+- [ ] Reply-thread with a screenshot of `pdk-ts explain --name balances.InsufficientBalance` output
+- [ ] DM Titus the tweet link — "α.3 shipped, hero feature on TS side 🙏"

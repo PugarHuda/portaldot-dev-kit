@@ -32,15 +32,19 @@ companion SDK → editor extensions → mainnet-ready public tooling.
 
 ## 2. Product Roadmap
 
-### v0.2 — TypeScript Companion SDK  (Alpha.1 shipped · alpha.2 in progress)
+### v0.2 — TypeScript Companion SDK  (Alpha.3 shipped — 7 / 14 commands live)
 
-> **Status update:** `pdk-ts` v0.2.0-alpha.1 is already scaffolded in
-> the repo at [`pdk-ts/`](../pdk-ts/) — real `@polkadot/api` chain
-> queries, not stubs. Alpha.1 lands `doctor` · `accounts` · `version`
-> (read-only, so contributors experiment without moving POT), plus a
-> shared knowledge-base parser so one YAML PR benefits both CLIs. See
-> [pdk-ts/README.md](../pdk-ts/README.md) for the alpha.2 → beta.1 →
-> 0.2.0 npm ship roadmap.
+> **Status update (2026-07-09):** `pdk-ts` shipped alpha.1 → alpha.2 →
+> alpha.3 in two days. Seven of the fourteen commands are now on the
+> TypeScript side including the **hero feature** `explain` (raw-code
+> decoder — the unique thing PDK does). All verified live against
+> Polkadot RPC. Both CLIs share the same `error_fixes.yaml` KB. See
+> [pdk-ts/CHANGELOG.md](../pdk-ts/CHANGELOG.md) and
+> [pdk-ts/README.md](../pdk-ts/README.md#roadmap) for the
+> alpha.4 → beta.1 → 0.2.0 npm ship path.
+>
+> Original timeline estimate: 4–5 weeks. Actual velocity so far: 7
+> commands in 2 days. On track for beta.1 well ahead of estimate.
 
 The current biggest limitation of pdk is that the Python
 `substrate-interface` library mis-signs custom-pallet calls on

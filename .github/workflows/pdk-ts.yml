@@ -64,10 +64,31 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Read-only doctor call against a public RPC to prove
-      # metadata-driven queries work end-to-end.
-      - name: pdk-ts doctor --node wss://rpc.polkadot.io --json
+      # Read-only integration probes against a public RPC to prove
+      # every command's metadata-driven pathway works end-to-end.
+      - name: pdk-ts doctor
         run: |
           node dist/index.js doctor --node wss://rpc.polkadot.io --json --timeout 30 > doctor.json
           cat doctor.json
-          node -e "const r = require('./doctor.json'); if (r.error) throw new Error(r.error); if (r.chain !== 'Polkadot') throw new Error('unexpected chain: ' + r.chain); if (typeof r.palletCount !== 'number' || r.palletCount < 10) throw new Error('pallet count sanity check failed'); console.log('integration ok');"
+          node -e "const r = require('./doctor.json'); if (r.error) throw new Error(r.error); if (r.chain !== 'Polkadot') throw new Error('unexpected chain: ' + r.chain); if (typeof r.palletCount !== 'number' || r.palletCount < 10) throw new Error('pallet count sanity check failed'); console.log('doctor ok');"
+
+      - name: pdk-ts pallets
+        run: |
+          node dist/index.js pallets --node wss://rpc.polkadot.io --json --timeout 30 > pallets.json
+          node -e "const r = require('./pallets.json'); if (!Array.isArray(r) || r.length < 10) throw new Error('pallets returned too few entries'); if (!r.find(p => p.name === 'System')) throw new Error('System pallet missing'); console.log('pallets ok — ' + r.length + ' pallets');"
+
+      - name: pdk-ts storage System Number
+        run: |
+          node dist/index.js storage System Number --node wss://rpc.polkadot.io --json --timeout 30 > storage.json
+          cat storage.json
+          node -e "const r = require('./storage.json'); if (r.error) throw new Error(r.error); if (r.pallet.toLowerCase() !== 'system') throw new Error('wrong pallet'); if (r.value == null) throw new Error('no block number returned'); console.log('storage ok — block ' + r.value);"
+
+      - name: pdk-ts keys (offline, deterministic)
+        run: |
+          node dist/index.js keys //Alice --json > alice.json
+          node -e "const r = require('./alice.json'); if (r.address !== '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY') throw new Error('Alice address mismatch: ' + r.address); console.log('keys ok');"
+
+      - name: pdk-ts explain --name (KB-only)
+        run: |
+          node dist/index.js explain --name balances.InsufficientBalance --json > explain.json
+          node -e "const r = require('./explain.json'); if (r.error) throw new Error(r.error); if (r.errorName !== 'InsufficientBalance') throw new Error('wrong error name'); if (!r.summary || r.steps.length === 0) throw new Error('KB entry missing summary/steps'); console.log('explain ok');"

@@ -10,6 +10,26 @@
 
 import {ApiPromise, WsProvider} from '@polkadot/api';
 
+// Silence @polkadot/api's verbose stdout logging so `--json` output is
+// pure JSON. The logger prints messages in the form
+// `console.log('<timestamp>', 'TAG:', ...)` so we filter by scanning
+// ALL string args for the well-known tag markers.
+// Opt back in with `DEBUG_POLKADOT_API=1`.
+if (!process.env.DEBUG_POLKADOT_API) {
+  const noise = /(RPC-CORE|API\/INIT|REGISTRY:)/;
+  const filter = (fn: typeof console.log) => {
+    return ((...args: unknown[]) => {
+      for (const a of args) {
+        if (typeof a === 'string' && noise.test(a)) return;
+      }
+      fn(...args);
+    }) as typeof console.log;
+  };
+  console.info = filter(console.info);
+  console.log = filter(console.log);
+  console.warn = filter(console.warn);
+}
+
 let cached: {node: string; api: ApiPromise} | null = null;
 
 // 15 s default — comfortable for cross-continent public RPCs while
