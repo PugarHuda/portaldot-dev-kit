@@ -119,9 +119,13 @@ jobs:
 
       - name: pdk-ts explain --live (metadata walk, no offline shortcut)
         run: |
-          node dist/index.js explain --module 6 --error 2 --live --node ${{ steps.rpc.outputs.RPC }} --json --timeout 30 > live.json
+          # System is pallet index 0 on every Substrate chain; error
+          # index 0 is always a real named variant. Portaldot happens
+          # to have Balances at index 6, Polkadot has Authorship there
+          # (no errors) — hardcoding 6.2 assumed the wrong runtime.
+          node dist/index.js explain --module 0 --error 0 --live --node ${{ steps.rpc.outputs.RPC }} --json --timeout 30 > live.json
           cat live.json
-          node -e "const r = require('./live.json'); if (r.error) throw new Error(r.error); if (r.source !== 'metadata') throw new Error('expected source=metadata, got ' + r.source); if (!r.palletName || !r.errorName) throw new Error('metadata walk missed name'); console.log('explain --live ok: ' + r.palletName + '.' + r.errorName);"
+          node -e "const r = require('./live.json'); if (r.error) throw new Error(r.error); if (r.source !== 'metadata') throw new Error('expected source=metadata, got ' + r.source); if (r.palletName !== 'System') throw new Error('expected System pallet, got ' + r.palletName); if (!r.errorName) throw new Error('metadata walk missed error name'); console.log('explain --live ok: ' + r.palletName + '.' + r.errorName);"
 
       - name: pdk-ts kb --json (offline)
         run: |
