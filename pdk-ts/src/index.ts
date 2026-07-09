@@ -35,10 +35,15 @@ import * as kb from './commands/kb.js';
 
 const program = new Command();
 
+// Commander's default on an unknown command is a bare "error: unknown
+// command 'X'". Add a hint pointing at the built-in help.
+program.showSuggestionAfterError(true);
+program.showHelpAfterError('(run `pdk-ts --help` for the full command list)');
+
 program
   .name('pdk-ts')
   .description('TypeScript companion CLI for pdk (Portaldot Dev Kit)')
-  .version(VERSION)
+  .version(VERSION, '-v, --version', 'print version + build status (same as `pdk-ts version`)')
   .addHelpText(
     'after',
     `
@@ -153,22 +158,19 @@ if (process.argv.length <= 2) {
  * returned — without these handlers the user sees a bare Node stack
  * trace and the process exits without closing the socket.
  */
-function readableAsyncError(err: unknown): string {
-  if (err instanceof Error) return `${err.name}: ${err.message}`;
-  return String(err);
-}
+import {readableError} from './core/errors.js';
 
 process.on('unhandledRejection', (reason) => {
-  process.stderr.write(`pdk-ts: unhandled rejection: ${readableAsyncError(reason)}\n`);
+  process.stderr.write(`pdk-ts: unhandled rejection: ${readableError(reason)}\n`);
   process.exit(1);
 });
 
 process.on('uncaughtException', (err) => {
-  process.stderr.write(`pdk-ts: uncaught exception: ${readableAsyncError(err)}\n`);
+  process.stderr.write(`pdk-ts: uncaught exception: ${readableError(err)}\n`);
   process.exit(1);
 });
 
 program.parseAsync(process.argv).catch((err) => {
-  console.error(readableAsyncError(err));
+  console.error(readableError(err));
   process.exit(1);
 });

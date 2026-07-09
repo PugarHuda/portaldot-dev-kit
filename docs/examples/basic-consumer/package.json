@@ -5,7 +5,9 @@
   "description": "Minimal consumer example for pdk-ts — programmatic FailLens decode + doctor health probe.",
   "type": "module",
   "scripts": {
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "flow1": "tsx src/flow1-only.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "portaldot-pdk-ts": "file:../../../pdk-ts"

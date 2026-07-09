@@ -19,14 +19,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        node: ['20', '22']
-        exclude:
-          # trim total minutes — keep full-matrix for node 22, sanity
-          # check node 20 on ubuntu only
-          - os: macos-latest
-            node: '20'
-          - os: windows-latest
-            node: '20'
+        # engines.node in package.json is >=22, so we only test what we
+        # actually support. Node 20 dropped alongside the alpha.4 bump.
+        node: ['22']
     defaults:
       run:
         working-directory: pdk-ts
@@ -153,12 +148,9 @@ jobs:
           npm ci
           npm run build
 
-      - name: Wire example to local pdk-ts
+      - name: Install example deps (file: link picks up freshly built pdk-ts)
         working-directory: docs/examples/basic-consumer
-        run: |
-          npm install
-          # Point the example at the freshly built pdk-ts instead of npm
-          npm install ../../../pdk-ts
+        run: npm install
 
       - name: Typecheck the example
         working-directory: docs/examples/basic-consumer

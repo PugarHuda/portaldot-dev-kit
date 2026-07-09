@@ -50,7 +50,59 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 
 ## [Unreleased]
 
-Library performance + release-hygiene pass. No API breaks.
+Release-safety + error UX pass. No API breaks.
+
+### Fixed
+- **Publish workflow was missing `id-token: write`**, so
+  `npm publish --provenance` on a real `pdk-ts-v*` tag would have failed
+  with "provenance requires id-token: write". Would have been discovered
+  at first attempted release — added now.
+- `PDK_KB_PATH` / `PDK_INDEX_PATH` env overrides now fail hard when the
+  path doesn't exist, instead of silently falling back to the shipped
+  default. Silent fallback hid user typos.
+- Chain-connect error UX. `pdk-ts doctor --node <bad>` now appends an
+  actionable hint to the raw `@polkadot/api` message:
+  - non-101 → "not a WebSocket server"
+  - ENOTFOUND → "DNS lookup failed"
+  - ECONNREFUSED → "nothing accepted the connection"
+  - our own timeout → "try --timeout <seconds>"
+- `pdk-ts kb --json` now carries `driftDetected` + `driftReason` so
+  machine consumers surface index/constant drift without parsing stderr.
+- `installConsoleFilter` no longer leaks `PDK_TS_CONSOLE_FILTER_INSTALLED`
+  into child processes; guard is a module-level flag.
+- Unknown command UX. `pdk-ts badcmd` now suggests near-matches and
+  points at `pdk-ts --help`.
+
+### Added
+- `src/core/errors.ts` — single source of truth for `readableError` +
+  `humanizeChainError`. Doctor and CLI unhandled-rejection paths use it;
+  local duplicates removed.
+- `tests/config.test.ts` — 10 vitest cases locking `validateNodeUrl` +
+  `resolveNode` behaviour (ws/wss, IPv6, case, path, error cases).
+- `tests/explain-fastpath.test.ts` — 5 cases for offline index lookup
+  including out-of-range + non-integer inputs.
+- `docs/examples/basic-consumer` gets `flow1-only.ts` + `npm run flow1`
+  for network-free offline demos (`npm start` needs a live RPC).
+
+### Changed
+- `engines.node` bumped `>=20` → `>=22`. CI matrix trimmed to node 22
+  across all three OSes.
+- Docker image build now emits multi-arch (`linux/amd64`, `linux/arm64`)
+  on `pdk-ts-v*` tag pushes — Apple Silicon devs no longer need qemu.
+- Docker smoke test verifies the `error_index.meta.json` sidecar
+  actually copied into the image (guards `.dockerignore` regression).
+- `docker.yml` runs on every PR touching pdk-ts or KB, not just
+  Dockerfile changes.
+- `basic-consumer` CI job dropped the redundant second `npm install`.
+- `ci.yml` runs `python -m py_compile extract_index.py` so a PR that
+  breaks the Python side of the sidecar generator fails fast.
+
+### Docs
+- README linked to `SECURITY.md`, `SUPPORT.md`, `CONTRIBUTING.md`.
+- `docs/alpha4-signing-design.md` renamed to `alpha5-signing-design.md`
+  to match the roadmap shift.
+
+## 0.2.0-alpha.4 — 2026-07-09
 
 ### Performance
 - **Cold `import('portaldot-pdk-ts')` drops from ~2.8 s to ~430 ms**

@@ -16,6 +16,13 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # `npm publish --provenance` requires GitHub OIDC to attest the
+    # build. Without id-token: write, the publish step fails at push
+    # time with "provenance requires id-token: write". contents: read
+    # is the tightest default that still lets checkout run.
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: pdk-ts

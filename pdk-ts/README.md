@@ -49,6 +49,13 @@ covering the parts of the runtime Python can't sign — and the first
 `.0` release lands only when it reaches feature parity. Alpha.1 is
 today's read-only slice; alpha.3 lights up signing.
 
+## Support
+
+- Bugs & feature requests → [issues](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/issues)
+- Security disclosures → [`SECURITY.md`](../SECURITY.md)
+- Support policy → [`SUPPORT.md`](../SUPPORT.md)
+- Contribution guide → [`CONTRIBUTING.md`](../CONTRIBUTING.md)
+
 ## Roadmap
 
 | Alpha | Scope |

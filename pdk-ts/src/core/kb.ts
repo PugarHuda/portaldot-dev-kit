@@ -39,6 +39,12 @@ const CANDIDATES = [
 ].filter((p): p is string => Boolean(p));
 
 function findKbFile(): string | null {
+  // If the user explicitly set PDK_KB_PATH they mean it — silently
+  // falling back to the default when their file is missing hides typos.
+  const envPath = process.env.PDK_KB_PATH;
+  if (envPath && !existsSync(envPath)) {
+    throw new Error(`PDK_KB_PATH="${envPath}" does not exist (set explicitly, so we won't silently fall back).`);
+  }
   for (const path of CANDIDATES) {
     if (existsSync(path)) return path;
   }
@@ -57,6 +63,13 @@ const INDEX_CANDIDATES = [
   resolve(__dirname, '../../..', 'pdk/data/error_index.json'),
   resolve(__dirname, '..', 'pdk-data/error_index.json'),
 ].filter((p): p is string => Boolean(p));
+
+function assertEnvIndexPathExists(): void {
+  const envPath = process.env.PDK_INDEX_PATH;
+  if (envPath && !existsSync(envPath)) {
+    throw new Error(`PDK_INDEX_PATH="${envPath}" does not exist (set explicitly, so we won't silently fall back).`);
+  }
+}
 
 /**
  * Runtime index fingerprint. The bundled `error_index.json` was
@@ -81,6 +94,7 @@ let indexFingerprintWarned = false;
 
 export function loadIndex(force = false): Record<string, string> {
   if (indexCache && !force) return indexCache;
+  assertEnvIndexPathExists();
   const path = INDEX_CANDIDATES.find((p) => existsSync(p));
   if (!path) {
     indexCache = {};
@@ -122,6 +136,24 @@ export function loadIndex(force = false): Record<string, string> {
 export function indexMeta(): IndexMeta | null {
   if (!indexCache) loadIndex();
   return indexMetaCache;
+}
+
+/**
+ * True when the sidecar's fingerprint disagrees with our compiled-in
+ * constants. Returns false when the sidecar is missing (no drift can
+ * be detected). Machine consumers should surface this in their JSON.
+ */
+export function indexDrift(): {drift: boolean; reason?: string} {
+  const meta = indexMeta();
+  if (!meta) return {drift: false};
+  const s = meta.specName?.toLowerCase();
+  const v = meta.specVersion;
+  if (typeof s !== 'string' || typeof v !== 'number') return {drift: false};
+  if (s === INDEX_SPEC_NAME && v === INDEX_SPEC_VERSION) return {drift: false};
+  return {
+    drift: true,
+    reason: `sidecar reports ${s}-${v}, code constants say ${INDEX_SPEC_NAME}-${INDEX_SPEC_VERSION}`,
+  };
 }
 
 export function indexLookup(moduleIdx: number, errorIdx: number): string | undefined {

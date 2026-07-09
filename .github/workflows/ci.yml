@@ -22,3 +22,9 @@ jobs:
           pip install pytest
       - name: Run tests
         run: pytest tests/ -q
+
+      - name: Syntax-check extract_index.py (offline)
+        # extract_index.py wants a live node so we can't exec it here,
+        # but py_compile catches syntax + import errors introduced by
+        # PRs that touch the extractor.
+        run: python -m py_compile extract_index.py

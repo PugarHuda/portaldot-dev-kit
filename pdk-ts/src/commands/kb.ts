@@ -10,7 +10,7 @@
  */
 
 import pc from 'picocolors';
-import {loadKb, loadIndex, indexSize, kbPath, INDEX_SPEC_NAME, INDEX_SPEC_VERSION} from '../core/kb.js';
+import {loadKb, loadIndex, indexSize, kbPath, indexDrift, INDEX_SPEC_NAME, INDEX_SPEC_VERSION} from '../core/kb.js';
 
 export interface KbOptions {
   missing?: boolean;
@@ -85,11 +85,14 @@ function reportSummary(kb: ReturnType<typeof loadKb>, index: Record<string, stri
   const coverage = indexEntries > 0 ? ((kbEntries / indexEntries) * 100).toFixed(1) : '0.0';
 
   if (opts.json) {
+    const drift = indexDrift();
     console.log(JSON.stringify({
       kbPath: kbPath(),
       kbEntries,
       indexEntries,
       indexFingerprint: {specName: INDEX_SPEC_NAME, specVersion: INDEX_SPEC_VERSION},
+      driftDetected: drift.drift,
+      driftReason: drift.reason,
       coveragePercent: Number(coverage),
     }, null, 2));
     return;

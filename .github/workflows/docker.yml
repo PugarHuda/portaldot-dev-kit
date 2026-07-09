@@ -70,7 +70,13 @@ jobs:
           cat version.json
           node -e "const r = require('./version.json'); if (!r.version.startsWith('0.2')) throw new Error('bad version'); console.log('version ok');"
           docker run --rm pdk-ts:test kb --json > kb.json
-          node -e "const r = require('./kb.json'); if (r.indexEntries < 200) throw new Error('index missing in image'); console.log('kb+index ok');"
+          node -e "
+            const r = require('./kb.json');
+            if (r.indexEntries < 200) throw new Error('index missing in image');
+            if (r.indexFingerprint?.specName !== 'portaldot') throw new Error('sidecar not copied — image has stale fingerprint: ' + JSON.stringify(r.indexFingerprint));
+            if (r.driftDetected) throw new Error('image ships drifted KB: ' + r.driftReason);
+            console.log('kb+index ok — fingerprint', r.indexFingerprint.specName + '-' + r.indexFingerprint.specVersion);
+          "
           docker run --rm pdk-ts:test explain --module 6 --error 2 --json > explain.json
           node -e "const r = require('./explain.json'); if (r.errorName !== 'InsufficientBalance') throw new Error('explain wrong'); console.log('explain ok');"
 
@@ -87,12 +93,20 @@ jobs:
           fi
           echo "✅ non-root confirmed"
 
-      - name: Push to GHCR (tag builds only)
+      - name: Set up QEMU (for multi-arch tag builds)
+        if: startsWith(github.ref, 'refs/tags/pdk-ts-v')
+        uses: docker/setup-qemu-action@v3
+
+      - name: Push to GHCR (tag builds — multi-arch)
         if: startsWith(github.ref, 'refs/tags/pdk-ts-v')
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
+          # Serve both x86 servers and Apple Silicon dev machines without
+          # forcing users into slow rosetta / qemu emulation.
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
+          cache-to: type=gha,mode=max

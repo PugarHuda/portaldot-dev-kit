@@ -13,6 +13,7 @@
 import pc from 'picocolors';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
+import {humanizeChainError} from '../core/errors.js';
 
 export interface DoctorOptions {
   node?: string;
@@ -95,7 +96,7 @@ export async function run(opts: DoctorOptions): Promise<void> {
       console.log();
     }
   } catch (err) {
-    const msg = readableError(err);
+    const msg = humanizeChainError(err, node);
     if (opts.json) {
       console.log(JSON.stringify({error: msg, endpoint: node}, null, 2));
     } else {
@@ -108,23 +109,4 @@ export async function run(opts: DoctorOptions): Promise<void> {
     process.exit(1);
   }
   await closeApi();
-}
-
-function readableError(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  // @polkadot/api sometimes rejects with a DOM-ish ErrorEvent that
-  // stringifies as "[object ErrorEvent]". Pluck useful fields when we
-  // can, fall back to JSON, then to String() as a last resort.
-  if (err && typeof err === 'object') {
-    const anyErr = err as {message?: string; error?: {message?: string}; type?: string};
-    if (typeof anyErr.message === 'string' && anyErr.message.length > 0) return anyErr.message;
-    if (typeof anyErr.error?.message === 'string') return anyErr.error.message;
-    if (typeof anyErr.type === 'string') return `network event: ${anyErr.type}`;
-    try {
-      return JSON.stringify(err);
-    } catch {
-      /* fall through */
-    }
-  }
-  return String(err);
 }
