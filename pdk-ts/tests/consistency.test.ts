@@ -8,7 +8,7 @@
  */
 
 import {describe, it, expect} from 'vitest';
-import {loadKb, loadIndex, kbSize, indexSize, INDEX_SPEC_NAME, INDEX_SPEC_VERSION} from '../src/core/kb.js';
+import {loadKb, loadIndex, kbSize, indexSize, INDEX_SPEC_NAME, INDEX_SPEC_VERSION, indexMatchesChain} from '../src/core/kb.js';
 
 describe('KB / index consistency', () => {
   it('index and KB both load with non-trivial content', () => {
@@ -44,5 +44,14 @@ describe('KB / index consistency', () => {
   it('index fingerprint constants match the shipped file assumption', () => {
     expect(INDEX_SPEC_NAME).toBe('portaldot');
     expect(INDEX_SPEC_VERSION).toBeGreaterThanOrEqual(1002);
+  });
+
+  it('indexMatchesChain flags drift against a different spec', () => {
+    // Positive: the compiled constants agree with themselves.
+    expect(indexMatchesChain(INDEX_SPEC_NAME, INDEX_SPEC_VERSION)).toBe(true);
+    // Negative: a different chain name → mismatch.
+    expect(indexMatchesChain('polkadot', INDEX_SPEC_VERSION)).toBe(false);
+    // Negative: same chain, different version → mismatch.
+    expect(indexMatchesChain(INDEX_SPEC_NAME, INDEX_SPEC_VERSION + 1)).toBe(false);
   });
 });

@@ -66,6 +66,7 @@ program
   .command('accounts')
   .description('List pre-funded dev accounts and their POT balance')
   .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--all', 'include //Dave, //Eve, //Ferdie (default: Alice/Bob/Charlie)')
   .option('--json', 'emit machine-readable JSON')
   .action((opts) => accounts.run(opts));
 
@@ -140,7 +141,28 @@ if (process.argv.length <= 2) {
   process.exit(0);
 }
 
+/**
+ * Guard against async errors that leak past command handlers.
+ * `@polkadot/api` can raise on the WebSocket AFTER a command has
+ * returned — without these handlers the user sees a bare Node stack
+ * trace and the process exits without closing the socket.
+ */
+function readableAsyncError(err: unknown): string {
+  if (err instanceof Error) return `${err.name}: ${err.message}`;
+  return String(err);
+}
+
+process.on('unhandledRejection', (reason) => {
+  process.stderr.write(`pdk-ts: unhandled rejection: ${readableAsyncError(reason)}\n`);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (err) => {
+  process.stderr.write(`pdk-ts: uncaught exception: ${readableAsyncError(err)}\n`);
+  process.exit(1);
+});
+
 program.parseAsync(process.argv).catch((err) => {
-  console.error(err);
+  console.error(readableAsyncError(err));
   process.exit(1);
 });

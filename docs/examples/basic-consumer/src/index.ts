@@ -5,14 +5,13 @@
  *          app, surface the human-friendly error to the user.
  * Flow 2 — doctor health probe. Call from a backend health endpoint.
  *
- * This file intentionally imports from the pdk-ts internals so you can
- * see the shape of the exported API. When pdk-ts ships to npm at 0.2.0,
- * imports resolve to the published package.
+ * Import from the top-level `portaldot-pdk-ts` — that is the stable
+ * public surface (dist/lib.js). Deep imports into `dist/commands/*`
+ * are blocked by the package's `exports` map on purpose.
  */
 
 // Types are inferred from the pdk-ts declarations.
-import {resolveByName, resolve as resolveByIndex} from 'portaldot-pdk-ts/dist/commands/explain.js';
-import {collectReport} from 'portaldot-pdk-ts/dist/commands/doctor.js';
+import {resolveByName, resolve as resolveByIndex, collectReport} from 'portaldot-pdk-ts';
 
 async function flowExplain(): Promise<void> {
   console.log('\n--- flow 1: programmatic explain ---');
@@ -28,6 +27,7 @@ async function flowExplain(): Promise<void> {
   // Case B — you have the raw code + a live node
   //   const byIndex = await resolveByIndex('ws://127.0.0.1:9944', 6, 2);
   //   console.log(byIndex);
+  void resolveByIndex; // referenced above; keep the import used
 }
 
 async function flowDoctor(): Promise<void> {

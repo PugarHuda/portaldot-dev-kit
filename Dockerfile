@@ -39,5 +39,9 @@ COPY --from=builder /pdk-data ./pdk-data
 ENV PDK_KB_PATH=/app/pdk-data/error_fixes.yaml
 ENV PDK_INDEX_PATH=/app/pdk-data/error_index.json
 
+# Least privilege — no reason for pdk-ts to hold root inside the container.
+RUN addgroup -S pdk && adduser -S pdk -G pdk && chown -R pdk:pdk /app
+USER pdk
+
 ENTRYPOINT ["node", "/app/dist/index.js"]
 CMD ["--help"]

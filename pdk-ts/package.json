@@ -1,13 +1,24 @@
 {
   "name": "portaldot-pdk-ts",
-  "version": "0.2.0-alpha.3",
+  "version": "0.2.0-alpha.4",
   "description": "TypeScript companion SDK for pdk (Portaldot Dev Kit) — covers what Python substrate-interface cannot sign on Portaldot's V13 metadata.",
   "type": "module",
   "bin": {
     "pdk-ts": "./dist/index.js"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/lib.js",
+  "types": "./dist/lib.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "tag": "alpha",
+    "access": "public"
+  },
   "files": [
     "dist",
     "README.md",
@@ -56,7 +67,6 @@
     "yaml": "^2.6.0"
   },
   "devDependencies": {
-    "@acala-network/chopsticks": "^1.5.0",
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.7.4",
     "rimraf": "^6.0.1",

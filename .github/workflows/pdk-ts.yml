@@ -117,3 +117,49 @@ jobs:
         run: |
           node dist/index.js explain --name balances.InsufficientBalance --json > explain.json
           node -e "const r = require('./explain.json'); if (r.error) throw new Error(r.error); if (r.errorName !== 'InsufficientBalance') throw new Error('wrong error name'); if (!r.summary || r.steps.length === 0) throw new Error('KB entry missing summary/steps'); console.log('explain ok');"
+
+      - name: pdk-ts explain --live (metadata walk, no offline shortcut)
+        run: |
+          node dist/index.js explain --module 6 --error 2 --live --node ${{ steps.rpc.outputs.RPC }} --json --timeout 30 > live.json
+          cat live.json
+          node -e "const r = require('./live.json'); if (r.error) throw new Error(r.error); if (r.source !== 'metadata') throw new Error('expected source=metadata, got ' + r.source); if (!r.palletName || !r.errorName) throw new Error('metadata walk missed name'); console.log('explain --live ok: ' + r.palletName + '.' + r.errorName);"
+
+      - name: pdk-ts kb --json (offline)
+        run: |
+          node dist/index.js kb --json > kb.json
+          node -e "const r = require('./kb.json'); if (r.indexEntries < 200) throw new Error('index missing'); if (r.kbEntries < 10) throw new Error('KB missing'); if (typeof r.coveragePercent !== 'number') throw new Error('coverage missing'); console.log('kb ok - ' + r.kbEntries + '/' + r.indexEntries + ' (' + r.coveragePercent + '%)');"
+
+      - name: pdk-ts diagnose --skip-connect
+        run: |
+          node dist/index.js diagnose --skip-connect --json > diag.json
+          node -e "const r = require('./diag.json'); if (!r.pdkTs?.version) throw new Error('no version'); if (!r.index?.loaded) throw new Error('index not loaded'); if (r.connectivity?.error !== 'skipped') throw new Error('skip flag ignored'); console.log('diagnose ok');"
+
+  consumer-example:
+    name: basic-consumer typechecks against the built pdk-ts
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: pdk-ts/package-lock.json
+
+      - name: Build pdk-ts (produce dist/)
+        working-directory: pdk-ts
+        run: |
+          npm ci
+          npm run build
+
+      - name: Wire example to local pdk-ts
+        working-directory: docs/examples/basic-consumer
+        run: |
+          npm install
+          # Point the example at the freshly built pdk-ts instead of npm
+          npm install ../../../pdk-ts
+
+      - name: Typecheck the example
+        working-directory: docs/examples/basic-consumer
+        run: npx tsc --noEmit

@@ -69,7 +69,15 @@ const INDEX_CANDIDATES = [
 export const INDEX_SPEC_NAME = 'portaldot';
 export const INDEX_SPEC_VERSION = 1002;
 
+interface IndexMeta {
+  specName?: string;
+  specVersion?: number;
+  extractedAt?: string;
+}
+
 let indexCache: Record<string, string> | null = null;
+let indexMetaCache: IndexMeta | null = null;
+let indexFingerprintWarned = false;
 
 export function loadIndex(force = false): Record<string, string> {
   if (indexCache && !force) return indexCache;
@@ -80,7 +88,40 @@ export function loadIndex(force = false): Record<string, string> {
   }
   const raw = readFileSync(path, 'utf8');
   indexCache = JSON.parse(raw) as Record<string, string>;
+
+  // Look for a sidecar meta file next to the index. If present and it
+  // disagrees with the compiled-in constants, warn once on stderr —
+  // silent drift here would give users a wrong error name, which is
+  // exactly the class of bug we cannot afford.
+  const metaPath = path.replace(/\.json$/, '.meta.json');
+  if (existsSync(metaPath)) {
+    try {
+      indexMetaCache = JSON.parse(readFileSync(metaPath, 'utf8')) as IndexMeta;
+      const s = indexMetaCache.specName?.toLowerCase();
+      const v = indexMetaCache.specVersion;
+      if (
+        !indexFingerprintWarned &&
+        typeof s === 'string' &&
+        typeof v === 'number' &&
+        (s !== INDEX_SPEC_NAME || v !== INDEX_SPEC_VERSION)
+      ) {
+        indexFingerprintWarned = true;
+        process.stderr.write(
+          `pdk-ts warning: error_index.json fingerprint (${s}-${v}) drifts from code constants (${INDEX_SPEC_NAME}-${INDEX_SPEC_VERSION}). Regenerate one or the other before shipping.\n`,
+        );
+      }
+    } catch {
+      // Corrupt sidecar is not fatal — the index itself still loads.
+    }
+  }
+
   return indexCache;
+}
+
+/** Meta from the sidecar, or null if the sidecar is missing/unreadable. */
+export function indexMeta(): IndexMeta | null {
+  if (!indexCache) loadIndex();
+  return indexMetaCache;
 }
 
 export function indexLookup(moduleIdx: number, errorIdx: number): string | undefined {
@@ -110,15 +151,24 @@ export function loadKb(force = false): Map<string, KbEntry> {
     | Record<string, {summary?: string; steps?: string[]} | null>
     | null;
   const entries = new Map<string, KbEntry>();
+  const rejected: string[] = [];
   if (parsed && typeof parsed === 'object') {
     for (const [key, value] of Object.entries(parsed)) {
       if (!value) continue;
-      entries.set(key.toLowerCase(), {
-        key,
-        summary: value.summary ?? '',
-        steps: value.steps ?? [],
-      });
+      const summary = typeof value.summary === 'string' ? value.summary.trim() : '';
+      const steps = Array.isArray(value.steps) ? value.steps.filter((s) => typeof s === 'string' && s.trim().length > 0) : [];
+      // A KB entry with no summary or no steps is worse than no entry
+      // at all — it would ship an empty diagnosis. Drop it here and
+      // surface the rejection on the diagnostic path.
+      if (!summary || steps.length === 0) {
+        rejected.push(key);
+        continue;
+      }
+      entries.set(key.toLowerCase(), {key, summary, steps});
     }
+  }
+  if (rejected.length > 0 && process.env.PDK_DEBUG_KB) {
+    process.stderr.write(`pdk-ts: skipped ${rejected.length} malformed KB entries: ${rejected.join(', ')}\n`);
   }
   cache = entries;
   return cache;

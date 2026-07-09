@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.2.0-alpha.4 — 2026-07-09
+
+Publishability + library-consumer pass. `pdk-ts` is now importable as a
+library (`import { resolve, collectReport } from 'portaldot-pdk-ts'`),
+not just a CLI. Ships to the `alpha` dist-tag on npm so `npm install
+portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
+
+### Added
+- **Library entry** (`src/lib.ts`) exposing the stable public API:
+  `resolve`, `resolveByName`, `collectReport`, `diagnose`, `loadKb`,
+  `loadIndex`, `lookup`, `indexLookup`, `indexSize`, `kbSize`, `kbPath`,
+  `indexMatchesChain`, `getApi`, `closeApi`, `DEFAULT_NODE`, `VERSION`,
+  `resolveNode`, `validateNodeUrl` + associated types. `main`/`types`/
+  `exports` in package.json now point at `dist/lib.*`. Deep imports
+  into `dist/commands/*` are blocked by the exports map on purpose.
+- `pdk-ts accounts --all` — extend the default Alice/Bob/Charlie to
+  include //Dave, //Eve, //Ferdie (the full canonical dev-account set).
+- `error_index.meta.json` sidecar — carries `specName`/`specVersion`/
+  `extractedAt` next to the JSON. `loadIndex()` cross-checks against
+  the compiled-in constants and warns on drift.
+- Git-bash path-mangling detector on `keys` — when `/Alice` is
+  translated to `C:/Program Files/Git/Alice`, the error surfaces a hint
+  pointing at `//Alice`, bare `Alice`, or `MSYS_NO_PATHCONV=1`.
+- Consumer example (`docs/examples/basic-consumer`) now typechecks in
+  CI against the freshly built pdk-ts.
+- 3 new vitest cases (`consistency`, `version`) covering
+  `indexMatchesChain` drift + library public surface.
+
+### Fixed
+- `unhandledRejection` / `uncaughtException` handlers on the CLI so
+  async errors from `@polkadot/api` past the command handler print a
+  readable message instead of a raw Node stack trace.
+- Malformed KB entries (missing `summary` or empty `steps`) are now
+  rejected at load time. Silent shipping of empty diagnoses is
+  worse than no diagnosis. Set `PDK_DEBUG_KB=1` to log rejections.
+- `getApi()` default connect timeout tightened 15 s → 10 s. Real WS
+  handshakes complete in under a second even cross-continent.
+
+### Changed
+- Docker image runs as non-root (`USER pdk`).
+- `publishConfig.tag = "alpha"` + workflow now derives dist-tag from
+  the version string, so prereleases never land on `latest`.
+- `.gitattributes` normalises text to LF, silences the CRLF warnings
+  Windows contributors get on every commit.
+
+### Removed
+- `@acala-network/chopsticks` devDep — dead weight, no test used it.
+
 ## [Unreleased]
 
 Hardening + discoverability pass. No new command surface breaks; safe

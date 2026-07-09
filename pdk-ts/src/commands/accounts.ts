@@ -16,11 +16,13 @@ import {Keyring} from '@polkadot/api';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
 
-const DEV_ACCOUNTS = ['//Alice', '//Bob', '//Charlie'] as const;
+const DEV_ACCOUNTS_DEFAULT = ['//Alice', '//Bob', '//Charlie'] as const;
+const DEV_ACCOUNTS_ALL = ['//Alice', '//Bob', '//Charlie', '//Dave', '//Eve', '//Ferdie'] as const;
 
 export interface AccountsOptions {
   node?: string;
   json?: boolean;
+  all?: boolean;
 }
 
 interface AccountRow {
@@ -31,12 +33,13 @@ interface AccountRow {
   freeRaw: string;
 }
 
-export async function collectAccounts(node: string): Promise<AccountRow[]> {
+export async function collectAccounts(node: string, all = false): Promise<AccountRow[]> {
   const api = await getApi(node);
   const keyring = new Keyring({type: 'sr25519', ss58Format: 42});
 
+  const uris = all ? DEV_ACCOUNTS_ALL : DEV_ACCOUNTS_DEFAULT;
   const rows: AccountRow[] = [];
-  for (const uri of DEV_ACCOUNTS) {
+  for (const uri of uris) {
     const pair = keyring.addFromUri(uri);
     const info = await api.query.system.account(pair.address);
     const data = (info as unknown as {data: {free: {toString: () => string}}}).data;
@@ -70,7 +73,7 @@ function formatBalance(raw: string): string {
 export async function run(opts: AccountsOptions): Promise<void> {
   const node = resolveNode(opts.node);
   try {
-    const rows = await collectAccounts(node);
+    const rows = await collectAccounts(node, opts.all);
     if (opts.json) {
       console.log(JSON.stringify(rows, null, 2));
     } else {

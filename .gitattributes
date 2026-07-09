@@ -1,0 +1,43 @@
+# Normalize text files to LF regardless of platform. Silences the
+# "LF will be replaced by CRLF" warnings that fire on every Windows
+# commit and prevents mixed line endings in the tarball we ship to
+# npm.
+
+* text=auto eol=lf
+
+# Explicit text types
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.js        text eol=lf
+*.jsx       text eol=lf
+*.mjs       text eol=lf
+*.cjs       text eol=lf
+*.json      text eol=lf
+*.jsonc     text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.md        text eol=lf
+*.py        text eol=lf
+*.toml      text eol=lf
+*.sh        text eol=lf
+*.html      text eol=lf
+*.css       text eol=lf
+
+# Windows-native scripts stay CRLF so double-click still works
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+
+# Binary — never touch
+*.mp3       binary
+*.mp4       binary
+*.wav       binary
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.pdf       binary
+*.docx      binary
+*.zip       binary
+*.gz        binary
+*.wasm      binary

@@ -21,6 +21,11 @@ FailLens decodes a failure against the chain's metadata, then looks up a curated
 fix in [`pdk/data/error_fixes.yaml`](pdk/data/error_fixes.yaml). Every entry you
 add helps every Portaldot developer who hits that error next.
 
+**Where to start:** run `pdk-ts kb --missing` (or its Python cousin) to see the
+173 indexed errors that don't yet have a curated fix. Each one is a 5-line YAML
+PR. Pick any pallet you know — Assets, Contracts, Staking, Identity — and open
+a small PR with 3-5 entries.
+
 Add an entry like this:
 
 ```yaml

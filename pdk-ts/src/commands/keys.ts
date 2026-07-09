@@ -51,6 +51,18 @@ function normaliseUri(input: string): string {
   return s;
 }
 
+// Windows git-bash / MSYS translates `//Alice` into a Windows path like
+// `C:/Program Files/Git/Alice` before pdk-ts ever sees it. If we detect
+// the tell-tale shape, hint at the actual fix instead of failing with a
+// cryptic "invalid URI".
+function detectGitBashMangling(input: string): string | null {
+  const s = input.trim();
+  const m = s.match(/^[A-Z]:[\\/](?:Program Files[\\/])?Git[\\/](.+)$/i);
+  if (!m) return null;
+  const tail = m[1];
+  return `looks like git-bash rewrote a path — pass "//${tail}" or bare "${tail}" (or set MSYS_NO_PATHCONV=1)`;
+}
+
 async function fromUri(uri: string): Promise<KeyReport> {
   await cryptoWaitReady();
   const normalised = normaliseUri(uri);
@@ -108,8 +120,13 @@ export async function run(source: string | undefined, opts: KeysOptions): Promis
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    if (opts.json) console.log(JSON.stringify({error: msg}, null, 2));
-    else console.error(pc.red(`\n  ✗ keys failed — ${msg}\n`));
+    const hint = source ? detectGitBashMangling(source) : null;
+    if (opts.json) console.log(JSON.stringify(hint ? {error: msg, hint} : {error: msg}, null, 2));
+    else {
+      console.error(pc.red(`\n  ✗ keys failed — ${msg}`));
+      if (hint) console.error(pc.yellow(`    hint: ${hint}`));
+      console.error();
+    }
     process.exit(1);
   }
 }

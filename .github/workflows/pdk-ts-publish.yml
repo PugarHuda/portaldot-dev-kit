@@ -41,14 +41,29 @@ jobs:
       - name: Test
         run: npm test
 
+      # Choose dist-tag from the version in package.json — prereleases
+       # go to `alpha`, stable versions go to `latest`. Prevents `npm
+       # install portaldot-pdk-ts` from resolving a prerelease as latest.
+      - name: Resolve dist-tag
+        id: tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [[ "$VERSION" == *-alpha.* ]] || [[ "$VERSION" == *-beta.* ]] || [[ "$VERSION" == *-rc.* ]]; then
+            echo "DIST_TAG=alpha" >> "$GITHUB_OUTPUT"
+          else
+            echo "DIST_TAG=latest" >> "$GITHUB_OUTPUT"
+          fi
+          echo "resolved version=$VERSION → dist-tag=$(cat $GITHUB_OUTPUT | grep DIST_TAG)"
+        shell: bash
+
       - name: Publish (dry run on non-tag runs)
-        run: npm publish --access public --provenance --dry-run
+        run: npm publish --access public --provenance --tag ${{ steps.tag.outputs.DIST_TAG }} --dry-run
         if: github.event_name == 'workflow_dispatch'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish
-        run: npm publish --access public --provenance
+        run: npm publish --access public --provenance --tag ${{ steps.tag.outputs.DIST_TAG }}
         if: startsWith(github.ref, 'refs/tags/pdk-ts-v')
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

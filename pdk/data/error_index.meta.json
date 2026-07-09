@@ -1,0 +1,8 @@
+{
+  "specName": "portaldot",
+  "specVersion": 1002,
+  "extractedAt": "2026-07-09",
+  "source": "extract_index.py against a live portaldot-1002 node",
+  "entryCount": 202,
+  "note": "Fingerprint sidecar for error_index.json. Both files are regenerated together via extract_index.py; if you edit one, refresh the other. pdk-ts loadIndex() cross-checks specName/specVersion against INDEX_SPEC_NAME/INDEX_SPEC_VERSION constants and warns on drift."
+}

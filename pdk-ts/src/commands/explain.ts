@@ -28,7 +28,7 @@ export interface ExplainOptions {
   live?: boolean; // skip offline index, force metadata walk
 }
 
-interface ExplainReport {
+export interface ExplainReport {
   palletIndex: number;
   errorIndex: number;
   palletName: string;

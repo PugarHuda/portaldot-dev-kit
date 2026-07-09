@@ -50,10 +50,10 @@ function installSignalHooks(): void {
   process.once('SIGTERM', () => cleanupAndExit(143));
 }
 
-// 15 s default — comfortable for cross-continent public RPCs while
-// still failing fast enough on typos and offline dev nodes. Override
-// per-command with the `--timeout <seconds>` flag.
-const DEFAULT_CONNECT_TIMEOUT_MS = 15_000;
+// 10 s default — a healthy WebSocket handshake completes in <1 s even
+// cross-continent, so 10 s is generous but not painful when the node
+// is actually down. Override per-command with `--timeout <seconds>`.
+const DEFAULT_CONNECT_TIMEOUT_MS = 10_000;
 
 class ConnectTimeoutError extends Error {
   constructor(node: string, ms: number) {
