@@ -7,7 +7,7 @@ from rich.console import Console
 from substrateinterface import Keypair
 
 from pdk.config import DEFAULT_NODE_URL
-from pdk.core.chain import POT_DECIMALS, connect, submit_call
+from pdk.core.chain import connect, normalise_account_uri, pot_to_plancks, submit_call
 from pdk.core.decoder import decode_receipt
 
 console = Console()
@@ -31,11 +31,15 @@ def run(
         console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
         raise typer.Exit(code=1)
 
-    keypair = Keypair.create_from_uri(sender)
-    dest = Keypair.create_from_uri(to).ss58_address if (to.startswith("//") or "/" in to) else to
+    keypair = Keypair.create_from_uri(normalise_account_uri(sender))
+    # Normalise the recipient too: a git-bash-mangled `//Bob` → `/Bob`
+    # would otherwise derive a DIFFERENT address and send real POT to
+    # the wrong account with no warning.
+    to_norm = normalise_account_uri(to)
+    dest = Keypair.create_from_uri(to_norm).ss58_address if (to_norm.startswith("//") or "/" in to_norm) else to_norm
     try:
         receipt = submit_call(substrate, keypair, "Balances", "transfer",
-                              {"dest": dest, "value": int(amount * 10**POT_DECIMALS)})
+                              {"dest": dest, "value": pot_to_plancks(amount)})
     except Exception as exc:  # noqa: BLE001
         console.print(f"[red]Send failed: {exc}[/red]")
         raise typer.Exit(code=1)

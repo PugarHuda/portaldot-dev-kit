@@ -14,7 +14,7 @@ from rich.table import Table
 from substrateinterface import Keypair
 
 from pdk.config import DEFAULT_NODE_URL
-from pdk.core.chain import POT_DECIMALS, connect, free_balance
+from pdk.core.chain import POT_DECIMALS, connect, free_balance, pot_to_plancks
 
 console = Console()
 
@@ -41,7 +41,7 @@ def run(
     alice = Keypair.create_from_uri("//Alice")
     bob = Keypair.create_from_uri("//Bob")
     try:
-        value = int(amount * 10**POT_DECIMALS)
+        value = pot_to_plancks(amount)
         call = substrate.compose_call(
             call_module="Balances", call_function="transfer_keep_alive",
             call_params={"dest": bob.ss58_address, "value": value},

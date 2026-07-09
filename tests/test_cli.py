@@ -207,24 +207,27 @@ def test_keys_normalises_git_bash_single_slash_mangling() -> None:
     # DIFFERENT keypair with no error — a wrong-answer bug, not a
     # crash. Locks that `/Alice` resolves to the same canonical
     # address as `//Alice`.
-    from pdk.commands.keys import _normalise_uri
+    # Helpers moved to pdk.core.chain so `send`/`simulate` share them
+    # (see test_chain_units.py for the full matrix); the `///` edge case
+    # lives here.
+    from pdk.core.chain import normalise_account_uri
 
-    assert _normalise_uri("/Alice") == "//Alice"
-    assert _normalise_uri("//Alice") == "//Alice"
-    assert _normalise_uri("Alice") == "//Alice"
-    assert _normalise_uri("///") == "///"  # not a bare identifier — passes through
+    assert normalise_account_uri("/Alice") == "//Alice"
+    assert normalise_account_uri("//Alice") == "//Alice"
+    assert normalise_account_uri("Alice") == "//Alice"
+    assert normalise_account_uri("///") == "///"  # not a bare identifier — passes through
     # A real mnemonic phrase must never be treated as a URI.
     mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
-    assert _normalise_uri(mnemonic) == mnemonic
+    assert normalise_account_uri(mnemonic) == mnemonic
 
 
 def test_keys_detects_git_bash_full_path_mangling() -> None:
-    from pdk.commands.keys import _detect_git_bash_mangling
+    from pdk.core.chain import detect_git_bash_mangling
 
-    hint = _detect_git_bash_mangling("C:/Program Files/Git/Alice")
+    hint = detect_git_bash_mangling("C:/Program Files/Git/Alice")
     assert hint is not None
     assert "//Alice" in hint
-    assert _detect_git_bash_mangling("//Alice") is None
+    assert detect_git_bash_mangling("//Alice") is None
 
 
 def test_keys_malformed_uri_gives_readable_error_not_internal_leak() -> None:

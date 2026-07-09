@@ -7,60 +7,16 @@ the same workflow — no separate tool, no context switch.
 from __future__ import annotations
 
 import json as jsonlib
-import re
 
 import typer
 from rich.console import Console
 from rich.table import Table
 from substrateinterface import Keypair
 
+from pdk.core.chain import detect_git_bash_mangling, normalise_account_uri
+
 console = Console()
 SS58 = 42  # Portaldot chain spec
-
-_BARE_IDENTIFIER = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
-
-
-def _normalise_uri(source: str) -> str:
-    """Recover a derivation URI from common shell mangling.
-
-    Git Bash / MSYS on Windows strips a leading slash from `//Alice`,
-    turning it into `/Alice` before Python ever sees argv — the exact
-    same quirk pdk-ts's `normaliseUri()` guards against on the
-    TypeScript side. Without this, `pdk keys //Alice` run from Git Bash
-    silently derives a DIFFERENT keypair and shows a wrong address with
-    no error — worse than a crash, because nothing looks wrong.
-
-    Accepts `//Alice`, `/Alice`, or bare `Alice` and normalises all
-    three to `//Alice`. A real mnemonic phrase (multiple words, no
-    matching prefix) passes through unchanged.
-    """
-    s = source.strip()
-    if s.startswith("//"):
-        return s
-    if s.startswith("/"):
-        return f"/{s}"
-    if _BARE_IDENTIFIER.match(s):
-        return f"//{s}"
-    return s
-
-
-_GIT_BASH_MANGLED = re.compile(r"^[A-Za-z]:[\\/](?:Program Files[\\/])?Git[\\/](.+)$", re.IGNORECASE)
-
-
-def _detect_git_bash_mangling(source: str) -> str | None:
-    """Git Bash / MSYS fully rewrites a *single*-leading-slash argument
-    like `/Alice` into an absolute Windows path (`C:/Program Files/
-    Git/Alice`) before Python ever sees it — a heavier mangling than
-    the `//Alice` → `/Alice` case `_normalise_uri` already recovers
-    from, because by this point the leading-slash shape is gone
-    entirely. We can't undo it, but we can recognise the shape and
-    tell the user what happened.
-    """
-    m = _GIT_BASH_MANGLED.match(source.strip())
-    if not m:
-        return None
-    tail = m.group(1)
-    return f'looks like git-bash rewrote a path — pass "//{tail}" or bare "{tail}" (or set MSYS_NO_PATHCONV=1)'
 
 
 def _readable_parse_error(exc: Exception, source: str) -> str:
@@ -123,7 +79,7 @@ def run(
             console.print("[yellow]Store the mnemonic securely — it controls the account.[/yellow]")
         return
 
-    normalised = _normalise_uri(source)
+    normalised = normalise_account_uri(source)
     try:
         if normalised.startswith("//") or "/" in normalised:
             render(Keypair.create_from_uri(normalised, ss58_format=SS58), normalised)
@@ -133,7 +89,7 @@ def run(
             render(Keypair.create_from_uri(normalised, ss58_format=SS58), normalised)
     except Exception as exc:  # noqa: BLE001
         msg = _readable_parse_error(exc, normalised)
-        hint = _detect_git_bash_mangling(source)
+        hint = detect_git_bash_mangling(source)
         if json_out:
             payload = {"error": msg}
             if hint:

@@ -15,7 +15,7 @@ from rich.console import Console
 from substrateinterface import Keypair
 
 from pdk.config import DEFAULT_NODE_URL
-from pdk.core.chain import POT_DECIMALS, connect, submit_call
+from pdk.core.chain import connect, pot_to_plancks, submit_call
 
 console = Console()
 _DEFAULT = Path(__file__).resolve().parent.parent / "data" / "seed.example.yaml"
@@ -53,7 +53,7 @@ def run(
             dest = Keypair.create_from_uri(fx["to"]).ss58_address
             receipt = submit_call(
                 substrate, alice, "Balances", "transfer",
-                {"dest": dest, "value": int(fx["pot"] * 10**POT_DECIMALS)},
+                {"dest": dest, "value": pot_to_plancks(fx["pot"])},
             )
             mark = "[green]✓[/green]" if receipt.is_success else "[red]✗[/red]"
             console.print(f"  {mark} funded {fx['to']} with {fx['pot']:,} POT")
