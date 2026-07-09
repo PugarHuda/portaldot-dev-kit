@@ -51,9 +51,20 @@ class FixSuggestion:
 
 
 def load_knowledge() -> dict[str, dict]:
-    """Load the error-fix knowledge base from data/error_fixes.yaml."""
-    with _KB_PATH.open(encoding="utf-8") as fh:
-        return yaml.safe_load(fh) or {}
+    """Load the error-fix knowledge base from data/error_fixes.yaml.
+
+    A missing or unreadable KB is not fatal — it degrades to an empty
+    dict, which pushes every lookup to tier 3 of `lookup_fix` (the
+    metadata doc-comment fallback). This mirrors `load_error_index`'s
+    behavior and keeps `pdk debug` — the hero command — decoding
+    failures even if the curated KB got corrupted or excluded from a
+    package build.
+    """
+    try:
+        with _KB_PATH.open(encoding="utf-8") as fh:
+            return yaml.safe_load(fh) or {}
+    except (OSError, yaml.YAMLError):
+        return {}
 
 
 def lookup_fix(decoded: DecodedError, knowledge: dict[str, dict]) -> FixSuggestion:
