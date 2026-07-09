@@ -26,11 +26,13 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 > **40 pytest cases + 84 integration & stress cases** verified locally against
 > a real `portaldot-1002` node.
 
-> **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) is now in the repo.**
-> Alpha.1 shipped with `doctor` · `accounts` · `version` — real
-> `@polkadot/api` chain queries, not stubs. Signing (`send` · `seed`) lands
-> in alpha.3. Read the [pdk-ts roadmap](pdk-ts/README.md#roadmap) for the
-> alpha.2 → 0.2.0 npm ship plan.
+> **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) at alpha.4.**
+> 10 of 14 commands live (`doctor`, `accounts`, `pallets`, `storage`, `keys`,
+> `explain`, `diagnose`, `examples`, `kb`, `version`). Now importable as a
+> library — `import { resolveByName } from 'portaldot-pdk-ts'` cold-imports
+> in ~430 ms; offline FailLens lookup in ~40 ms. Signing (`simulate` ·
+> `send` · `seed`) lands in alpha.5. Read the
+> [pdk-ts roadmap](pdk-ts/README.md#roadmap) for the alpha.5 → 0.2.0 npm ship plan.
 >
 > Both CLIs read the same knowledge base (`pdk/data/error_fixes.yaml`), so
 > one PR benefits both — details in [pdk-ts/CONTRIBUTING.md](pdk-ts/CONTRIBUTING.md).
