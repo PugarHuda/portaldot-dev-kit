@@ -183,3 +183,54 @@ def test_keys_generate() -> None:
     result = runner.invoke(app, ["keys"])
     assert result.exit_code == 0
     assert "Mnemonic" in result.output
+
+
+def test_keys_alice_matches_canonical_dev_address() -> None:
+    # Locks the actual VALUE, not just "some address appeared" — this is
+    # the address every //Alice-derived dev fixture in the ecosystem
+    # expects. A regression here would silently sign with the wrong key.
+    result = runner.invoke(app, ["keys", "//Alice"])
+    assert result.exit_code == 0
+    assert "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" in result.output
+
+
+def test_keys_bob_matches_canonical_dev_address() -> None:
+    result = runner.invoke(app, ["keys", "//Bob"])
+    assert result.exit_code == 0
+    assert "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty" in result.output
+
+
+def test_keys_normalises_git_bash_single_slash_mangling() -> None:
+    # Git Bash strips one leading slash from `//Alice`, so pdk sees
+    # `/Alice`. Without _normalise_uri this silently derives a
+    # DIFFERENT keypair with no error — a wrong-answer bug, not a
+    # crash. Locks that `/Alice` resolves to the same canonical
+    # address as `//Alice`.
+    from pdk.commands.keys import _normalise_uri
+
+    assert _normalise_uri("/Alice") == "//Alice"
+    assert _normalise_uri("//Alice") == "//Alice"
+    assert _normalise_uri("Alice") == "//Alice"
+    assert _normalise_uri("///") == "///"  # not a bare identifier — passes through
+    # A real mnemonic phrase must never be treated as a URI.
+    mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+    assert _normalise_uri(mnemonic) == mnemonic
+
+
+def test_keys_detects_git_bash_full_path_mangling() -> None:
+    from pdk.commands.keys import _detect_git_bash_mangling
+
+    hint = _detect_git_bash_mangling("C:/Program Files/Git/Alice")
+    assert hint is not None
+    assert "//Alice" in hint
+    assert _detect_git_bash_mangling("//Alice") is None
+
+
+def test_keys_malformed_uri_gives_readable_error_not_internal_leak() -> None:
+    # `//`, `/`, `//Alice/` all previously surfaced substrate-interface's
+    # raw `'NoneType' object has no attribute 'groupdict'` — a Python
+    # implementation detail meaningless to a CLI user.
+    result = runner.invoke(app, ["keys", "//"])
+    assert result.exit_code != 0
+    assert "groupdict" not in result.output
+    assert "NoneType" not in result.output
