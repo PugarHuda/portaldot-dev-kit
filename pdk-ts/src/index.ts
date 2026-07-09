@@ -16,6 +16,12 @@
 
 import {Command} from 'commander';
 import {VERSION} from './core/config.js';
+import {installConsoleFilter} from './core/chain.js';
+
+// CLI-only side effect: silence @polkadot/api's verbose stdout so that
+// `--json` output stays pure JSON. Library consumers of `portaldot-pdk-ts`
+// never load this file — their console stays untouched.
+installConsoleFilter();
 import * as doctor from './commands/doctor.js';
 import * as accounts from './commands/accounts.js';
 import * as version from './commands/version.js';

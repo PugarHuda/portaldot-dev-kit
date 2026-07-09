@@ -50,8 +50,48 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 
 ## [Unreleased]
 
-Hardening + discoverability pass. No new command surface breaks; safe
-to consume today from a git install.
+Library performance + release-hygiene pass. No API breaks.
+
+### Performance
+- **Cold `import('portaldot-pdk-ts')` drops from ~2.8 s to ~430 ms**
+  because `@polkadot/api` is now dynamically imported inside `getApi()`
+  instead of at module-load. Offline-only consumers (`resolveByName`,
+  `loadKb`) see the difference immediately.
+
+### Fixed
+- `console.log` / `.info` / `.warn` are no longer monkey-patched at
+  library-import time. The stdout-noise filter now runs only from the
+  CLI entry (`bin/index.ts`), so library consumers' own logging stays
+  untouched. Exposed as `installConsoleFilter()` for CLI-mode explicit
+  opt-in.
+
+### Data
+- `extract_index.py` now writes `pdk/data/error_index.meta.json`
+  atomically with `error_index.json` — the two never drift silently.
+- `entryCount` field removed from the sidecar (derivable, so noise).
+
+### Docs
+- README status bumped to alpha.4; alpha.4 highlights the library
+  entry, roadmap shifted (signing → alpha.5).
+- Badges added (npm@alpha, CI, Docker).
+- `docs/releases/v0.2.0-alpha.4.md` — GH release body.
+- `docs/releases/v0.2.0-alpha.3.md` moved to `archive/`.
+- `basic-consumer/README.md` — added the "build pdk-ts first" step +
+  local-verify command.
+
+### Repo hygiene
+- `.dockerignore` — trims context from 300 MB+ (remotion, screens,
+  mp4s, docs artifacts) to just the sources + KB the image needs.
+- `docker.yml` runs on ALL PRs that touch pdk-ts or KB (previously
+  only Dockerfile changes triggered it).
+- `docker.yml` smoke test now verifies `USER pdk` — regressing to
+  root fails CI.
+- `security.yml` SBOM gates on ≥30 components — silent green if the
+  cyclonedx tool ever regresses is worse than red.
+- `package-lock.json` pruned of `@acala-network/chopsticks` (dep was
+  removed but the lockfile still carried 77 references).
+
+## 0.2.0-alpha.4 — 2026-07-09
 
 ### Added
 - `pdk-ts kb` — knowledge-base introspection. Default view shows KB

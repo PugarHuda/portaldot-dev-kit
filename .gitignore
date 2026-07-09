@@ -65,3 +65,7 @@ pdk-ts/node_modules/
 pdk-ts/dist/
 pdk-ts/.cache/
 pdk-ts/*.log
+
+# Consumer example artifacts — commit only sources + lockfile.
+docs/examples/basic-consumer/node_modules/
+docs/examples/basic-consumer/dist/

@@ -1,6 +1,10 @@
 # pdk-ts — TypeScript companion for pdk
 
-Status: **v0.2.0-alpha.3** — 7 of 14 commands live including the FailLens `explain` decoder.
+[![npm version](https://img.shields.io/npm/v/portaldot-pdk-ts?label=npm%20%40alpha&color=orange)](https://www.npmjs.com/package/portaldot-pdk-ts)
+[![CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml)
+[![Docker](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml)
+
+Status: **v0.2.0-alpha.4** — 10 of 14 commands live (`doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `diagnose`, `examples`, `kb`, `version`) + library-importable public surface.
 
 pdk-ts is the TypeScript companion CLI to the Python
 [`portaldot-pdk`](https://pypi.org/project/portaldot-pdk/). It exists to
@@ -51,9 +55,10 @@ today's read-only slice; alpha.3 lights up signing.
 |---|---|
 | alpha.1 | `doctor` · `accounts` · `version` — real chain queries |
 | alpha.2 | `pallets` · `storage` · `keys` — read-only surface |
-| **alpha.3** (current) | `explain` — hero raw-code decoder (skipped ahead of signing) |
-| alpha.4 | `simulate` · `send` · `seed` — signing lands here |
-| alpha.5 | `debug` · `report` · `watch` · `ai-setup` |
+| alpha.3 | `explain` — hero raw-code decoder (skipped ahead of signing) |
+| **alpha.4** (current) | Library entry (`import { resolve, collectReport } from 'portaldot-pdk-ts'`), `diagnose`, `examples`, `kb` introspection, hardening pass |
+| alpha.5 | `simulate` · `send` · `seed` — signing lands here |
+| alpha.6 | `debug` · `report` · `watch` · `ai-setup` |
 | alpha.6 | PAPI migration spike + benchmark vs `@polkadot/api` |
 | beta.1  | Feature parity with Python `pdk` |
 | 0.2.0   | Ship as `portaldot-pdk-ts` on npm |

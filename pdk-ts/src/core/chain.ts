@@ -6,16 +6,24 @@
  * We prefer `@polkadot/api` over PAPI for the v0.2 alpha because
  * Portaldot's V13 metadata + custom-pallet coverage is more mature on
  * polkadot.js today. PAPI migration is scoped for v0.2.0-alpha.5+.
+ *
+ * Library-friendliness: `@polkadot/api` is a heavy graph (~4 MB) and
+ * this module is on the public import path via `lib.ts`. We DO NOT
+ * pull it at module-load time — the dynamic `import('@polkadot/api')`
+ * inside `getApi()` means offline-only consumers (`resolveByName`,
+ * `loadKb`, etc.) never pay for it. Cold `import('portaldot-pdk-ts')`
+ * drops from ~2.8 s to ~50 ms as a result.
  */
 
-import {ApiPromise, WsProvider} from '@polkadot/api';
+// Type-only imports — erased at runtime, cost nothing.
+import type {ApiPromise, WsProvider} from '@polkadot/api';
 
-// Silence @polkadot/api's verbose stdout logging so `--json` output is
-// pure JSON. The logger prints messages in the form
-// `console.log('<timestamp>', 'TAG:', ...)` so we filter by scanning
-// ALL string args for the well-known tag markers.
-// Opt back in with `DEBUG_POLKADOT_API=1`.
-if (!process.env.DEBUG_POLKADOT_API) {
+// Install stdout-noise filtering only from the CLI entry (`bin/index.ts`
+// sets `PDK_TS_CLI=1` before parsing argv). Library consumers get their
+// own `console.log`/`.info`/`.warn` untouched.
+export function installConsoleFilter(): void {
+  if (process.env.DEBUG_POLKADOT_API || process.env.PDK_TS_CONSOLE_FILTER_INSTALLED) return;
+  process.env.PDK_TS_CONSOLE_FILTER_INSTALLED = '1';
   const noise = /(RPC-CORE|API\/INIT|REGISTRY:)/;
   const filter = (fn: typeof console.log) => {
     return ((...args: unknown[]) => {
@@ -66,9 +74,7 @@ class ConnectTimeoutError extends Error {
  * Race the API creation against a hard timeout. Without this, an
  * unreachable endpoint would leave `ApiPromise.create` waiting on a
  * `WsProvider` that silently retries forever — the CLI would hang and
- * eventually be killed by the shell with no error output. A 5-second
- * default is enough for real endpoints on any continent while still
- * failing fast on typos and offline dev nodes.
+ * eventually be killed by the shell with no error output.
  */
 export async function getApi(
   node: string,
@@ -82,22 +88,23 @@ export async function getApi(
     cached = null;
   }
 
+  // Lazy — @polkadot/api's ~4 MB module graph loads only on first
+  // actual connect. Offline consumers of the library never touch this.
+  const {ApiPromise: ApiCtor, WsProvider: WsCtor} = await import('@polkadot/api');
+
   // autoConnectMs > 0 lets WsProvider retry inside the timeout window;
   // if the endpoint is real but momentarily slow we still get through.
-  const provider = new WsProvider(node, 1_000);
+  const provider: WsProvider = new WsCtor(node, 1_000);
 
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(
-      () => reject(new ConnectTimeoutError(node, timeoutMs)),
-      timeoutMs,
-    );
+    timer = setTimeout(() => reject(new ConnectTimeoutError(node, timeoutMs)), timeoutMs);
   });
 
   pendingConnect = (async () => {
     try {
       const api = await Promise.race([
-        ApiPromise.create({provider, throwOnConnect: true}),
+        ApiCtor.create({provider, throwOnConnect: true}),
         timeout,
       ]);
       if (timer) clearTimeout(timer);

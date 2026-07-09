@@ -1,0 +1,59 @@
+# Keep the Docker build context small — the image needs only pdk-ts/
+# sources + pdk/data. Everything else is 300MB+ of media assets and
+# artifacts that would slow every build and bloat layer caches.
+
+.git
+.github
+.vscode
+.idea
+.claude
+
+# Large non-code trees
+remotion/
+web/
+docs/screens/
+docs/*.mp4
+docs/*.pdf
+docs/*.docx
+docs/pdk-*.docx
+docs/x-*.md
+
+# node artifacts (rebuilt inside the image anyway)
+**/node_modules
+**/dist
+**/coverage
+**/.turbo
+**/.next
+
+# Python build junk
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.mypy_cache
+**/*.egg-info
+pdk-*.tar.gz
+
+# Local envs + scratch
+.env*
+scratchpad/
+*.log
+
+# Windows / macOS junk
+Thumbs.db
+.DS_Store
+
+# Media that never belongs in an image
+*.mp3
+*.mp4
+*.wav
+*.mov
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Keep the KB data — Dockerfile pulls pdk/data/* explicitly, so the
+# broad rules above stay lean by including only what pdk-ts needs.
+!pdk/data/
+!pdk/data/*.yaml
+!pdk/data/*.json

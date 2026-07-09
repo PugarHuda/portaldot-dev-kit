@@ -47,7 +47,18 @@ jobs:
         run: |
           npx --yes @cyclonedx/cyclonedx-npm --output-file ../sbom-pdk-ts.cdx.json
           echo "--- SBOM summary ---"
-          node -e "const s = require('../sbom-pdk-ts.cdx.json'); console.log('components:', s.components?.length ?? 0);"
+          node -e "
+            const s = require('../sbom-pdk-ts.cdx.json');
+            const n = s.components?.length ?? 0;
+            console.log('components:', n);
+            // Gate: if the SBOM tool produced nothing, silently green
+            // was worse than red. pdk-ts pulls @polkadot/api which has
+            // ~50 transitive deps, so 30 is a very conservative floor.
+            if (n < 30) {
+              console.error('SBOM component count', n, 'is under the floor of 30 — cyclonedx tool likely regressed');
+              process.exit(1);
+            }
+          "
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
