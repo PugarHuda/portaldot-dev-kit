@@ -71,5 +71,19 @@ export function humanizeChainError(err: unknown, endpoint?: string): string {
     return `${raw} — OS-level timeout / network layer timeout before our own race fired. Endpoint likely blackholed or firewalled.`;
   }
 
+  // JSON-RPC standard error codes surfaced by public RPCs. -32000 is
+  // the classic "rate limited / restricted" catch-all; -32603 is
+  // internal-server; -32601 is method-not-found (chain doesn't
+  // implement the RPC we asked for).
+  if (raw.includes('-32000') || lowered.includes('rate limit') || lowered.includes('too many requests')) {
+    return `${raw} — public RPC likely rate-limiting you. Try a different endpoint (kusama, ibp mirror) or your own node.`;
+  }
+  if (raw.includes('-32601') || lowered.includes('method not found')) {
+    return `${raw} — the chain runtime doesn't expose this RPC. Confirm you're pointed at Portaldot / a Substrate chain that supports it.`;
+  }
+  if (raw.includes('-32603')) {
+    return `${raw} — RPC internal error. Endpoint reachable but the runtime blew up on this call.`;
+  }
+
   return raw;
 }

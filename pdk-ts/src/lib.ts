@@ -10,6 +10,32 @@
  * to this file is a semver-minor. Removing from it is a semver-major.
  * Internals live under `./commands` / `./core` and remain deep-import
  * only for advanced use.
+ *
+ * @example Offline FailLens lookup (no @polkadot/api loaded)
+ * ```ts
+ * import { resolveByName } from 'portaldot-pdk-ts';
+ *
+ * const fix = resolveByName('balances.InsufficientBalance');
+ * console.log(fix?.summary);
+ * for (const step of fix?.steps ?? []) console.log('→', step);
+ * ```
+ *
+ * @example Health probe against a live node
+ * ```ts
+ * import { collectReport } from 'portaldot-pdk-ts';
+ *
+ * const report = await collectReport('wss://rpc.portaldot.io');
+ * console.log(`chain=${report.chain} pallets=${report.palletCount}`);
+ * ```
+ *
+ * @example Decode a raw Module { index, error } code by walking metadata
+ * ```ts
+ * import { resolve } from 'portaldot-pdk-ts';
+ *
+ * const decoded = await resolve('wss://rpc.portaldot.io', 6, 2);
+ * console.log(`${decoded.palletName}.${decoded.errorName}`);
+ * console.log(decoded.summary);
+ * ```
  */
 
 // FailLens core — decode a raw code or a name into a fix report.

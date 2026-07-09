@@ -22,11 +22,20 @@ import type {ApiPromise, WsProvider} from '@polkadot/api';
 // sets `PDK_TS_CLI=1` before parsing argv). Library consumers get their
 // own `console.log`/`.info`/`.warn` untouched.
 let consoleFilterInstalled = false;
+
+// Treat "0", "false", "" as OFF for shell-friendly `DEBUG_POLKADOT_API=0`
+// — otherwise any non-empty string trips truthy and re-enables the noise.
+function isDebugOn(): boolean {
+  const v = process.env.DEBUG_POLKADOT_API;
+  if (v === undefined) return false;
+  return !['', '0', 'false', 'no'].includes(v.toLowerCase());
+}
+
 export function installConsoleFilter(): void {
   // Idempotent. Module-level flag instead of a process.env write so we
   // don't leak PDK_TS_CONSOLE_FILTER_INSTALLED into every child process
   // the CLI ever spawns.
-  if (consoleFilterInstalled || process.env.DEBUG_POLKADOT_API) return;
+  if (consoleFilterInstalled || isDebugOn()) return;
   consoleFilterInstalled = true;
   const noise = /(RPC-CORE|API\/INIT|REGISTRY:)/;
   const filter = (fn: typeof console.log) => {

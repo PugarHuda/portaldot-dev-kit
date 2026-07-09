@@ -86,4 +86,24 @@ describe('humanizeChainError', () => {
     const out = humanizeChainError({message: 'non-101 status code', type: 'error'}, 'wss://x');
     expect(out).toMatch(/not with a WebSocket upgrade/i);
   });
+
+  it('maps JSON-RPC -32000 → "rate-limiting" hint', () => {
+    const out = humanizeChainError(new Error('rpc error -32000: too many requests'));
+    expect(out).toMatch(/rate-limit/i);
+  });
+
+  it('maps "rate limit" plain text → same hint', () => {
+    const out = humanizeChainError(new Error('rate limit exceeded'));
+    expect(out).toMatch(/rate-limit/i);
+  });
+
+  it('maps JSON-RPC -32601 → "method not exposed"', () => {
+    const out = humanizeChainError(new Error('rpc error -32601 method not found'));
+    expect(out).toMatch(/doesn't expose this RPC|Substrate chain that supports/i);
+  });
+
+  it('maps JSON-RPC -32603 → "internal error"', () => {
+    const out = humanizeChainError(new Error('rpc error -32603 internal server error'));
+    expect(out).toMatch(/internal error|runtime blew up/i);
+  });
 });

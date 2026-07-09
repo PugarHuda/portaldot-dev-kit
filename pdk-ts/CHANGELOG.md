@@ -50,8 +50,33 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 
 ## [Unreleased]
 
-Coverage + consistency pass. No API breaks (new exports only, package
-size drops).
+Polish + edge cases. No API breaks.
+
+### Fixed
+- `DEBUG_POLKADOT_API=0` (and `=false`, `=""`, `=no`) now count as OFF.
+  Previously any non-empty string tripped truthy → filter disabled →
+  noise leaked into `--json` output. Shell-friendly boolean handling.
+- `kb --missing --json` and `kb --list --json` now carry `schemaVersion: 1`
+  like `kb --json` already does — three JSON output paths in one command
+  had three different shapes.
+
+### Added
+- `humanizeChainError` recognizes JSON-RPC standard error codes:
+  - `-32000` (or plain "rate limit") → suggests alternate endpoints
+  - `-32601` (method not found) → hints the chain doesn't expose it
+  - `-32603` (internal error) → clarifies endpoint reachable but the
+    runtime blew up on the call
+- `tests/chain.test.ts` — 5 cases locking `installConsoleFilter`
+  idempotency + `DEBUG_POLKADOT_API` value interpretation.
+- `tests/kb-env.test.ts` — 3 cases spawning subprocess to verify
+  `PDK_KB_PATH` / `PDK_INDEX_PATH` fail-hard behavior (round-10 fix).
+- `tests/errors.test.ts` — 4 new JSON-RPC humanize cases.
+- `lib.ts` gets three JSDoc `@example` blocks (offline lookup, health
+  probe, metadata walk) so IDE hover surfaces working snippets.
+- `docs/examples/README.md` — index page so GitHub browsers see what's
+  in the directory + "how to add an example" checklist.
+
+## 0.2.0-alpha.4 — 2026-07-09
 
 ### Fixed
 - **`accounts`, `pallets`, `storage`, `explain --live` now use the

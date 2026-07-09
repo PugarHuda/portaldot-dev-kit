@@ -45,7 +45,7 @@ function reportMissing(kb: ReturnType<typeof loadKb>, index: Record<string, stri
   missing.sort((a, b) => a.name.localeCompare(b.name));
 
   if (opts.json) {
-    console.log(JSON.stringify({count: missing.length, entries: missing}, null, 2));
+    console.log(JSON.stringify({schemaVersion: 1, count: missing.length, entries: missing}, null, 2));
     return;
   }
 
@@ -66,7 +66,7 @@ function reportMissing(kb: ReturnType<typeof loadKb>, index: Record<string, stri
 function reportList(kb: ReturnType<typeof loadKb>, opts: KbOptions): void {
   const entries = Array.from(kb.values()).sort((a, b) => a.key.localeCompare(b.key));
   if (opts.json) {
-    console.log(JSON.stringify(entries, null, 2));
+    console.log(JSON.stringify({schemaVersion: 1, count: entries.length, entries}, null, 2));
     return;
   }
   console.log();
