@@ -152,7 +152,7 @@ jobs:
           npm ci
           npm run build
 
-      - name: Install example deps (file: link picks up freshly built pdk-ts)
+      - name: "Install example deps (file: link picks up freshly built pdk-ts)"
         working-directory: docs/examples/basic-consumer
         run: npm install
 
