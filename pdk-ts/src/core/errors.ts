@@ -64,5 +64,12 @@ export function humanizeChainError(err: unknown, endpoint?: string): string {
     return `${raw} — TLS handshake failed. Confirm the wss:// endpoint's certificate is valid.`;
   }
 
+  // OS-level network timeout — beats our own timer to the punch on
+  // networks with aggressive TCP backoff. Distinct from
+  // ConnectTimeoutError (application-layer race) above.
+  if (lowered.includes('etimedout')) {
+    return `${raw} — OS-level timeout / network layer timeout before our own race fired. Endpoint likely blackholed or firewalled.`;
+  }
+
   return raw;
 }

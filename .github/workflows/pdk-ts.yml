@@ -11,6 +11,10 @@ on:
       - 'pdk-ts/**'
       - '.github/workflows/pdk-ts.yml'
 
+concurrency:
+  group: pdk-ts-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: lint + typecheck + build + test (${{ matrix.os }} · node ${{ matrix.node }})

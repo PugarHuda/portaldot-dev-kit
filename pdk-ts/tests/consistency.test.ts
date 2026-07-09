@@ -8,7 +8,7 @@
  */
 
 import {describe, it, expect} from 'vitest';
-import {loadKb, loadIndex, kbSize, indexSize, INDEX_SPEC_NAME, INDEX_SPEC_VERSION, indexMatchesChain} from '../src/core/kb.js';
+import {loadKb, loadIndex, kbSize, indexSize, INDEX_SPEC_NAME, INDEX_SPEC_VERSION, indexMatchesChain, indexDrift, indexMeta} from '../src/core/kb.js';
 
 describe('KB / index consistency', () => {
   it('index and KB both load with non-trivial content', () => {
@@ -53,5 +53,22 @@ describe('KB / index consistency', () => {
     expect(indexMatchesChain('polkadot', INDEX_SPEC_VERSION)).toBe(false);
     // Negative: same chain, different version → mismatch.
     expect(indexMatchesChain(INDEX_SPEC_NAME, INDEX_SPEC_VERSION + 1)).toBe(false);
+  });
+
+  it('indexDrift reports no drift for the shipped sidecar', () => {
+    // The bundled meta.json is authored to match INDEX_SPEC_* constants;
+    // if this ever fails, someone shipped a drift regression.
+    const d = indexDrift();
+    expect(d.drift, `drift detected: ${d.reason}`).toBe(false);
+    expect(d.reason).toBeUndefined();
+  });
+
+  it('indexMeta returns a well-formed sidecar', () => {
+    const meta = indexMeta();
+    // Sidecar may be absent on a stripped-down install; when present
+    // the shape must be valid.
+    if (!meta) return;
+    expect(meta.specName?.toLowerCase()).toBe(INDEX_SPEC_NAME);
+    expect(typeof meta.specVersion).toBe('number');
   });
 });

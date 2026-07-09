@@ -63,8 +63,11 @@ jobs:
           echo "resolved version=$VERSION → dist-tag=$(cat $GITHUB_OUTPUT | grep DIST_TAG)"
         shell: bash
 
+      # Dry-run has no OIDC subject to attest against (no tag ref), so
+      # skip --provenance here. Real publish (below) needs it and gets
+      # the id-token: write scope from the job block.
       - name: Publish (dry run on non-tag runs)
-        run: npm publish --access public --provenance --tag ${{ steps.tag.outputs.DIST_TAG }} --dry-run
+        run: npm publish --access public --tag ${{ steps.tag.outputs.DIST_TAG }} --dry-run
         if: github.event_name == 'workflow_dispatch'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

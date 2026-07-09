@@ -87,6 +87,9 @@ function reportSummary(kb: ReturnType<typeof loadKb>, index: Record<string, stri
   if (opts.json) {
     const drift = indexDrift();
     console.log(JSON.stringify({
+      // Bumped when a field is renamed or removed. New fields don't
+      // bump — consumers should ignore unknown fields.
+      schemaVersion: 1,
       kbPath: kbPath(),
       kbEntries,
       indexEntries,

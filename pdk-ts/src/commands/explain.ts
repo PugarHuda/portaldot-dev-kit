@@ -16,6 +16,7 @@
 import pc from 'picocolors';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
+import {humanizeChainError} from '../core/errors.js';
 import {lookup, kbSize, kbPath, indexLookup, indexSize, INDEX_SPEC_NAME, INDEX_SPEC_VERSION} from '../core/kb.js';
 
 export interface ExplainOptions {
@@ -195,7 +196,8 @@ export async function run(opts: ExplainOptions): Promise<void> {
     const report = await resolve(node, moduleIdx, errorIdx, timeoutMs);
     output(report, opts);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const node = opts.node ? resolveNode(opts.node) : undefined;
+    const msg = humanizeChainError(err, node);
     if (opts.json) console.log(JSON.stringify({error: msg}, null, 2));
     else console.error(pc.red(`\n  ✗ explain failed — ${msg}\n`));
     await closeApi();

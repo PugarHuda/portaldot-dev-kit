@@ -52,6 +52,23 @@ const GROUPS: Group[] = [
       {cmd: 'DEBUG_POLKADOT_API=1 pdk-ts doctor', note: 'restore verbose @polkadot/api logs for debugging'},
     ],
   },
+  {
+    title: 'Programmatic (as a library)',
+    items: [
+      {
+        cmd: "import { resolveByName } from 'portaldot-pdk-ts'",
+        note: 'offline FailLens lookup — no node, no @polkadot/api pulled',
+      },
+      {
+        cmd: "import { collectReport } from 'portaldot-pdk-ts'",
+        note: 'health check inside a backend endpoint or CI script',
+      },
+      {
+        cmd: "import { indexLookup, indexDrift } from 'portaldot-pdk-ts'",
+        note: 'raw-code decode + fingerprint drift detection',
+      },
+    ],
+  },
 ];
 
 export function run(): void {

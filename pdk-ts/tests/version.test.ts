@@ -30,6 +30,8 @@ describe('library public surface', () => {
       'kbSize',
       'kbPath',
       'indexMatchesChain',
+      'indexDrift',
+      'indexMeta',
       'INDEX_SPEC_NAME',
       'INDEX_SPEC_VERSION',
       'getApi',
@@ -38,6 +40,8 @@ describe('library public surface', () => {
       'VERSION',
       'resolveNode',
       'validateNodeUrl',
+      'readableError',
+      'humanizeChainError',
     ];
     for (const name of expected) {
       expect(mod, `library must export "${name}"`).toHaveProperty(name);

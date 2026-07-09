@@ -13,6 +13,7 @@
 import pc from 'picocolors';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
+import {humanizeChainError} from '../core/errors.js';
 
 export interface StorageOptions {
   node?: string;
@@ -82,7 +83,7 @@ export async function run(
       console.log();
     }
   } catch (err) {
-    const msg = readableError(err);
+    const msg = humanizeChainError(err, node);
     if (opts.json) console.log(JSON.stringify({error: msg, endpoint: node}, null, 2));
     else console.error(pc.red(`\n  ✗ storage failed — ${msg}\n`));
     await closeApi();
@@ -123,12 +124,3 @@ function formatValue(v: unknown): string {
     .join('\n');
 }
 
-function readableError(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (err && typeof err === 'object') {
-    const anyErr = err as {message?: string; type?: string};
-    if (typeof anyErr.message === 'string' && anyErr.message.length > 0) return anyErr.message;
-    if (typeof anyErr.type === 'string') return `network event: ${anyErr.type}`;
-  }
-  return String(err);
-}

@@ -4,6 +4,12 @@ on:
   push:
   pull_request:
 
+# Cancel superseded runs — a second push on the same branch kills the
+# in-flight run instead of racing it. Saves minutes on rapid-fire pushes.
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest

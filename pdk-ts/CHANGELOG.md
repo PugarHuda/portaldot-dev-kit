@@ -50,7 +50,55 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 
 ## [Unreleased]
 
-Release-safety + error UX pass. No API breaks.
+Coverage + consistency pass. No API breaks (new exports only, package
+size drops).
+
+### Fixed
+- **`accounts`, `pallets`, `storage`, `explain --live` now use the
+  same `humanizeChainError`** the doctor path got in round 10. Users
+  no longer see cryptic `@polkadot/api` messages on the read-only
+  commands. Local duplicate `readableError` functions removed from
+  each command file.
+- `workflow_dispatch` dry-run of the publish workflow dropped
+  `--provenance` — that flag needs an OIDC subject that a non-tag
+  ref can't provide, so dry runs were failing where real publishes
+  succeeded. Now the dry-run truly rehearses.
+- Docker image `latest` tag no longer piggy-backs on GitHub's
+  `is_default_branch` heuristic — pinned to `refs/heads/master`
+  explicitly to survive default-branch swaps or repo renames.
+- README support links moved from relative `../SECURITY.md` (broken
+  inside npm view) to absolute GitHub URLs.
+
+### Added
+- **`tests/errors.test.ts`** — 16 cases locking `readableError` +
+  `humanizeChainError` including a new `ETIMEDOUT` branch (OS-level
+  network timeout, distinct from our own connect-timeout race).
+- Consistency test extended with `indexDrift` + `indexMeta` cases.
+- `pdk-ts diagnose` surfaces `driftDetected` + `driftReason` fields
+  in `--json` and in the human view.
+- `pdk-ts kb --json` gains `schemaVersion: 1` for future compat.
+- Library re-exports `indexDrift`, `indexMeta`, `readableError`,
+  `humanizeChainError`.
+- Docker labels: `org.opencontainers.image.version` +
+  `image.revision` — `docker inspect` now shows the real version.
+- README hero: 4-line CLI + 5-line library snippet at the top.
+- `pdk-ts examples` gains a "Programmatic (as a library)" group.
+
+### Changed
+- `files` field narrows `dist` to `**/*.js` + `**/*.d.ts` — sourcemaps
+  no longer ship to npm. Package size dropped 42 kB → 35 kB, file
+  count 64 → 36 (44%). Source paths from `F:\Hackathons\...` no
+  longer leak into published tarballs.
+- All CI workflows gained a `concurrency:` block. Rapid-fire pushes
+  cancel the in-flight run instead of racing; docker.yml explicitly
+  disables cancellation on tag builds (killing a mid-flight publish
+  is worse than double-billing).
+- `extract_index.py` runtime fingerprint is now robust to
+  substrate-interface version drift: tries the `.runtime_version`
+  attribute in every known shape (int / dict) before falling back
+  to the raw RPC.
+
+## 0.2.0-alpha.4 — 2026-07-09
 
 ### Fixed
 - **Publish workflow was missing `id-token: write`**, so

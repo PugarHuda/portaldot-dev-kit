@@ -12,7 +12,7 @@
 
 import pc from 'picocolors';
 import {VERSION, resolveNode} from '../core/config.js';
-import {kbPath, kbSize, indexSize, INDEX_SPEC_NAME, INDEX_SPEC_VERSION} from '../core/kb.js';
+import {kbPath, kbSize, indexSize, indexDrift, INDEX_SPEC_NAME, INDEX_SPEC_VERSION} from '../core/kb.js';
 import {getApi, closeApi} from '../core/chain.js';
 
 export interface DiagnoseOptions {
@@ -25,7 +25,7 @@ export interface DiagnoseOptions {
 export interface DiagnoseReport {
   pdkTs: {version: string; nodeVersion: string; platform: string};
   kb: {path: string | null; entries: number};
-  index: {loaded: boolean; entries: number; specName: string; specVersion: number};
+  index: {loaded: boolean; entries: number; specName: string; specVersion: number; driftDetected: boolean; driftReason?: string};
   connectivity: {endpoint: string; ok: boolean; error?: string; chain?: string; palletCount?: number};
 }
 
@@ -33,6 +33,7 @@ export async function collect(opts: DiagnoseOptions): Promise<DiagnoseReport> {
   const node = resolveNode(opts.node);
   const timeoutMs = opts.timeout ? Math.round(Number(opts.timeout) * 1000) : 8000;
 
+  const drift = indexDrift();
   const report: DiagnoseReport = {
     pdkTs: {
       version: VERSION,
@@ -45,6 +46,8 @@ export async function collect(opts: DiagnoseOptions): Promise<DiagnoseReport> {
       entries: indexSize(),
       specName: INDEX_SPEC_NAME,
       specVersion: INDEX_SPEC_VERSION,
+      driftDetected: drift.drift,
+      driftReason: drift.reason,
     },
     connectivity: {endpoint: node, ok: false},
   };
@@ -92,6 +95,9 @@ export async function run(opts: DiagnoseOptions): Promise<void> {
   console.log(`    loaded    ${report.index.loaded ? pc.green('yes') : pc.yellow('no')}`);
   console.log(`    entries   ${report.index.entries}`);
   console.log(`    fingerprint  ${report.index.specName}-${report.index.specVersion}`);
+  if (report.index.driftDetected) {
+    console.log(`    ${pc.yellow('drift')}     ${pc.yellow(report.index.driftReason ?? 'sidecar disagrees with code constants')}`);
+  }
   console.log();
   console.log(pc.dim('  Connectivity'));
   console.log(`    endpoint  ${report.connectivity.endpoint}`);

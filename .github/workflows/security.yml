@@ -9,6 +9,10 @@ on:
     # needing every push to burn minutes on a full scan.
     - cron: '0 3 * * 1'
 
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

@@ -15,6 +15,7 @@ import pc from 'picocolors';
 import {Keyring} from '@polkadot/api';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
+import {humanizeChainError} from '../core/errors.js';
 
 const DEV_ACCOUNTS_DEFAULT = ['//Alice', '//Bob', '//Charlie'] as const;
 const DEV_ACCOUNTS_ALL = ['//Alice', '//Bob', '//Charlie', '//Dave', '//Eve', '//Ferdie'] as const;
@@ -113,7 +114,7 @@ export async function run(opts: AccountsOptions): Promise<void> {
       console.log();
     }
   } catch (err) {
-    const msg = readableError(err);
+    const msg = humanizeChainError(err, node);
     if (opts.json) {
       console.log(JSON.stringify({error: msg, endpoint: node}, null, 2));
     } else {
@@ -124,20 +125,4 @@ export async function run(opts: AccountsOptions): Promise<void> {
     process.exit(1);
   }
   await closeApi();
-}
-
-function readableError(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (err && typeof err === 'object') {
-    const anyErr = err as {message?: string; error?: {message?: string}; type?: string};
-    if (typeof anyErr.message === 'string' && anyErr.message.length > 0) return anyErr.message;
-    if (typeof anyErr.error?.message === 'string') return anyErr.error.message;
-    if (typeof anyErr.type === 'string') return `network event: ${anyErr.type}`;
-    try {
-      return JSON.stringify(err);
-    } catch {
-      /* fall through */
-    }
-  }
-  return String(err);
 }

@@ -26,22 +26,38 @@ META_PATH = os.environ.get("PDK_INDEX_META_PATH", "pdk/data/error_index.meta.jso
 sub = SubstrateInterface(url=NODE_URL, type_registry_preset="substrate-node-template")
 sub.init_runtime()
 
-runtime = sub.runtime_config.__dict__.get("runtime_version") or {}
-spec_name = str(getattr(sub, "runtime_version", None) or runtime.get("specName") or "portaldot").lower()
-try:
-    # substrate-interface exposes runtime_version as an int in newer releases
-    spec_version = int(getattr(sub, "runtime_version", 0) or runtime.get("specVersion") or 0)
-except Exception:
+def _resolve_runtime_fingerprint(sub_):
+    """Robust to substrate-interface version drift.
+
+    Older releases expose ``runtime_version`` as an int, newer ones as a
+    dict-like ``RuntimeVersion`` object, some as an attribute on the
+    runtime config. Try each shape, then fall back to a raw RPC.
+    """
+    spec_name = "portaldot"
     spec_version = 0
 
-# Fallback: query via RPC if the SDK didn't populate it.
-if not spec_version:
-    try:
-        rv = sub.rpc_request("state_getRuntimeVersion", []).get("result") or {}
-        spec_name = str(rv.get("specName", spec_name)).lower()
-        spec_version = int(rv.get("specVersion", 0))
-    except Exception:
-        pass
+    rv_attr = getattr(sub_, "runtime_version", None)
+    if isinstance(rv_attr, int):
+        spec_version = rv_attr
+    elif isinstance(rv_attr, dict):
+        spec_name = str(rv_attr.get("specName", spec_name)).lower()
+        try:
+            spec_version = int(rv_attr.get("specVersion", 0))
+        except (TypeError, ValueError):
+            spec_version = 0
+
+    if not spec_version:
+        try:
+            rv = sub_.rpc_request("state_getRuntimeVersion", []).get("result") or {}
+            spec_name = str(rv.get("specName", spec_name)).lower()
+            spec_version = int(rv.get("specVersion", 0))
+        except Exception as e:  # noqa: BLE001 — extractor is a build tool, log + continue
+            print(f"# runtime fingerprint fallback failed: {e}", file=sys.stderr)
+
+    return spec_name, spec_version
+
+
+spec_name, spec_version = _resolve_runtime_fingerprint(sub)
 
 out = {}
 for pallet in sub.metadata.pallets:

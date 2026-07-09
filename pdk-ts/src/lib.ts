@@ -44,10 +44,16 @@ export {
   kbSize,
   kbPath,
   indexMatchesChain,
+  indexDrift,
+  indexMeta,
   INDEX_SPEC_NAME,
   INDEX_SPEC_VERSION,
   type KbEntry,
 } from './core/kb.js';
+
+// Error-shape helpers — humanize @polkadot/api WebSocket rejections
+// into actionable one-liners.
+export {readableError, humanizeChainError} from './core/errors.js';
 
 // Chain connection — advanced use. Prefer `collectReport()` /
 // `resolve()` for common tasks; `getApi()` is exposed for consumers
