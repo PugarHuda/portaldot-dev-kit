@@ -6,6 +6,7 @@ the same workflow — no separate tool, no context switch.
 
 from __future__ import annotations
 
+import json as jsonlib
 import re
 
 import typer
@@ -92,31 +93,54 @@ def _show(keypair: Keypair, label: str, mnemonic: str | None = None) -> None:
     console.print(table)
 
 
+def _emit_json(keypair: Keypair, label: str, mnemonic: str | None = None) -> None:
+    payload = {
+        "label": label,
+        "ss58_address": keypair.ss58_address,
+        "public_key": "0x" + keypair.public_key.hex(),
+        "type": "sr25519",
+    }
+    if mnemonic:
+        payload["mnemonic"] = mnemonic
+    typer.echo(jsonlib.dumps(payload, indent=2))
+
+
 def run(
     source: str = typer.Argument(
         None,
         help="A //URI (//Alice), bare name (Alice), or mnemonic to inspect. Omit to generate a new key.",
     ),
     words: int = typer.Option(12, "--words", help="Mnemonic word count when generating (12/15/18/21/24)."),
+    json_out: bool = typer.Option(False, "--json", help="Emit machine-readable JSON (for scripts/seed fixtures)."),
 ) -> None:
     """Generate a fresh keypair, or inspect one from a //URI or mnemonic."""
+    render = _emit_json if json_out else _show
+
     if not source:
         mnemonic = Keypair.generate_mnemonic(words=words)
-        _show(Keypair.create_from_mnemonic(mnemonic, ss58_format=SS58), "generated", mnemonic)
-        console.print("[yellow]Store the mnemonic securely — it controls the account.[/yellow]")
+        render(Keypair.create_from_mnemonic(mnemonic, ss58_format=SS58), "generated", mnemonic)
+        if not json_out:
+            console.print("[yellow]Store the mnemonic securely — it controls the account.[/yellow]")
         return
 
     normalised = _normalise_uri(source)
     try:
         if normalised.startswith("//") or "/" in normalised:
-            _show(Keypair.create_from_uri(normalised, ss58_format=SS58), normalised)
+            render(Keypair.create_from_uri(normalised, ss58_format=SS58), normalised)
         elif len(normalised.split()) >= 12:
-            _show(Keypair.create_from_mnemonic(normalised, ss58_format=SS58), "from mnemonic")
+            render(Keypair.create_from_mnemonic(normalised, ss58_format=SS58), "from mnemonic")
         else:
-            _show(Keypair.create_from_uri(normalised, ss58_format=SS58), normalised)
+            render(Keypair.create_from_uri(normalised, ss58_format=SS58), normalised)
     except Exception as exc:  # noqa: BLE001
-        console.print(f"[red]Could not parse key source: {_readable_parse_error(exc, normalised)}[/red]")
+        msg = _readable_parse_error(exc, normalised)
         hint = _detect_git_bash_mangling(source)
-        if hint:
-            console.print(f"[yellow]  hint: {hint}[/yellow]")
+        if json_out:
+            payload = {"error": msg}
+            if hint:
+                payload["hint"] = hint
+            typer.echo(jsonlib.dumps(payload, indent=2))
+        else:
+            console.print(f"[red]Could not parse key source: {msg}[/red]")
+            if hint:
+                console.print(f"[yellow]  hint: {hint}[/yellow]")
         raise typer.Exit(code=1)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json as _json
 import os
 import subprocess
 import sys
@@ -234,3 +235,32 @@ def test_keys_malformed_uri_gives_readable_error_not_internal_leak() -> None:
     assert result.exit_code != 0
     assert "groupdict" not in result.output
     assert "NoneType" not in result.output
+
+
+def test_keys_json_matches_canonical_address() -> None:
+    # pdk-ts's `keys --json` has existed since its first alpha; Python's
+    # `pdk keys` had no --json at all until this test was written.
+    # Scripts (seed fixtures, CI) need this to grab an address without
+    # scraping a Rich table.
+    result = runner.invoke(app, ["keys", "//Alice", "--json"])
+    assert result.exit_code == 0
+    payload = _json.loads(result.output)
+    assert payload["ss58_address"] == "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+    assert payload["public_key"].startswith("0x")
+    assert payload["type"] == "sr25519"
+
+
+def test_keys_json_generate_includes_mnemonic() -> None:
+    result = runner.invoke(app, ["keys", "--json"])
+    assert result.exit_code == 0
+    payload = _json.loads(result.output)
+    assert "mnemonic" in payload
+    assert "ss58_address" in payload
+
+
+def test_keys_json_error_path_is_valid_json() -> None:
+    result = runner.invoke(app, ["keys", "//", "--json"])
+    assert result.exit_code != 0
+    payload = _json.loads(result.output)
+    assert "error" in payload
+    assert "groupdict" not in payload["error"]
