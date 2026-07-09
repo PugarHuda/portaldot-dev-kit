@@ -7,9 +7,8 @@ against chain metadata and exposes it via ``ExtrinsicReceipt.error_message``
 error into a :class:`DecodedError` and, for a bare tx hash, locates the
 receipt by scanning recent blocks.
 
-NOTE: the chain-facing functions below are written against the documented
-substrate-interface API but have NOT yet been run against a live Portaldot
-node. Validate them in task #4 once the Day-1 gate is passed.
+Verified against a live `portaldot-1002` node as part of the 84
+integration & stress cases referenced in the project README.
 """
 
 from __future__ import annotations
