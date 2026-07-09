@@ -16,7 +16,7 @@
 import pc from 'picocolors';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
-import {lookup, kbSize, kbPath, indexLookup, indexSize} from '../core/kb.js';
+import {lookup, kbSize, kbPath, indexLookup, indexSize, INDEX_SPEC_NAME, INDEX_SPEC_VERSION} from '../core/kb.js';
 
 export interface ExplainOptions {
   module?: string;
@@ -37,6 +37,9 @@ interface ExplainReport {
   summary: string | null;
   steps: string[];
   kbEntry: boolean;
+  source: 'index' | 'metadata' | 'kb-name-only';
+  indexFingerprint?: {specName: string; specVersion: number};
+  warning?: string;
 }
 
 interface VariantsHost {
@@ -97,6 +100,7 @@ export async function resolve(
     summary: kbEntry?.summary ?? null,
     steps: kbEntry?.steps ?? [],
     kbEntry: Boolean(kbEntry),
+    source: 'metadata',
   };
 }
 
@@ -115,6 +119,7 @@ export function resolveByName(name: string): ExplainReport | null {
     summary: entry.summary,
     steps: entry.steps,
     kbEntry: true,
+    source: 'kb-name-only',
   };
 }
 
@@ -141,6 +146,11 @@ export async function run(opts: ExplainOptions): Promise<void> {
             summary: kbEntry?.summary ?? null,
             steps: kbEntry?.steps ?? [],
             kbEntry: Boolean(kbEntry),
+            source: 'index',
+            indexFingerprint: {specName: INDEX_SPEC_NAME, specVersion: INDEX_SPEC_VERSION},
+            warning: opts.node
+              ? `Offline index resolved this against ${INDEX_SPEC_NAME}-${INDEX_SPEC_VERSION}. If your --node points at a different chain the name may be wrong — pass --live to force a metadata walk.`
+              : undefined,
           }, opts);
           return;
         }
@@ -202,6 +212,10 @@ function output(r: ExplainReport, opts: ExplainOptions): void {
   console.log();
   const idxSuffix = r.palletIndex >= 0 ? pc.dim(`  (module ${r.palletIndex}, error ${r.errorIndex})`) : '';
   console.log(`  ${pc.red('✗')} ${pc.bold(`${r.palletName}.${r.errorName}`)}${idxSuffix}`);
+  if (r.warning) {
+    console.log();
+    console.log(pc.yellow(`  ⚠  ${r.warning}`));
+  }
   console.log();
   if (r.kbEntry && r.summary) {
     console.log(pc.dim('  What happened'));

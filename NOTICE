@@ -1,0 +1,27 @@
+PDK — Portaldot Dev Kit
+Copyright (c) 2026 Pugar Huda Mantoro
+
+This project is licensed under the MIT License — see LICENSE.
+
+This project depends on the following open-source packages. Their
+copyright and license terms apply to those components:
+
+Python (`pdk/`)
+  - typer                    MIT       https://github.com/tiangolo/typer
+  - rich                     MIT       https://github.com/Textualize/rich
+  - substrate-interface      Apache-2  https://github.com/polkascan/py-substrate-interface
+  - pyyaml                   MIT       https://github.com/yaml/pyyaml
+
+TypeScript (`pdk-ts/`)
+  - @polkadot/api            Apache-2  https://github.com/polkadot-js/api
+  - commander                MIT       https://github.com/tj/commander.js
+  - picocolors               ISC       https://github.com/alexeyraspopov/picocolors
+  - yaml                     ISC       https://github.com/eemeli/yaml
+
+The Apache-2.0 dependencies (`substrate-interface`, `@polkadot/api`)
+require attribution. This NOTICE file satisfies that requirement for
+downstream users of PDK.
+
+Full license texts for each dependency are available at the URLs
+above. No modifications to Apache-2.0-licensed code are shipped in
+PDK — dependencies are pulled from PyPI / npm at install time.

@@ -41,6 +41,14 @@
     "url": "https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang.git",
     "directory": "pdk-ts"
   },
+  "homepage": "https://portaldot-pdk.vercel.app",
+  "bugs": {
+    "url": "https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/PugarHuda"
+  },
   "dependencies": {
     "@polkadot/api": "^12.4.2",
     "commander": "^12.1.0",

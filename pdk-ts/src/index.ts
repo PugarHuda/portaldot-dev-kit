@@ -23,6 +23,8 @@ import * as pallets from './commands/pallets.js';
 import * as storage from './commands/storage.js';
 import * as keys from './commands/keys.js';
 import * as explain from './commands/explain.js';
+import * as diagnose from './commands/diagnose.js';
+import * as examples from './commands/examples.js';
 
 const program = new Command();
 
@@ -100,6 +102,20 @@ program
   .option('--timeout <seconds>', 'connect timeout in seconds (default 15)')
   .option('--json', 'emit machine-readable JSON')
   .action((opts) => explain.run(opts));
+
+program
+  .command('diagnose')
+  .description('Report tool version + KB + index + connectivity status')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds (default 8)')
+  .option('--skip-connect', 'skip the network probe, report tool + KB only')
+  .option('--json', 'emit machine-readable JSON')
+  .action((opts) => diagnose.run(opts));
+
+program
+  .command('examples')
+  .description('Print a curated list of example invocations, grouped by task')
+  .action(() => examples.run());
 
 program
   .command('version')

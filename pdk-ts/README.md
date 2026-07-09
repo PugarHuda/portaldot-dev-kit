@@ -105,6 +105,83 @@ Every chain-touching command accepts:
 
 `PDK_TS_NODE` environment variable also works as a fallback.
 
+## API — using pdk-ts as a library
+
+Every command exports a `run()` entry plus a pure helper that returns
+a structured report. Use the helpers to embed FailLens in your own
+tools:
+
+```ts
+import {resolveByName, resolve} from 'portaldot-pdk-ts/dist/commands/explain.js';
+import {collectReport} from 'portaldot-pdk-ts/dist/commands/doctor.js';
+import {loadKb, lookup, indexLookup} from 'portaldot-pdk-ts/dist/core/kb.js';
+
+// Offline KB lookup — no node needed
+const named = resolveByName('balances.InsufficientBalance');
+console.log(named?.summary, named?.steps);
+
+// Offline index lookup — no node, no @polkadot/api load
+const raw = indexLookup(6, 2);   // 'Balances.InsufficientBalance'
+
+// Metadata walk — chain-agnostic, requires a live node
+const live = await resolve('ws://127.0.0.1:9944', 6, 2);
+
+// Health probe
+const health = await collectReport('wss://rpc.polkadot.io');
+```
+
+A worked example lives at
+[`docs/examples/basic-consumer/`](../docs/examples/basic-consumer/).
+
+## Troubleshooting
+
+**`pdk-ts doctor` hangs, then errors "could not connect within Xms"**
+→ Node URL wrong, or the node is not accepting WebSocket. Verify with
+`curl -i http://127.0.0.1:9944` — a WebSocket-only endpoint returns
+400 for plain HTTP. Fix the URL scheme (`ws://` for local, `wss://`
+for public), or increase `--timeout`.
+
+**`pdk-ts keys /Alice` fails on git-bash (Windows)**
+→ MSYS converts single-slash paths to Windows paths (`/Alice` →
+`C:/Program Files/Git/Alice`). Use `//Alice` (double slash, preserved
+by MSYS), bare `Alice` (pdk-ts auto-prepends `//`), or set
+`MSYS_NO_PATHCONV=1` for the invocation.
+
+**`pdk-ts` output shows verbose `@polkadot/api` log lines**
+→ Filtering is on by default. If you set `DEBUG_POLKADOT_API=1`, the
+logs come back. Unset the env var (`unset DEBUG_POLKADOT_API` in
+bash) to re-silence.
+
+**`pdk-ts explain --module N --error M` returns the wrong name**
+→ Fast-path resolves against the Portaldot-1002 offline index. If
+your node is a different chain (Kusama, Rococo, etc), pass `--live`
+to walk metadata instead. When both `--node` and offline-index resolve
+succeed, pdk-ts emits a warning field in the JSON output.
+
+**"KB missing or empty" in `pdk-ts diagnose`**
+→ pdk-ts couldn't find `pdk/data/error_fixes.yaml`. Ensure you're
+running from a clone with the `pdk/` directory intact, or set
+`PDK_KB_PATH` to your custom location.
+
+## FAQ
+
+**Q: Can I use pdk-ts against Polkadot / Kusama / any Substrate chain?**
+A: Yes — pass `--node wss://<endpoint> --live` for full metadata
+resolution. Only the offline fast path is Portaldot-specific.
+
+**Q: When will pdk-ts publish to npm?**
+A: 0.2.0 stable target — after α.4 (signing), α.5 (debug/report/watch),
+and beta.1 (parity). At current velocity: ~2 weeks.
+
+**Q: How is pdk-ts different from `@polkadot/api` or PAPI?**
+A: pdk-ts is a **CLI** built on top of those libraries. See the
+comparison table at the root README. Short version: PAPI/api are
+libraries, pdk-ts is the 14-command dev-loop toolkit.
+
+**Q: What about ink! contracts?**
+A: pdk-ts uses native pallets (Balances etc). ink! contract deploy
+lands in α.4 signing tier alongside `send`, `simulate`, `seed`.
+
 ## Bundle size
 
 Installed `pdk-ts` (node_modules included) is roughly **190 MB** —
