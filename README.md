@@ -78,10 +78,12 @@ intended environment), and the developer experience is rough:
   channel is full of *"how do I get POT?"* and *"where's the RPC / faucet?"*).
 
 **Solution.** `pdk` (Portaldot Dev Kit) is a Python CLI with
-**14 commands** that owns the local development loop end-to-end, plus a
-TypeScript companion (`pdk-ts`, [pdk-ts/](pdk-ts/), α.1 shipped with
-`doctor` · `accounts` · `version`) that will reach parity by beta.1 and
-cover what Python currently can't sign on Portaldot V13 metadata:
+**15 commands** that owns the local development loop end-to-end, plus a
+TypeScript companion (`pdk-ts`, [pdk-ts/](pdk-ts/), at alpha.4 with 10 of
+14 commands live — including a library entry point) that will reach parity
+by beta.1 and cover what Python currently can't sign on Portaldot V13
+metadata. Both CLIs share one knowledge base — run `pdk kb --missing` or
+`pdk-ts kb --missing` to see what needs curating:
 
 1. **FailLens** (`pdk debug`) — the hero. Decode any failed transaction
    against the chain's own metadata + a verified 29-entry knowledge base.
