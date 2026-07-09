@@ -34,9 +34,23 @@ interface AccountRow {
   freeRaw: string;
 }
 
+// Portaldot uses 14 decimals for POT — verified against a live
+// portaldot-1002 node (this matches the Python pdk's POT_DECIMALS=14).
+// It is NOT the generic Substrate default of 12; assuming 12 makes every
+// balance display 100x too large. We still prefer the chain's own
+// `registry.chainDecimals` when connected, so the value is never a
+// stale guess; this constant is only the offline fallback.
+const POT_DECIMALS_FALLBACK = 14;
+
+function chainDecimals(api: {registry?: {chainDecimals?: number[]}}): number {
+  const d = api.registry?.chainDecimals?.[0];
+  return typeof d === 'number' && d > 0 ? d : POT_DECIMALS_FALLBACK;
+}
+
 export async function collectAccounts(node: string, all = false): Promise<AccountRow[]> {
   const api = await getApi(node);
   const keyring = new Keyring({type: 'sr25519', ss58Format: 42});
+  const decimals = chainDecimals(api as {registry?: {chainDecimals?: number[]}});
 
   const uris = all ? DEV_ACCOUNTS_ALL : DEV_ACCOUNTS_DEFAULT;
   const rows: AccountRow[] = [];
@@ -49,7 +63,7 @@ export async function collectAccounts(node: string, all = false): Promise<Accoun
       name: uri.replace('//', ''),
       uri,
       address: pair.address,
-      freeBalance: formatBalance(raw),
+      freeBalance: formatBalance(raw, decimals),
       freeRaw: raw,
     });
   }
@@ -60,15 +74,18 @@ function allEmpty(rows: AccountRow[]): boolean {
   return rows.every((r) => r.freeRaw === '0');
 }
 
-function formatBalance(raw: string): string {
-  // Portaldot uses 12 decimals for POT (same as Substrate default). Present
-  // the raw plancks divided by 10^12 with 4 dp so the number is legible.
+export function formatBalance(raw: string, decimals: number = POT_DECIMALS_FALLBACK): string {
+  // Present raw plancks divided by 10^decimals with 4 dp so the number
+  // is legible. `decimals` comes from the chain registry at the call
+  // site; the default is the verified Portaldot value, not 12.
   if (raw === '0') return '0 POT';
-  const decimals = 12;
   const s = raw.padStart(decimals + 1, '0');
   const whole = s.slice(0, -decimals);
   const frac = s.slice(-decimals).slice(0, 4);
-  return `${Number(whole).toLocaleString()}.${frac} POT`;
+  // toLocaleString with an explicit en-US locale so the thousands
+  // separator is a comma everywhere — otherwise the output differs by
+  // the runner's locale (e.g. "1.000.000" on a de-DE machine).
+  return `${Number(whole).toLocaleString('en-US')}.${frac} POT`;
 }
 
 export async function run(opts: AccountsOptions): Promise<void> {

@@ -50,9 +50,20 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 
 ## [Unreleased]
 
-Polish + edge cases. No API breaks.
-
 ### Fixed
+- **`accounts` displayed every POT balance 100x too large.** The
+  formatter hardcoded 12 decimals ("Substrate default"), but Portaldot
+  POT uses **14** — the value the Python `pdk` verified against a live
+  `portaldot-1002` node. The two CLIs disagreed by a factor of 100 for
+  the same account. `formatBalance` now defaults to 14 and, when
+  connected, prefers the chain's own `registry.chainDecimals` so the
+  scale is read from the chain rather than assumed. `formatBalance` is
+  exported and covered by `tests/accounts.test.ts`.
+- Balance thousands-separator is now pinned to en-US, so output no
+  longer varies with the runner's locale (`1.000.000` on de-DE).
+
+### Earlier in this Unreleased cycle — polish + edge cases
+
 - `DEBUG_POLKADOT_API=0` (and `=false`, `=""`, `=no`) now count as OFF.
   Previously any non-empty string tripped truthy → filter disabled →
   noise leaked into `--json` output. Shell-friendly boolean handling.
