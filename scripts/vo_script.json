@@ -25,6 +25,12 @@
     "demo-report": "pdk report groups recent failures by type — triage at a glance.",
     "demo-watch": "pdk watch streams chain events live. Filter by pallet to focus on what matters.",
     "demo-aisetup": "And pdk ai-setup is a wizard for the optional AI layer. That is all fourteen commands.",
-    "outro": "Fourteen commands. Real POT gas. Zero mocks. pdk is on PyPI today — pip install portaldot-pdk. The standard Portaldot dev toolkit. Vote pdk."
+    "outro": "Fourteen commands. Real POT gas. Zero mocks. pdk is on PyPI today — pip install portaldot-pdk. The standard Portaldot dev toolkit. Vote pdk.",
+    "ad-hook": "Portaldot transactions fail with no name, and no fix.",
+    "ad-question": "What if you could just decode it?",
+    "ad-reveal": "PDK decodes them, live in your terminal.",
+    "ad-hero": "One command. Named error. Plain-English fix. Metadata-driven, so it never rots.",
+    "ad-commands": "Fourteen commands. Real POT gas. Zero mocks, declared.",
+    "ad-cta": "PDK — the debugger for Portaldot. Pip install portaldot-pdk."
   }
 }
