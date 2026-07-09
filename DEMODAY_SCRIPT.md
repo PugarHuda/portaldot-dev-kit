@@ -1,5 +1,9 @@
 # pdk — Demo Day Rehearsal Script
 
+> **[HISTORICAL — 2026-05 demo day script.]** Stage-ready companion for the
+> live screen demo delivered at the Portaldot Mini Hackathon S1 finals.
+> Kept as a durable reference for how each command was staged.
+
 Stage-ready companion for the live screen demo. Every number here is **real**
 — captured by `demo_capture.sh` against a freshly purged local Portaldot node
 (runtime `portaldot-1002`) on 2026-05-29.

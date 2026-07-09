@@ -1,5 +1,10 @@
 # pdk — Portaldot Dev Kit · DoraHacks Submission
 
+> **[HISTORICAL — 2026-05 submission for Portaldot Mini Hackathon S1, Builder Tools track.]**
+> Kept in-repo as the durable statement of what was submitted. Product
+> state has since moved on — see [`CHANGELOG.md`](CHANGELOG.md) and
+> [`pdk-ts/CHANGELOG.md`](pdk-ts/CHANGELOG.md) for post-submission work.
+
 > Ready-to-paste copy for the DoraHacks BUIDL description. Track: **Builder Tools for Portaldot**.
 
 ## One-liner

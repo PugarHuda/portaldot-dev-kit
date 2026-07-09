@@ -4,8 +4,11 @@
 
 [![pdk (Python) CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml)
 [![pdk-ts CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml)
+[![Docker](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml)
+[![Security](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/security.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/security.yml)
 [![PyPI](https://img.shields.io/pypi/v/portaldot-pdk?label=pypi)](https://pypi.org/project/portaldot-pdk/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/portaldot-pdk?label=downloads)](https://pypistats.org/packages/portaldot-pdk)
+[![npm@alpha](https://img.shields.io/npm/v/portaldot-pdk-ts?label=npm%20%40alpha&color=orange)](https://www.npmjs.com/package/portaldot-pdk-ts)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![node](https://img.shields.io/badge/node-22%2B-green)
 ![license](https://img.shields.io/badge/license-MIT-green)

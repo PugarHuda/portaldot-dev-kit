@@ -1,5 +1,8 @@
 # pdk — Pitch Video Narration (as rendered)
 
+> **[HISTORICAL — narration script for the 2026-05 hackathon pitch video.]**
+> Final rendered video at [`docs/pitch.mp4`](docs/pitch.mp4).
+
 This is the **shipped** narration in `docs/pitch.mp4` (≈59 s, five segments).
 The video is a hybrid: two slide-deck segments frame the problem, a real
 asciinema recording of the pdk CLI runs the live demo, and two more slide
