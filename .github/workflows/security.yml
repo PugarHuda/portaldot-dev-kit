@@ -1,0 +1,57 @@
+name: Security
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  schedule:
+    # Weekly Monday 03:00 UTC — catches upstream disclosures without
+    # needing every push to burn minutes on a full scan.
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  secret-scan:
+    name: gitleaks (secrets)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sbom:
+    name: SBOM (CycloneDX)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: pdk-ts/package-lock.json
+
+      - name: Install pdk-ts deps
+        working-directory: pdk-ts
+        run: npm ci
+
+      - name: Generate SBOM (npm)
+        working-directory: pdk-ts
+        run: |
+          npx --yes @cyclonedx/cyclonedx-npm --output-file ../sbom-pdk-ts.cdx.json
+          echo "--- SBOM summary ---"
+          node -e "const s = require('../sbom-pdk-ts.cdx.json'); console.log('components:', s.components?.length ?? 0);"
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-pdk-ts
+          path: sbom-pdk-ts.cdx.json
+          retention-days: 30

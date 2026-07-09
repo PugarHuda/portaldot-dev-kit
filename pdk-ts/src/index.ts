@@ -25,6 +25,7 @@ import * as keys from './commands/keys.js';
 import * as explain from './commands/explain.js';
 import * as diagnose from './commands/diagnose.js';
 import * as examples from './commands/examples.js';
+import * as kb from './commands/kb.js';
 
 const program = new Command();
 
@@ -118,14 +119,24 @@ program
   .action(() => examples.run());
 
 program
+  .command('kb')
+  .description('Knowledge-base introspection — coverage, missing entries, or full list')
+  .option('--missing', 'list index entries without a curated KB fix')
+  .option('--list', 'list every curated KB entry')
+  .option('--json', 'emit machine-readable JSON')
+  .action((opts) => kb.run(opts));
+
+program
   .command('version')
   .description('Print pdk-ts version and status')
   .option('--json', 'emit machine-readable JSON')
   .action((opts) => version.run(opts));
 
-// Default help when no command given
+// Default help when no command given. Include a first-run tip so
+// users immediately know where to find worked example invocations.
 if (process.argv.length <= 2) {
   program.outputHelp();
+  console.log('\nTip: run `pdk-ts examples` for a curated list of ready-to-copy invocations.\n');
   process.exit(0);
 }
 

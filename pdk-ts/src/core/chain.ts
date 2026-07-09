@@ -32,6 +32,24 @@ if (!process.env.DEBUG_POLKADOT_API) {
 
 let cached: {node: string; api: ApiPromise} | null = null;
 
+// Prevents `getApi()` from creating two in-flight connections when two
+// async paths race — the second caller waits on the first's promise.
+let pendingConnect: Promise<ApiPromise> | null = null;
+
+// SIGINT/SIGTERM safety: ensure any live provider is torn down before
+// the process actually exits, so users don't leak WebSocket sockets
+// when they Ctrl+C a slow doctor call.
+let signalHooksInstalled = false;
+function installSignalHooks(): void {
+  if (signalHooksInstalled) return;
+  signalHooksInstalled = true;
+  const cleanupAndExit = (code: number) => {
+    void closeApi().finally(() => process.exit(code));
+  };
+  process.once('SIGINT', () => cleanupAndExit(130));
+  process.once('SIGTERM', () => cleanupAndExit(143));
+}
+
 // 15 s default — comfortable for cross-continent public RPCs while
 // still failing fast enough on typos and offline dev nodes. Override
 // per-command with the `--timeout <seconds>` flag.
@@ -56,7 +74,9 @@ export async function getApi(
   node: string,
   timeoutMs: number = DEFAULT_CONNECT_TIMEOUT_MS,
 ): Promise<ApiPromise> {
+  installSignalHooks();
   if (cached && cached.node === node) return cached.api;
+  if (pendingConnect) return pendingConnect;
   if (cached && cached.node !== node) {
     await cached.api.disconnect();
     cached = null;
@@ -74,25 +94,28 @@ export async function getApi(
     );
   });
 
-  try {
-    const api = await Promise.race([
-      ApiPromise.create({provider, throwOnConnect: true}),
-      timeout,
-    ]);
-    if (timer) clearTimeout(timer);
-    cached = {node, api};
-    return api;
-  } catch (err) {
-    if (timer) clearTimeout(timer);
-    // best-effort teardown so the provider does not keep retrying in
-    // the background after we surface the error
+  pendingConnect = (async () => {
     try {
-      await provider.disconnect();
-    } catch {
-      /* ignore */
+      const api = await Promise.race([
+        ApiPromise.create({provider, throwOnConnect: true}),
+        timeout,
+      ]);
+      if (timer) clearTimeout(timer);
+      cached = {node, api};
+      return api;
+    } catch (err) {
+      if (timer) clearTimeout(timer);
+      try {
+        await provider.disconnect();
+      } catch {
+        /* ignore */
+      }
+      throw err;
+    } finally {
+      pendingConnect = null;
     }
-    throw err;
-  }
+  })();
+  return pendingConnect;
 }
 
 export async function closeApi(): Promise<void> {

@@ -1,5 +1,42 @@
 # Changelog
 
+## [Unreleased]
+
+Hardening + discoverability pass. No new command surface breaks; safe
+to consume today from a git install.
+
+### Added
+- `pdk-ts kb` — knowledge-base introspection. Default view shows KB
+  coverage (`kbSize / indexSize`), `--missing` lists the 173 uncurated
+  errors as a community-contribution shortlist, `--list` dumps every
+  curated entry. `--json` on any mode.
+- `pdk-ts diagnose` — single-command tool health check: version, node
+  version, KB path + count, index fingerprint + count, and a
+  connectivity probe. `--skip-connect` for offline mode.
+- `pdk-ts examples` — curated groups of ready-to-copy invocations.
+- First-run tip: bare `pdk-ts` invocation now surfaces `examples`.
+- `DiagnoseReport` type exported from `commands/diagnose.ts` for
+  programmatic consumers.
+- Consistency test guarding KB ⊆ offline index (case-insensitive).
+  Silent KB↔index drift would give users a wrong error name — this is
+  the canary.
+
+### Fixed
+- Node URL validation rejects non-`ws://`/`wss://` schemes with a
+  human error before opening a socket (previously produced a cryptic
+  `[object ErrorEvent]`).
+- `SIGINT`/`SIGTERM` now close the `ApiPromise` before exit so Ctrl+C
+  never leaves a hanging WebSocket.
+- Concurrent `getApi()` calls now share one connection promise instead
+  of racing to open several sockets against the same URL.
+
+### CI
+- `.github/workflows/docker.yml` — builds the multi-stage Dockerfile,
+  smoke-tests `version`/`kb`/`explain` inside the image, pushes to
+  GHCR on `pdk-ts-v*` tags.
+- `.github/workflows/security.yml` — Gitleaks secret scan + CycloneDX
+  SBOM on every push, plus a weekly cron for upstream disclosures.
+
 ## 0.2.0-alpha.3 — 2026-07-09
 
 Strategic pivot from the original roadmap: instead of gating on the

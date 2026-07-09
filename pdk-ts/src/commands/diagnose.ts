@@ -22,7 +22,7 @@ export interface DiagnoseOptions {
   skipConnect?: boolean;
 }
 
-interface DiagnoseReport {
+export interface DiagnoseReport {
   pdkTs: {version: string; nodeVersion: string; platform: string};
   kb: {path: string | null; entries: number};
   index: {loaded: boolean; entries: number; specName: string; specVersion: number};
