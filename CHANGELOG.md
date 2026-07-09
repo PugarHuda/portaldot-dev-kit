@@ -8,6 +8,15 @@ TypeScript companion (`pdk-ts`) tracks its own changelog at
 here for repo-level chronology.
 
 ## [Cross-repo milestones]
+- **2026-07-09** — pdk-ts **0.2.0-alpha.4** ships the library entry.
+  `import { resolveByName, collectReport } from 'portaldot-pdk-ts'`
+  cold-imports in ~430 ms (down from 2792 ms) because `@polkadot/api`
+  now loads lazily inside `getApi()`. 10/14 commands covered on the TS
+  side. Also: `alpha` npm dist-tag (never accidentally ships prerelease
+  as `latest`), non-root Docker image, `.gitattributes` kills the CRLF
+  warnings, sourcemaps out of the npm tarball (64 → 36 files, 42 → 35 KB),
+  URL scheme validation, humanized WebSocket errors across every
+  chain-touching command. Full detail: `pdk-ts/CHANGELOG.md` rounds 7-12.
 - **2026-07-09** — pdk-ts **0.2.0-alpha.3** ships `explain` (raw-code
   decoder — the unique feature). 7/14 commands now covered on the TS
   side. Verbose polkadot.js logs silenced from stdout so `--json`

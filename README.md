@@ -41,6 +41,24 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 
 *Real recording of pdk running against a live Portaldot node. Full **narrated pitch video** (slide intro → 14-command live terminal demo → uniqueness slide → outro, voiced, ~90 s): [`docs/pitch.mp4`](docs/pitch.mp4). Replay interactively at [/demo](https://portaldot-pdk.vercel.app/demo).*
 
+## Try it in 30 seconds
+
+```bash
+# Python — decode a failed transaction offline
+pip install portaldot-pdk
+pdk explain --module 6 --error 2
+
+# TypeScript (alpha) — same thing, from Node.js
+npm install portaldot-pdk-ts@alpha
+npx portaldot-pdk-ts explain --module 6 --error 2
+
+# Docker — zero-install
+docker run --rm ghcr.io/pugarhuda/portaldot-pdk-ts:0.2.0-alpha.4 \
+  explain --name balances.InsufficientBalance
+```
+
+Live artifacts: [PyPI 0.1.7](https://pypi.org/project/portaldot-pdk/) · [npm alpha.4](https://www.npmjs.com/package/portaldot-pdk-ts) · [GHCR image](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/pkgs/container/portaldot-pdk-ts) · [GitHub Releases](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/releases) · [Publishing guide](PUBLISHING.md)
+
 ---
 
 ## Project Overview
