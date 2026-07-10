@@ -21,6 +21,33 @@ from pdk.core.decoder import strip_control_chars
 console = Console()
 
 
+def predict_outcome(amount: float, fee: float, balance: float,
+                    existential_deposit: float) -> tuple[bool, str]:
+    """Predict whether a `transfer_keep_alive` of `amount` POT would succeed.
+
+    Returns ``(feasible, likely_error)``. `likely_error` is "" when feasible.
+
+    Critically models the keep-alive rule that the naive
+    ``amount + fee <= balance`` check got wrong: `transfer_keep_alive`
+    (what `pdk send` / this simulation uses) refuses to drop the sender
+    below the existential deposit, so the real spendable headroom is
+    ``balance - existential_deposit``, not the whole balance. Draining an
+    account to exactly zero was previously predicted "likely SUCCEED"
+    while the real call fails.
+
+    Two distinct failure modes, with the RIGHT error name for each:
+    - amount + fee genuinely exceeds the balance  -> Balances.InsufficientBalance
+    - it fits, but would leave < ED behind         -> Balances.KeepAlive
+      (the exact error transfer_keep_alive raises to protect the account)
+    """
+    total = amount + fee
+    if total > balance:
+        return False, "Balances.InsufficientBalance"
+    if balance - total < existential_deposit:
+        return False, "Balances.KeepAlive"
+    return True, ""
+
+
 def run(
     amount: float = typer.Option(1.0, "--amount", help="POT to simulate transferring (Alice → Bob)."),
     node: str = typer.Option(DEFAULT_NODE_URL, "--node", help="Portaldot node WS endpoint."),
@@ -51,10 +78,14 @@ def run(
         info = substrate.get_payment_info(call=call, keypair=alice)
         fee = info["partialFee"] / 10**POT_DECIMALS
         balance = free_balance(substrate, alice.ss58_address)
+        # transfer_keep_alive enforces the existential deposit; fold it into
+        # the prediction so we don't call a balance-draining transfer "SUCCEED".
+        ed_raw = substrate.get_constant("Balances", "ExistentialDeposit")
+        existential_deposit = int(ed_raw.value) / 10**POT_DECIMALS if ed_raw is not None else 0.0
     except Exception as exc:  # noqa: BLE001
         console.print(f"[red]Could not estimate the transfer: {exc}[/red]")
         raise typer.Exit(code=1)
-    feasible = (amount + fee) <= balance
+    feasible, likely_error = predict_outcome(amount, fee, balance, existential_deposit)
 
     table = Table(title="pdk simulate — transfer preview (not submitted)", show_header=False)
     table.add_row("From", "Alice → Bob")
@@ -62,10 +93,11 @@ def run(
     table.add_row("Estimated fee", f"{fee:.6f} POT")
     table.add_row("Weight", str(info.get("weight")))
     table.add_row("Sender balance", f"{balance:,.4f} POT")
+    table.add_row("Existential deposit", f"{existential_deposit:.6f} POT")
     table.add_row(
         "Prediction",
         "[green]likely SUCCEED[/green]" if feasible
-        else "[red]would FAIL — Balances.InsufficientBalance[/red]",
+        else f"[red]would FAIL — {likely_error}[/red]",
     )
     console.print(table)
     console.print("[dim]Nothing was submitted. Outcome is estimated from the real fee + balance "
