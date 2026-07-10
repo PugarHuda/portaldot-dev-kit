@@ -70,6 +70,8 @@ program
   .description('Health probe against a Portaldot node')
   .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
   .option('--timeout <seconds>', 'connect timeout in seconds (default 15)')
+  .option('--liveness', 'check the chain is producing blocks, ~7s (default: on)', true)
+  .option('--no-liveness', 'skip the block-production check')
   .option('--json', 'emit machine-readable JSON')
   .action((opts) => doctor.run(opts));
 

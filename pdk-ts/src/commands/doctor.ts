@@ -5,9 +5,11 @@
  *   - endpoint / chain name / runtime version
  *   - pallet count (from metadata)
  *   - contracts pallet presence (ink! compat signal)
+ *   - liveness: is the chain actually producing blocks, not just reachable
+ *     (mirrors Python's `--liveness/--no-liveness`, default on)
  *
- * Exit code 0 on success, 1 if the node is unreachable or the metadata
- * fetch fails.
+ * Exit code 0 on success, 1 if the node is unreachable, the metadata
+ * fetch fails, or the chain is stalled (liveness check fails).
  */
 
 import pc from 'picocolors';
@@ -19,6 +21,7 @@ export interface DoctorOptions {
   node?: string;
   json?: boolean;
   timeout?: string; // seconds, from commander
+  liveness?: boolean; // default true — commander maps --no-liveness to false
 }
 
 export interface DoctorReport {
@@ -30,11 +33,18 @@ export interface DoctorReport {
   specVersion: number;
   palletCount: number;
   contractsPresent: boolean;
+  liveness?: {checked: boolean; producing: boolean; blockBefore: number; blockAfter: number};
 }
+
+// A healthy chain advances at least once within one block-time; wait
+// longer than a single ~6s block so we don't false-positive "stalled"
+// on a chain that just happened to sample between blocks.
+const LIVENESS_WAIT_MS = 7_000;
 
 export async function collectReport(
   node: string,
   timeoutMs?: number,
+  checkLiveness = true,
 ): Promise<DoctorReport> {
   const api = await getApi(node, timeoutMs);
   const [chain, nodeName, nodeVersion] = await Promise.all([
@@ -47,6 +57,15 @@ export async function collectReport(
   const contractsPresent = api.runtimeMetadata.asLatest.pallets.some(
     (p) => p.name.toString().toLowerCase() === 'contracts',
   );
+
+  let liveness: DoctorReport['liveness'];
+  if (checkLiveness) {
+    const before = (await api.rpc.chain.getHeader()).number.toNumber();
+    await new Promise((resolve) => setTimeout(resolve, LIVENESS_WAIT_MS));
+    const after = (await api.rpc.chain.getHeader()).number.toNumber();
+    liveness = {checked: true, producing: after > before, blockBefore: before, blockAfter: after};
+  }
+
   return {
     endpoint: node,
     chain: chain.toString(),
@@ -56,10 +75,11 @@ export async function collectReport(
     specVersion: runtimeVersion.specVersion.toNumber(),
     palletCount,
     contractsPresent,
+    liveness,
   };
 }
 
-function renderText(r: DoctorReport): string {
+export function renderText(r: DoctorReport): string {
   const rows: [string, string][] = [
     ['Endpoint', r.endpoint],
     ['Chain', r.chain],
@@ -74,18 +94,24 @@ function renderText(r: DoctorReport): string {
     ],
   ];
   const width = Math.max(...rows.map(([k]) => k.length));
-  return rows
-    .map(([k, v]) => `  ${pc.dim(k.padEnd(width))}  ${v}`)
-    .join('\n');
+  const base = rows.map(([k, v]) => `  ${pc.dim(k.padEnd(width))}  ${v}`).join('\n');
+  if (!r.liveness?.checked) return base;
+  const {producing, blockBefore, blockAfter} = r.liveness;
+  const livenessLine = producing
+    ? pc.green('✓ chain is producing blocks') + pc.dim(` (#${blockBefore} → #${blockAfter})`)
+    : pc.red(`⚠ chain is stalled at #${blockBefore} — no new blocks are being produced.`);
+  return `${base}\n\n  ${livenessLine}`;
 }
 
 export async function run(opts: DoctorOptions): Promise<void> {
   const node = resolveNode(opts.node);
   const timeoutMs = opts.timeout ? Math.round(Number(opts.timeout) * 1000) : undefined;
+  const checkLiveness = opts.liveness !== false;
   const t0 = Date.now();
   try {
-    const report = await collectReport(node, timeoutMs);
+    const report = await collectReport(node, timeoutMs, checkLiveness);
     const dt = Date.now() - t0;
+    const stalled = report.liveness?.checked && !report.liveness.producing;
     if (opts.json) {
       console.log(JSON.stringify(report, null, 2));
     } else {
@@ -94,6 +120,10 @@ export async function run(opts: DoctorOptions): Promise<void> {
       console.log();
       console.log(renderText(report));
       console.log();
+    }
+    if (stalled) {
+      await closeApi();
+      process.exit(1);
     }
   } catch (err) {
     const msg = humanizeChainError(err, node);

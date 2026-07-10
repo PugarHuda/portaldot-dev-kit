@@ -50,6 +50,19 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 
 ## [Unreleased]
 
+### Added
+- **`doctor` gains a liveness check** (default on, matching Python
+  `pdk doctor`'s `--liveness/--no-liveness`): reads the chain head
+  block number, waits ~7s, reads it again, and reports whether the
+  chain actually advanced — not just whether the WS handshake
+  answered. A node can be "reachable" while stalled (the same BABE
+  epoch-change wedge Python's doctor documents a fix for); previously
+  pdk-ts's doctor had no way to tell the two apart. `--no-liveness`
+  skips the wait for a fast reachability-only probe. `DoctorReport`
+  gains an optional `liveness` field; `renderText` exported and
+  covered by `tests/doctor-liveness.test.ts`. Exit code 1 on a
+  detected stall, same as an unreachable endpoint.
+
 ### Fixed
 - **`accounts` displayed every POT balance 100x too large.** The
   formatter hardcoded 12 decimals ("Substrate default"), but Portaldot

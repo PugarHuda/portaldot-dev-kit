@@ -16,9 +16,12 @@ Scripts wrapping pdk-ts should treat these as a stable contract.
   mode when the metadata walk cannot map a `module.error` — that's a
   domain result, not a tool failure. It only returns `exit 1` when the
   input is invalid or the node can't be reached.
-- `pdk-ts doctor` returns exit 1 when the endpoint is unreachable *or*
-  when it responded but reported no pallets (either signals broken
-  environment). `pdk-ts diagnose --skip-connect` always returns 0 unless
-  the tool itself failed to load its KB or index.
+- `pdk-ts doctor` returns exit 1 when the endpoint is unreachable, when
+  it responded but reported no pallets, or when the liveness check
+  (default on) finds the chain hasn't advanced a block in ~7s — a
+  reachable-but-stalled dev chain (e.g. a BABE epoch-change wedge) is a
+  broken environment too. Pass `--no-liveness` to skip that check and
+  probe reachability only. `pdk-ts diagnose --skip-connect` always
+  returns 0 unless the tool itself failed to load its KB or index.
 - All commands close the `ApiPromise` before exit. Ctrl+C on a
   mid-connect command triggers the same cleanup path.
