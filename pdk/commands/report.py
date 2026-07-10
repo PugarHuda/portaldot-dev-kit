@@ -34,9 +34,16 @@ def run(
     try:
         substrate = connect(node)
     except Exception as exc:  # noqa: BLE001
-        console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
-        console.print(f"[dim]{exc}[/dim]")
-        console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
+        # Honor --json on the failure path too: a consumer piping
+        # `pdk report --json | jq` must get parseable JSON even when the
+        # node is unreachable, not human-readable Rich text (same
+        # CI-citizen contract as `pdk debug --json`).
+        if json_out:
+            typer.echo(jsonlib.dumps({"error": f"Cannot reach a Portaldot node at {node}", "detail": str(exc)}))
+        else:
+            console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
+            console.print(f"[dim]{exc}[/dim]")
+            console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
         raise typer.Exit(code=1)
 
     kb = load_knowledge()
