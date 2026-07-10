@@ -36,6 +36,30 @@ def test_debug_without_hash_or_demo_errors() -> None:
     assert result.exit_code != 0
 
 
+def test_debug_json_error_path_emits_valid_json() -> None:
+    # CI-citizen contract: `pdk debug --json` must ALWAYS emit parseable
+    # JSON, even on the bad-input path — a consumer piping to jq must not
+    # hit human-readable Rich text. (Regression: these paths used to print
+    # console text and break the pipe.)
+    result = runner.invoke(app, ["debug", "--json"])
+    assert result.exit_code != 0
+    payload = _json.loads(result.output)
+    assert "error" in payload
+    # no Rich markup leaked into the machine-readable field
+    assert "[red]" not in payload["error"]
+
+
+def test_debug_json_unreachable_node_emits_valid_json() -> None:
+    # The connection-failure path must also be JSON under --json.
+    result = runner.invoke(
+        app, ["debug", "0xdeadbeef", "--json", "--node", "ws://127.0.0.1:19999"]
+    )
+    assert result.exit_code != 0
+    payload = _json.loads(result.output)
+    assert "error" in payload
+    assert "detail" in payload
+
+
 def test_simulate_rejects_negative_amount() -> None:
     # The amount guard runs before any node connection.
     result = runner.invoke(app, ["simulate", "--amount", "-5"])

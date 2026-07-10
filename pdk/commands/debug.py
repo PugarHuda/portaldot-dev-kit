@@ -44,16 +44,17 @@ def run(
     the build on the result.
     """
     if not (demo or watch) and not tx_hash:
-        console.print("[red]Provide a transaction hash, or use --demo / --watch.[/red]")
-        raise typer.Exit(code=1)
+        raise _fail(json_out, "Provide a transaction hash, or use --demo / --watch.")
 
     try:
         substrate = connect(node)
     except Exception as exc:  # noqa: BLE001 — surface any connection failure plainly
-        console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
-        console.print(f"[dim]{exc}[/dim]")
-        console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
-        raise typer.Exit(code=1)
+        raise _fail(
+            json_out,
+            f"Cannot reach a Portaldot node at {node}",
+            detail=str(exc),
+            hint="Start a node with pdk up (run the node in WSL on Windows; pdk itself runs natively).",
+        )
 
     if watch:
         _watch(substrate, json_out)
@@ -67,9 +68,13 @@ def run(
     else:
         receipt = find_receipt(substrate, tx_hash)
         if receipt is None:
-            console.print(f"[yellow]No transaction {tx_hash} found in recent blocks.[/yellow]")
-            console.print("[dim]FailLens scans only recent blocks — an older tx may be out of range.[/dim]")
-            raise typer.Exit(code=1)
+            raise _fail(
+                json_out,
+                f"No transaction {tx_hash} found in recent blocks.",
+                detail="FailLens scans only recent blocks — an older tx may be out of range.",
+                tx=str(tx_hash),
+                severity="yellow",
+            )
 
     decoded = decode_receipt(receipt)
     if decoded is None:
@@ -89,6 +94,30 @@ def run(
     if exit_code:
         # A failure was decoded — signal it so CI pipelines can gate on the result.
         raise typer.Exit(code=2)
+
+
+def _fail(json_out: bool, message: str, *, detail: str = "", hint: str = "",
+          tx: str | None = None, severity: str = "red") -> "typer.Exit":
+    """Emit an error and exit 1 — as a JSON object under --json, as Rich text
+    otherwise. Keeps `pdk debug --json` a real CI citizen: EVERY exit path
+    yields parseable JSON, so a consumer can `jq .error` without hitting
+    human-readable text on the not-found / bad-input / unreachable branches.
+    Raises typer.Exit; the return annotation is only to satisfy callers that
+    write `raise _fail(...)` for clarity (it always raises)."""
+    if json_out:
+        payload: dict = {"error": message}
+        if detail:
+            payload["detail"] = detail
+        if tx is not None:
+            payload["tx"] = tx
+        typer.echo(jsonlib.dumps(payload))
+    else:
+        console.print(f"[{severity}]{message}[/{severity}]")
+        if detail:
+            console.print(f"[dim]{detail}[/dim]")
+        if hint:
+            console.print(hint)
+    raise typer.Exit(code=1)
 
 
 def _should_run_ai(ai_flag: bool, no_ai_flag: bool, json_out: bool) -> bool:
