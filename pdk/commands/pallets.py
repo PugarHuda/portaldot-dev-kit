@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from pdk.config import DEFAULT_NODE_URL
@@ -65,6 +66,10 @@ def run(
         et.add_column("error", style="red")
         et.add_column("docs")
         for e in match.errors:
+            # Free-form Rust doc comment, no syntax restriction — unlike
+            # e.name (a Rust identifier), a malicious/compromised chain
+            # could embed Rich markup here (Table.add_row() parses cell
+            # content as markup too). escape() so it renders literally.
             docs = " ".join(e.docs).strip() if getattr(e, "docs", None) else ""
-            et.add_row(e.name, docs[:74])
+            et.add_row(e.name, escape(docs[:74]))
         console.print(et)

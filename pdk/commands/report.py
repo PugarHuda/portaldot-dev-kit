@@ -10,6 +10,7 @@ import json as jsonlib
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 from rich.table import Table
 
@@ -67,7 +68,12 @@ def run(
     table.add_column("count", justify="right", style="bold")
     table.add_column("what it means")
     for err, count in grouped:
-        table.add_row(err, str(count), summaries.get(err, ""))
+        # summaries.get(err) can be the raw runtime doc comment (tier-3
+        # metadata fallback for any error outside the curated KB) — free
+        # text with no syntax restriction. Table.add_row() parses cell
+        # content as Rich markup, so escape() before it reaches a
+        # malicious/compromised chain's opportunity to inject styling.
+        table.add_row(err, str(count), escape(summaries.get(err, "")))
     console.print(table)
     console.print(f"[bold]{len(hits)}[/bold] failed extrinsic(s) across {len(grouped)} error type(s). "
                   "Use [bold]pdk debug <hash>[/bold] to dig into one.")

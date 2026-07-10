@@ -7,6 +7,7 @@ import time
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 
 from pdk.config import DEFAULT_NODE_URL
@@ -204,7 +205,7 @@ def _emit(tx_hash: str, decoded: DecodedError, fix: FixSuggestion, json_out: boo
 
 def _render(tx_hash: str, decoded: DecodedError, fix: FixSuggestion) -> None:
     """Print the diagnosis: error -> explanation -> fix steps."""
-    called = f"  [dim]· {decoded.extrinsic_call}[/dim]" if decoded.extrinsic_call else ""
+    called = f"  [dim]· {escape(decoded.extrinsic_call)}[/dim]" if decoded.extrinsic_call else ""
     confidence = "" if fix.known else "  [yellow](no curated entry — metadata fallback)[/yellow]"
     pallet = _resolve_pallet(decoded, fix)
     error_label = (
@@ -213,11 +214,19 @@ def _render(tx_hash: str, decoded: DecodedError, fix: FixSuggestion) -> None:
         else decoded.name
     )
 
+    # `fix.summary` can be the raw runtime doc comment (knowledge.py's
+    # tier-3 metadata fallback, which fires for any error outside the
+    # curated KB). Doc comments are free-form text with no syntax
+    # restriction — a malicious/compromised chain could embed Rich
+    # markup (including a real clickable `[link=...]`) that would
+    # otherwise render inside pdk's own trusted-looking Panel. escape()
+    # neutralizes untrusted chain text while leaving pdk's own styling
+    # tags (written directly in this f-string) intact.
     body = (
-        f"[bold red]✗ {error_label}[/bold red]{called}\n\n"
-        f"[bold]What happened[/bold]{confidence}\n{fix.summary}\n\n"
+        f"[bold red]✗ {escape(error_label)}[/bold red]{called}\n\n"
+        f"[bold]What happened[/bold]{confidence}\n{escape(fix.summary)}\n\n"
         f"[bold]How to fix[/bold]\n"
-        + "\n".join(f"  {i}. {step}" for i, step in enumerate(fix.steps, 1))
+        + "\n".join(f"  {i}. {escape(step)}" for i, step in enumerate(fix.steps, 1))
     )
     console.print(
         Panel(

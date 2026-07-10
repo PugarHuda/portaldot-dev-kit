@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 from rich.table import Table
 
@@ -87,11 +88,20 @@ def run(
         raise typer.Exit(code=1)
 
     display = fix.matched_key or error
+    # `fix.summary` can be the raw runtime doc comment (knowledge.py's
+    # tier-3 fallback for any error outside the curated KB — i.e. most
+    # errors on any non-Portaldot chain `--live` can query). Doc
+    # comments are free-form Rust text with no syntax restriction, so a
+    # malicious/compromised chain could embed Rich markup — including
+    # `[link=...]` — that would otherwise render as a real clickable
+    # hyperlink or fake alert styling inside pdk's own trusted-looking
+    # output. escape() neutralizes it while leaving pdk's own styling
+    # (the f-string's own [bold]/[cyan] tags) intact.
     body = (
-        f"[bold cyan]{display}[/bold cyan]\n\n"
-        f"[bold]What it means[/bold]\n{fix.summary}\n\n"
+        f"[bold cyan]{escape(display)}[/bold cyan]\n\n"
+        f"[bold]What it means[/bold]\n{escape(fix.summary)}\n\n"
         f"[bold]How to fix[/bold]\n"
-        + "\n".join(f"  {i}. {step}" for i, step in enumerate(fix.steps, 1))
+        + "\n".join(f"  {i}. {escape(step)}" for i, step in enumerate(fix.steps, 1))
     )
     console.print(Panel(body, title="pdk explain", border_style="cyan"))
     if _should_run_ai(ai, no_ai):
