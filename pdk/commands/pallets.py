@@ -13,6 +13,7 @@ from rich.table import Table
 
 from pdk.config import DEFAULT_NODE_URL
 from pdk.core.chain import connect
+from pdk.core.decoder import strip_control_chars
 
 console = Console()
 
@@ -68,8 +69,11 @@ def run(
         for e in match.errors:
             # Free-form Rust doc comment, no syntax restriction — unlike
             # e.name (a Rust identifier), a malicious/compromised chain
-            # could embed Rich markup here (Table.add_row() parses cell
-            # content as markup too). escape() so it renders literally.
+            # could embed Rich markup (Table.add_row() parses cell
+            # content as markup) or a raw terminal escape sequence
+            # (e.g. an OSC 8 hyperlink, which bypasses Rich's own
+            # escape() entirely — see decoder.strip_control_chars).
+            # Strip control bytes first, then escape Rich's [tag] syntax.
             docs = " ".join(e.docs).strip() if getattr(e, "docs", None) else ""
-            et.add_row(e.name, escape(docs[:74]))
+            et.add_row(e.name, escape(strip_control_chars(docs)[:74]))
         console.print(et)

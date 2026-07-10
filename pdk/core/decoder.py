@@ -13,11 +13,29 @@ integration & stress cases referenced in the project README.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from substrateinterface import ExtrinsicReceipt, SubstrateInterface
 
 from pdk.config import RECENT_BLOCKS_SCAN
+
+# Strips ASCII control characters (0x00-0x1F, 0x7F) except \t and \n.
+# Doc comments are free-form Rust text with no syntax restriction, so a
+# malicious/compromised chain could embed a raw terminal escape sequence
+# (ESC 0x1B) — e.g. an OSC 8 hyperlink escape — that a real terminal
+# renders as a clickable link, completely bypassing Rich's own
+# markup.escape() (which only handles Rich's `[tag]` bracket syntax,
+# not raw control bytes). This is the source-level sanitizer; render
+# sites additionally call rich.markup.escape() for Rich's own syntax —
+# two different mechanisms, both needed.
+_CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
+
+
+def strip_control_chars(text: str) -> str:
+    """Remove ASCII control characters (keeps \\t and \\n) from untrusted
+    chain-sourced free text before it ever reaches a render call."""
+    return _CONTROL_CHARS.sub("", text)
 
 
 @dataclass
@@ -52,7 +70,7 @@ def decode_receipt(receipt: ExtrinsicReceipt) -> DecodedError | None:
     pallet = err.get("type") or "Unknown"
 
     docs_value = err.get("docs", "")
-    docs = " ".join(docs_value) if isinstance(docs_value, list) else str(docs_value)
+    docs = strip_control_chars(" ".join(docs_value) if isinstance(docs_value, list) else str(docs_value))
 
     extrinsic_call = ""
     call = getattr(receipt, "extrinsic", None)
