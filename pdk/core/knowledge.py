@@ -7,6 +7,7 @@ Chain metadata tells the user *what* the error is. This module tells them
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -18,11 +19,47 @@ _KB_PATH = Path(__file__).resolve().parent.parent / "data" / "error_fixes.yaml"
 _INDEX_PATH = Path(__file__).resolve().parent.parent / "data" / "error_index.json"
 
 
+class KbPathError(RuntimeError):
+    """An explicitly-set PDK_KB_PATH / PDK_INDEX_PATH points at a missing file."""
+
+
+def _resolve_override(env_var: str, default: Path) -> Path:
+    """Resolve a data-file path, honoring an env override.
+
+    pdk-ts reads PDK_KB_PATH / PDK_INDEX_PATH and documents them as
+    "shared with pdk" — but the Python side ignored them entirely, so a
+    user who set the override expecting BOTH CLIs to use their custom
+    file got the bundled default here. This closes that mismatch.
+
+    Matches pdk-ts's fail-fast rule: if the override is set but the file
+    doesn't exist, raise instead of silently using the default — a
+    typo'd path should surface, not degrade to an empty KB the user
+    thinks is their custom one. Unset/empty falls back to the bundled
+    file (which itself may still be absent -> graceful empty, so the
+    hero command keeps working).
+    """
+    env = os.environ.get(env_var)
+    if not env:
+        return default
+    path = Path(env)
+    if not path.exists():
+        raise KbPathError(f'{env_var}="{env}" does not exist (set explicitly, so we will not silently fall back).')
+    return path
+
+
+def _kb_path() -> Path:
+    return _resolve_override("PDK_KB_PATH", _KB_PATH)
+
+
+def _index_path() -> Path:
+    return _resolve_override("PDK_INDEX_PATH", _INDEX_PATH)
+
+
 def load_error_index() -> dict[str, str]:
     """Load the verified ``"<pallet_index>.<error_index>"`` → ``"Pallet.ErrorName"``
     map, extracted from the live ``portaldot-1002`` runtime metadata."""
     try:
-        with _INDEX_PATH.open(encoding="utf-8") as fh:
+        with _index_path().open(encoding="utf-8") as fh:
             return json.load(fh)
     except (OSError, ValueError):
         return {}
@@ -61,7 +98,7 @@ def load_knowledge() -> dict[str, dict]:
     package build.
     """
     try:
-        with _KB_PATH.open(encoding="utf-8") as fh:
+        with _kb_path().open(encoding="utf-8") as fh:
             return yaml.safe_load(fh) or {}
     except (OSError, yaml.YAMLError):
         return {}

@@ -9,6 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 import pdk.core.knowledge as knowledge_module
 from pdk.core.decoder import DecodedError
 from pdk.core.knowledge import load_knowledge, lookup_fix
@@ -74,3 +76,42 @@ def test_lookup_fix_still_works_when_knowledge_base_is_empty() -> None:
     fix = lookup_fix(_err("Balances", "InsufficientBalance", docs="ran out of funds"), {})
     assert not fix.known
     assert "ran out of funds" in fix.summary
+
+
+def test_pdk_kb_path_env_override_is_honored(tmp_path, monkeypatch) -> None:
+    # pdk-ts documents PDK_KB_PATH as "shared with pdk"; Python used to
+    # ignore it. A custom KB via the env var must actually load.
+    custom = tmp_path / "custom_kb.yaml"
+    custom.write_text(
+        "CustomPallet.CustomError:\n  summary: from the env override\n  steps:\n    - do it\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("PDK_KB_PATH", str(custom))
+    kb = load_knowledge()
+    assert "CustomPallet.CustomError" in kb
+    # a genuine override, not a merge with the bundled KB
+    assert "Balances.InsufficientBalance" not in kb
+
+
+def test_pdk_kb_path_env_override_missing_file_fails_hard(monkeypatch) -> None:
+    # A typo'd override must surface, not silently degrade to an empty KB
+    # the user thinks is their custom one (matches pdk-ts fail-fast).
+    from pdk.core.knowledge import KbPathError
+
+    monkeypatch.setenv("PDK_KB_PATH", "/definitely/not/here.yaml")
+    with pytest.raises(KbPathError):
+        load_knowledge()
+
+
+def test_pdk_index_path_env_override_missing_file_fails_hard(monkeypatch) -> None:
+    from pdk.core.knowledge import KbPathError, load_error_index
+
+    monkeypatch.setenv("PDK_INDEX_PATH", "/definitely/not/here.json")
+    with pytest.raises(KbPathError):
+        load_error_index()
+
+
+def test_no_env_override_uses_bundled_default(monkeypatch) -> None:
+    monkeypatch.delenv("PDK_KB_PATH", raising=False)
+    monkeypatch.delenv("PDK_INDEX_PATH", raising=False)
+    assert len(load_knowledge()) >= 15

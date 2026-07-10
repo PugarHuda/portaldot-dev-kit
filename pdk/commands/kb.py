@@ -22,6 +22,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from pdk.core.knowledge import _kb_path as _resolved_kb_path
 from pdk.core.knowledge import load_error_index, load_knowledge
 
 console = Console()
@@ -31,7 +32,11 @@ _INDEX_SPEC_VERSION = 1002
 
 
 def _kb_path() -> Path:
-    return Path(__file__).resolve().parent.parent / "data" / "error_fixes.yaml"
+    # Delegate to knowledge.py so the DISPLAYED path reflects the same
+    # PDK_KB_PATH env override that load_knowledge() actually reads —
+    # otherwise `pdk kb` would show the bundled default while silently
+    # loading from the override (or vice-versa).
+    return _resolved_kb_path()
 
 
 def _index_drift() -> tuple[bool, str | None]:

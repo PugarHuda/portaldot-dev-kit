@@ -70,7 +70,19 @@ def _root(
 
 def main() -> None:
     """Console-script entry point."""
-    app()
+    from pdk.core.knowledge import KbPathError
+
+    try:
+        app()
+    except KbPathError as exc:
+        # A typo'd PDK_KB_PATH / PDK_INDEX_PATH is user error, not a pdk
+        # bug — show the one-line message, not a Rich traceback.
+        import sys
+
+        from rich.console import Console
+
+        Console(stderr=True).print(f"[red]{exc}[/red]")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
