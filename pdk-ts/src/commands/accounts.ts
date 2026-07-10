@@ -34,23 +34,39 @@ interface AccountRow {
   freeRaw: string;
 }
 
-// Portaldot uses 14 decimals for POT — verified against a live
-// portaldot-1002 node (this matches the Python pdk's POT_DECIMALS=14).
-// It is NOT the generic Substrate default of 12; assuming 12 makes every
-// balance display 100x too large. We still prefer the chain's own
-// `registry.chainDecimals` when connected, so the value is never a
-// stale guess; this constant is only the offline fallback.
-const POT_DECIMALS_FALLBACK = 14;
+// Portaldot POT uses 14 decimals — the project's established convention,
+// matching Python pdk's POT_DECIMALS=14. Crucially, the Portaldot chain
+// spec does NOT declare token decimals at all (`system.properties`
+// tokenDecimals is null — verified against a live portaldot-1002 node),
+// so `registry.chainDecimals` returns @polkadot/api's *default* of 12,
+// NOT a value Portaldot actually chose. Trusting that default made every
+// balance display 100x off and disagree with the Python CLI. We therefore
+// use 14 unless the chain EXPLICITLY declares its own decimals via
+// properties (which honors a chain that does set them — e.g. Polkadot's
+// 10 — without being misled by the silent-chain default).
+const POT_DECIMALS = 14;
 
-function chainDecimals(api: {registry?: {chainDecimals?: number[]}}): number {
-  const d = api.registry?.chainDecimals?.[0];
-  return typeof d === 'number' && d > 0 ? d : POT_DECIMALS_FALLBACK;
+async function resolveDecimals(api: {rpc: {system: {properties: () => Promise<unknown>}}}): Promise<number> {
+  try {
+    const props = (await api.rpc.system.properties()) as {
+      tokenDecimals?: {isSome?: boolean; unwrapOr?: (d: unknown) => {toArray?: () => Array<{toNumber: () => number}>}};
+    };
+    const td = props.tokenDecimals;
+    if (td?.isSome) {
+      const arr = td.unwrapOr?.(null)?.toArray?.();
+      const first = arr?.[0]?.toNumber();
+      if (typeof first === 'number' && first > 0) return first;
+    }
+  } catch {
+    // properties unavailable — fall through to the Portaldot convention.
+  }
+  return POT_DECIMALS;
 }
 
 export async function collectAccounts(node: string, all = false): Promise<AccountRow[]> {
   const api = await getApi(node);
   const keyring = new Keyring({type: 'sr25519', ss58Format: 42});
-  const decimals = chainDecimals(api as {registry?: {chainDecimals?: number[]}});
+  const decimals = await resolveDecimals(api as {rpc: {system: {properties: () => Promise<unknown>}}});
 
   const uris = all ? DEV_ACCOUNTS_ALL : DEV_ACCOUNTS_DEFAULT;
   const rows: AccountRow[] = [];
@@ -74,7 +90,7 @@ function allEmpty(rows: AccountRow[]): boolean {
   return rows.every((r) => r.freeRaw === '0');
 }
 
-export function formatBalance(raw: string, decimals: number = POT_DECIMALS_FALLBACK): string {
+export function formatBalance(raw: string, decimals: number = POT_DECIMALS): string {
   // Present raw plancks divided by 10^decimals with 4 dp so the number
   // is legible. `decimals` comes from the chain registry at the call
   // site; the default is the verified Portaldot value, not 12.

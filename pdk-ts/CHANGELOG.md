@@ -80,13 +80,18 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
   detected stall, same as an unreachable endpoint.
 
 ### Fixed
-- **`accounts` displayed every POT balance 100x too large.** The
-  formatter hardcoded 12 decimals ("Substrate default"), but Portaldot
-  POT uses **14** — the value the Python `pdk` verified against a live
-  `portaldot-1002` node. The two CLIs disagreed by a factor of 100 for
-  the same account. `formatBalance` now defaults to 14 and, when
-  connected, prefers the chain's own `registry.chainDecimals` so the
-  scale is read from the chain rather than assumed. `formatBalance` is
+- **`accounts` POT balance decimals aligned to 14 (the project convention),
+  fixing a 100x cross-CLI disagreement with Python `pdk`.** Portaldot POT
+  uses 14 decimals, but the Portaldot chain spec does not actually declare
+  token decimals (`system.properties.tokenDecimals` is null — verified
+  against a live `portaldot-1002` node), so `registry.chainDecimals`
+  returns @polkadot/api's *default* of 12 — not a value Portaldot chose.
+  An interim fix that read `registry.chainDecimals` therefore picked up
+  that misleading 12 and displayed every balance 100x too large versus
+  Python. `formatBalance` now uses 14 unless the chain EXPLICITLY declares
+  its own decimals via `system.properties` (which still honors a chain
+  that sets them, e.g. Polkadot's 10). Verified live: pdk-ts and Python
+  now show identical balances for the same account. `formatBalance` is
   exported and covered by `tests/accounts.test.ts`.
 - Balance thousands-separator is now pinned to en-US, so output no
   longer varies with the runner's locale (`1.000.000` on de-DE).

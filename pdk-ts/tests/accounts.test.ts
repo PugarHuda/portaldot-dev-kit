@@ -30,9 +30,9 @@ describe('formatBalance', () => {
     expect(formatBalance('0')).toBe('0 POT');
   });
 
-  it('honors an explicit decimals argument (chain-provided override)', () => {
-    // If a chain really reports 12, the same raw is scaled accordingly —
-    // this is what `registry.chainDecimals` feeds in at the call site.
+  it('honors an explicit decimals argument (used when a chain declares its own)', () => {
+    // collectAccounts passes the chain's declared tokenDecimals when
+    // present (e.g. Polkadot's 10); Portaldot declares none, so 14 is used.
     expect(formatBalance('1000000000000', 12)).toBe('1.0000 POT');
   });
 
