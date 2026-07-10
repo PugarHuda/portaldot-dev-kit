@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 from rich.table import Table
 from substrateinterface import Keypair
 
 from pdk.config import DEFAULT_NODE_URL
 from pdk.core.chain import POT_DECIMALS, connect, free_balance, pot_to_plancks
+from pdk.core.decoder import strip_control_chars
 
 console = Console()
 
@@ -106,5 +108,10 @@ def _ai_fee_breakdown(*, amount: float, fee: float, weight, explicit: bool) -> N
     if not text:
         console.print("[yellow]AI breakdown unavailable right now.[/yellow]")
         return
-    console.print(Panel(text, title="AI-suggested fee breakdown - UNVERIFIED",
+    # LLM-generated text — even though this prompt only feeds numeric
+    # amount/fee/weight, not chain-sourced free text, an LLM's raw output
+    # is never something to trust blindly for terminal-safe characters.
+    # Same escape()/strip_control_chars() treatment as every other
+    # chain-adjacent render site this sweep covered.
+    console.print(Panel(escape(strip_control_chars(text)), title="AI-suggested fee breakdown - UNVERIFIED",
                         border_style="yellow"))

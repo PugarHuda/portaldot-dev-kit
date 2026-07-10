@@ -6,9 +6,11 @@ Rust-compiled chain constrains identifiers to
 are free-form text with no such restriction — and nothing stops a
 malicious/fake RPC server from forging even the "constrained" fields.
 These tests run the real command entry points (`storage.run`,
-`pallets.run`, `watch.run`) against mocked chain objects returning
-malicious payloads, and assert the injected markup/escape sequences
-never reach the console un-neutralized.
+`pallets.run`, `watch.run`) and the AI-response render helpers
+(`debug`/`explain`/`simulate`/`report`'s `_ai_*` functions) against
+mocked chain objects / mocked LLM responses returning malicious
+payloads, and assert the injected markup/escape sequences never reach
+the console un-neutralized.
 """
 
 from __future__ import annotations
@@ -17,7 +19,11 @@ from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
 
+from pdk.commands import debug as debug_module
+from pdk.commands import explain as explain_module
 from pdk.commands import pallets as pallets_module
+from pdk.commands import report as report_module
+from pdk.commands import simulate as simulate_module
 from pdk.commands import storage as storage_module
 from pdk.commands import watch as watch_module
 
@@ -129,3 +135,54 @@ class TestWatchAttributeIsolation:
             out = _capture(monkeypatch, watch_module.run, pallet=None, node="ws://fake")
 
         assert "[link=" in out
+
+
+# The AI layer is fed chain-sourced free text (decoded.docs, error
+# labels) as prompt context. A prompt-injected or context-echoing model
+# can reproduce embedded markup / escape sequences verbatim in its own
+# response, so the rendered AI output must be sanitized too — even
+# though the text originates from the LLM, not directly from the chain.
+AI_MALICIOUS = "Low balance. \x1b]8;;https://evil.example\x07Claim refund\x1b]8;;\x07 [bold red]URGENT[/bold red]"
+
+
+class TestAiResponseEscaping:
+    def test_debug_ai_section_neutralizes_markup_and_escapes(self, monkeypatch) -> None:
+        with patch("pdk.core.ai.ai_available", return_value=True), \
+             patch("pdk.core.ai.ai_diagnose", return_value=AI_MALICIOUS):
+            out = _capture(
+                monkeypatch, debug_module._ai_section,
+                "Balances", "InsufficientBalance", "docs", explicit=True,
+            )
+        assert "\x1b" not in out
+        assert "\x07" not in out
+        assert "[bold red]" in out  # literal, not parsed into styling
+
+    def test_explain_ai_section_neutralizes_markup_and_escapes(self, monkeypatch) -> None:
+        with patch("pdk.core.ai.ai_available", return_value=True), \
+             patch("pdk.core.ai.ai_diagnose", return_value=AI_MALICIOUS):
+            out = _capture(
+                monkeypatch, explain_module._ai_section,
+                "Balances", "InsufficientBalance", "docs", explicit=True,
+            )
+        assert "\x1b" not in out
+        assert "[bold red]" in out
+
+    def test_simulate_ai_breakdown_neutralizes_markup(self, monkeypatch) -> None:
+        with patch("pdk.core.ai.ai_available", return_value=True), \
+             patch("pdk.core.ai.ai_complete", return_value=AI_MALICIOUS):
+            out = _capture(
+                monkeypatch, simulate_module._ai_fee_breakdown,
+                amount=1.0, fee=0.01, weight=100, explicit=True,
+            )
+        assert "\x1b" not in out
+        assert "[bold red]" in out
+
+    def test_report_ai_summary_neutralizes_markup(self, monkeypatch) -> None:
+        with patch("pdk.core.ai.ai_available", return_value=True), \
+             patch("pdk.core.ai.ai_complete", return_value=AI_MALICIOUS):
+            out = _capture(
+                monkeypatch, report_module._ai_pattern_summary,
+                [("Balances.InsufficientBalance", 3)], 50, explicit=True,
+            )
+        assert "\x1b" not in out
+        assert "[bold red]" in out

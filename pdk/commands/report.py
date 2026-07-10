@@ -16,6 +16,7 @@ from rich.table import Table
 
 from pdk.config import DEFAULT_NODE_URL, RECENT_BLOCKS_SCAN
 from pdk.core.chain import connect
+from pdk.core.decoder import strip_control_chars
 from pdk.core.knowledge import load_knowledge, lookup_fix
 from pdk.core.report import label, scan_failures, summarize
 
@@ -119,5 +120,9 @@ def _ai_pattern_summary(grouped: list, blocks: int, *, explicit: bool) -> None:
     if not text:
         console.print("[yellow]AI summary unavailable right now.[/yellow]")
         return
-    console.print(Panel(text, title="AI-suggested pattern summary - UNVERIFIED",
+    # LLM output can echo back attacker-influenceable error labels (via
+    # bullet_list, built from decoded.name/pallet) — same escape()/
+    # strip_control_chars() treatment as every other AI-response render
+    # site this sweep covered.
+    console.print(Panel(escape(strip_control_chars(text)), title="AI-suggested pattern summary - UNVERIFIED",
                         border_style="yellow"))

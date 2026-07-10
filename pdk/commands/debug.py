@@ -17,6 +17,7 @@ from pdk.core.decoder import (
     decode_receipt,
     failed_receipts_in_block,
     find_receipt,
+    strip_control_chars,
 )
 from pdk.core.knowledge import FixSuggestion, load_knowledge, lookup_fix
 
@@ -117,7 +118,12 @@ def _ai_section(pallet: str, name: str, docs: str, *, explicit: bool = False) ->
     if not result:
         console.print("[yellow]AI diagnosis unavailable right now.[/yellow]")
         return False
-    console.print(Panel(result, title="AI-suggested — UNVERIFIED (not a curated KB entry)",
+    # `result` is LLM output generated FROM `docs` (chain-sourced free
+    # text, no syntax constraint) — a prompt-injected or simply
+    # context-echoing model could reproduce embedded markup/escape
+    # sequences verbatim in its own response. Same treatment as every
+    # other render site this sweep covered.
+    console.print(Panel(escape(strip_control_chars(result)), title="AI-suggested — UNVERIFIED (not a curated KB entry)",
                         border_style="yellow"))
     return True
 

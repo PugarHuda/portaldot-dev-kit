@@ -13,7 +13,7 @@ from rich.markup import escape
 from rich.panel import Panel
 from rich.table import Table
 
-from pdk.core.decoder import DecodedError
+from pdk.core.decoder import DecodedError, strip_control_chars
 from pdk.core.knowledge import load_knowledge, lookup_fix, resolve_code
 
 console = Console()
@@ -139,6 +139,11 @@ def _ai_section(pallet: str, name: str, docs: str, *, explicit: bool = False) ->
     if not result:
         console.print("[yellow]AI diagnosis unavailable right now.[/yellow]")
         return False
-    console.print(Panel(result, title="AI-suggested — UNVERIFIED (not a curated KB entry)",
+    # explain.py's own docs/name/pallet all trace to the trusted bundled
+    # index (never live chain metadata — see the module docstring), but
+    # LLM output is generative text with no guarantee it only reproduces
+    # "safe" characters. Same defensive treatment as every other
+    # AI-response render site for consistency across the whole surface.
+    console.print(Panel(escape(strip_control_chars(result)), title="AI-suggested — UNVERIFIED (not a curated KB entry)",
                         border_style="yellow"))
     return True
