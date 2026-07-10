@@ -73,14 +73,28 @@ def run(
         raise typer.Exit(1)
 
     console.print(f"[green]✓ Node is live[/green] at {node}")
-    render_balances(substrate, console)
 
-    if verify:
-        # A failing demo transfer still pays POT gas, so its hash is valid
-        # native-deployment evidence even though the dispatch itself fails.
-        receipt = trigger_demo_failure(substrate)
-        console.print(f"[green]✓ Verification tx submitted[/green] — hash: {receipt.extrinsic_hash}")
-        console.print("[dim]Record this hash in the README as native-deployment proof.[/dim]")
+    # `_wait_for_node` only proves the WS handshake answers — chain
+    # subsystems (RPC methods, metadata) can still be warming up, so the
+    # balance query or the demo transfer below can genuinely fail. Without
+    # this guard, an exception here would propagate past `proc.wait()`
+    # entirely, leaving the just-spawned node process running in the
+    # background with nothing to tell the user it's still alive — an
+    # orphaned process holding the RPC port until manually killed.
+    try:
+        render_balances(substrate, console)
+        if verify:
+            # A failing demo transfer still pays POT gas, so its hash is
+            # valid native-deployment evidence even though the dispatch
+            # itself fails.
+            receipt = trigger_demo_failure(substrate)
+            console.print(f"[green]✓ Verification tx submitted[/green] — hash: {receipt.extrinsic_hash}")
+            console.print("[dim]Record this hash in the README as native-deployment proof.[/dim]")
+    except Exception as exc:  # noqa: BLE001
+        proc.terminate()
+        console.print(f"[red]Node started but verification failed: {exc}[/red]")
+        console.print("[dim]The spawned node process has been stopped — nothing was left running.[/dim]")
+        raise typer.Exit(code=1) from None
 
     console.print("\nNode is running. Press Ctrl+C to stop it.")
     try:
