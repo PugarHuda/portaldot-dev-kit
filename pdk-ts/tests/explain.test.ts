@@ -35,6 +35,25 @@ describe('explain --name (KB-only path)', () => {
     const r = resolveByName('made_up.NotARealError');
     expect(r).toBeNull();
   });
+
+  it('resolves a bare error name with no pallet (Python lookup_fix tier-2 parity)', () => {
+    // A user typing `explain --name InsufficientBalance` (forgetting the
+    // pallet) previously got "no KB entry" on pdk-ts while Python matched
+    // it. The name-only fallback resolves it and recovers the real pallet.
+    const r = resolveByName('InsufficientBalance');
+    expect(r).not.toBeNull();
+    expect(r?.key).toBe('balances.InsufficientBalance');
+    expect(r?.palletName).toBe('balances');
+  });
+
+  it('bare-name fallback is case-insensitive', () => {
+    const r = resolveByName('INSUFFICIENTBALANCE');
+    expect(r?.key).toBe('balances.InsufficientBalance');
+  });
+
+  it('bare name that matches nothing still returns null', () => {
+    expect(resolveByName('NoSuchErrorNameAnywhere')).toBeNull();
+  });
 });
 
 describe('explain --module/--error offline fast path', () => {

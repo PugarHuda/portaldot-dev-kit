@@ -207,7 +207,24 @@ export function loadKb(force = false): Map<string, KbEntry> {
 }
 
 export function lookup(palletDotError: string): KbEntry | undefined {
-  return loadKb().get(palletDotError.toLowerCase());
+  const kb = loadKb();
+  const key = palletDotError.toLowerCase();
+  const exact = kb.get(key);
+  if (exact) return exact;
+
+  // Name-only fallback: if the query has no pallet (or the exact
+  // pallet.error miss), match on the error name under ANY pallet.
+  // Mirrors Python `lookup_fix`'s tier-2 — a user typing
+  // `explain --name InsufficientBalance` (forgetting the pallet), or a
+  // decode path that couldn't recover the pallet, still resolves.
+  // Without this, pdk-ts returned "no KB entry" where Python found one.
+  const nameOnly = key.includes('.') ? key.slice(key.lastIndexOf('.') + 1) : key;
+  if (!nameOnly) return undefined;
+  const suffix = `.${nameOnly}`;
+  for (const [k, entry] of kb) {
+    if (k === nameOnly || k.endsWith(suffix)) return entry;
+  }
+  return undefined;
 }
 
 export function kbSize(): number {
