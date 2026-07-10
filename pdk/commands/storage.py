@@ -16,9 +16,11 @@ from typing import List
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 
 from pdk.config import DEFAULT_NODE_URL
 from pdk.core.chain import connect
+from pdk.core.decoder import strip_control_chars
 
 console = Console()
 
@@ -46,5 +48,18 @@ def run(
         raise typer.Exit(code=1)
 
     title = f"{pallet}.{item}" + (f"  {list(keys)}" if keys else "")
-    console.print(f"[bold cyan]{title}[/bold cyan]")
-    console.print(result.value)
+    console.print(f"[bold cyan]{escape(title)}[/bold cyan]")
+
+    # console.print() on a bare string parses it as Rich markup — verified:
+    # a plain string like "[link=https://evil.example]...[/link]" renders
+    # as a real clickable link. Storage can genuinely hold free-form text
+    # (an identity display name, an on-chain remark) set by any ordinary
+    # account on any real chain — no compromise/malice required, just a
+    # normal transaction. Structured values (dict/list/int, the common
+    # case) are unaffected: Rich's pretty-printer shows embedded strings
+    # as their Python repr, not re-parsed markup — verified separately.
+    value = result.value
+    if isinstance(value, str):
+        console.print(escape(strip_control_chars(value)))
+    else:
+        console.print(value)

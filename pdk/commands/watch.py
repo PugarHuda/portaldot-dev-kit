@@ -10,6 +10,7 @@ import time
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 
 from pdk.config import DEFAULT_NODE_URL
 from pdk.core.chain import connect
@@ -43,7 +44,22 @@ def run(
                     module, name = value.get("module_id"), value.get("event_id")
                     if pallet and (module or "").lower() != pallet.lower():
                         continue
-                    console.print(f"[dim]#{number}[/dim] [cyan]{module}.{name}[/cyan] [dim]{value.get('attributes')}[/dim]")
+                    # `attributes` is arbitrary event payload data — for
+                    # `system.remark` (a standard extrinsic ANY account
+                    # can submit, no chain compromise needed) it's a raw
+                    # byte string the sender fully controls. f-string
+                    # interpolation would call str() on it FIRST,
+                    # flattening any embedded Rich markup into the outer
+                    # string Rich then parses (verified: this differs
+                    # from printing a dict directly, which Rich's own
+                    # pretty-printer renders safely). Print the styled
+                    # prefix and the raw attributes as two separate
+                    # console.print() calls so attributes stays a
+                    # structured object, never flattened into markup-
+                    # parsed text. module/name escaped too — see
+                    # pallets.py for why name fields aren't trusted.
+                    console.print(f"[dim]#{number}[/dim] [cyan]{escape(str(module))}.{escape(str(name))}[/cyan]", end=" ")
+                    console.print(value.get("attributes"))
             last = head
             time.sleep(2)
     except KeyboardInterrupt:

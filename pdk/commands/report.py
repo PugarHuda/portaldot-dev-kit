@@ -68,12 +68,14 @@ def run(
     table.add_column("count", justify="right", style="bold")
     table.add_column("what it means")
     for err, count in grouped:
-        # summaries.get(err) can be the raw runtime doc comment (tier-3
-        # metadata fallback for any error outside the curated KB) — free
-        # text with no syntax restriction. Table.add_row() parses cell
-        # content as Rich markup, so escape() before it reaches a
-        # malicious/compromised chain's opportunity to inject styling.
-        table.add_row(err, str(count), escape(summaries.get(err, "")))
+        # `err` (via label(), when no curated KB match) and
+        # summaries.get(err) (tier-3 metadata-doc fallback) both trace
+        # back to decoded.name/pallet — fields substrate-interface reads
+        # straight off the wire with no syntax validation. A genuine
+        # Rust-compiled chain constrains these to identifier syntax, but
+        # nothing stops a malicious/fake node speaking the same RPC
+        # protocol from forging arbitrary bytes there. escape() both.
+        table.add_row(escape(err), str(count), escape(summaries.get(err, "")))
     console.print(table)
     console.print(f"[bold]{len(hits)}[/bold] failed extrinsic(s) across {len(grouped)} error type(s). "
                   "Use [bold]pdk debug <hash>[/bold] to dig into one.")

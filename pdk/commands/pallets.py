@@ -41,39 +41,42 @@ def run(
         table.add_column("events", justify="right")
         table.add_column("errors", justify="right")
         for p in sorted(pallets, key=lambda x: x.name):
-            table.add_row(p.name, str(len(p.calls or [])), str(len(p.events or [])), str(len(p.errors or [])))
+            table.add_row(escape(p.name), str(len(p.calls or [])), str(len(p.events or [])), str(len(p.errors or [])))
         console.print(table)
         console.print("[dim]Inspect one: pdk pallets <name>[/dim]")
         return
 
     match = next((p for p in pallets if p.name.lower() == pallet.lower()), None)
     if match is None:
-        console.print(f"[yellow]No pallet named '{pallet}'.[/yellow]")
+        console.print(f"[yellow]No pallet named '{escape(pallet)}'.[/yellow]")
         hits = [p.name for p in pallets if pallet.lower() in p.name.lower()]
         if hits:
-            console.print("Did you mean: " + ", ".join(f"[cyan]{h}[/cyan]" for h in hits))
+            console.print("Did you mean: " + ", ".join(f"[cyan]{escape(h)}[/cyan]" for h in hits))
         raise typer.Exit(code=1)
 
-    console.print(f"[bold cyan]{match.name}[/bold cyan]")
+    # Every *.name below is read straight off SCALE-decoded metadata with
+    # no syntax validation by pdk. A genuine Rust-compiled chain
+    # constrains identifiers to `[a-zA-Z_][a-zA-Z0-9_]*`, but pdk connects
+    # to any --node URL a user provides — nothing stops a malicious/fake
+    # server speaking the same RPC protocol from forging arbitrary bytes
+    # in a name field. escape() throughout for defense in depth; docs
+    # additionally goes through strip_control_chars() for raw terminal
+    # escape sequences (e.g. an OSC 8 hyperlink), which escape() alone
+    # does not touch.
+    console.print(f"[bold cyan]{escape(match.name)}[/bold cyan]")
     if match.calls:
         ct = Table(title="calls (extrinsics)")
         ct.add_column("call", style="green")
         ct.add_column("args")
         for c in match.calls:
-            ct.add_row(c.name, ", ".join(a.name for a in (getattr(c, "args", None) or [])))
+            args = ", ".join(a.name for a in (getattr(c, "args", None) or []))
+            ct.add_row(escape(c.name), escape(args))
         console.print(ct)
     if match.errors:
         et = Table(title="errors")
         et.add_column("error", style="red")
         et.add_column("docs")
         for e in match.errors:
-            # Free-form Rust doc comment, no syntax restriction — unlike
-            # e.name (a Rust identifier), a malicious/compromised chain
-            # could embed Rich markup (Table.add_row() parses cell
-            # content as markup) or a raw terminal escape sequence
-            # (e.g. an OSC 8 hyperlink, which bypasses Rich's own
-            # escape() entirely — see decoder.strip_control_chars).
-            # Strip control bytes first, then escape Rich's [tag] syntax.
             docs = " ".join(e.docs).strip() if getattr(e, "docs", None) else ""
-            et.add_row(e.name, escape(strip_control_chars(docs)[:74]))
+            et.add_row(escape(e.name), escape(strip_control_chars(docs)[:74]))
         console.print(et)
