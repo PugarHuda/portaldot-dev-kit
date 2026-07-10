@@ -22,12 +22,14 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 
 **[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Submission](SUBMISSION.md) · [Changelog](CHANGELOG.md)
 
-> **v0.1.6 ([on PyPI](https://pypi.org/project/portaldot-pdk/)).**
-> **14 commands** for the whole local dev loop · **AI auto-on** when `PDK_AI_KEY`
+> **v0.1.7 ([on PyPI](https://pypi.org/project/portaldot-pdk/)).**
+> **15 commands** for the whole local dev loop · **AI auto-on** when `PDK_AI_KEY`
 > is set (no `--ai` flag; the verified KB stays the source of truth) ·
 > **`/demo` web page** replays the actual asciinema cast in your browser ·
-> **40 pytest cases + 84 integration & stress cases** verified locally against
-> a real `portaldot-1002` node.
+> **96 pytest cases (Python) + 87 vitest cases (pdk-ts) + 84 integration &
+> stress cases** verified against a real `portaldot-1002` node, plus a
+> hardening pass (Rich-markup / terminal-escape injection, prompt-injection
+> defense, exact planck math, `--json` CI contract).
 
 > **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) at alpha.4.**
 > 10 of 14 commands live (`doctor`, `accounts`, `pallets`, `storage`, `keys`,
@@ -99,7 +101,7 @@ metadata. Both CLIs share one knowledge base — run `pdk kb --missing` or
 5. **CI gating** — `pdk debug --json --exit-code` returns rc 2 with a
    machine-readable diagnosis, so a team can fail a build on a decoded
    transaction failure.
-6. **Adoption-ready** — `pip install portaldot-pdk` (PyPI v0.1.6),
+6. **Adoption-ready** — `pip install portaldot-pdk` (PyPI v0.1.7),
    cross-platform (Linux + macOS + Windows native).
 
 **Blockchain Relevance.** pdk talks directly to the Portaldot runtime via
@@ -499,8 +501,8 @@ designed to work on the real chain without that caveat.
 
 ```
 pdk/
-  cli.py            typer app; registers the 14 commands (up, accounts, debug,
-                    explain, doctor, simulate, seed, pallets, send, storage, watch, keys, report)
+  cli.py            typer app; registers the 15 commands (up, accounts, debug,
+                    explain, doctor, simulate, seed, pallets, send, storage, watch, keys, report, ai-setup, kb)
   config.py         static defaults (node URL, scan depth, binary name)
   commands/         one thin module per command (parse args → call core → render)
   core/

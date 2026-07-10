@@ -51,6 +51,22 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 ## [Unreleased]
 
 ### Added
+- **`explain --name` resolves a bare error name** (no pallet), matching
+  Python `lookup_fix`'s tier-2 name-only fallback. `explain --name
+  InsufficientBalance` previously returned "no KB entry" on pdk-ts while
+  Python matched it; `lookup()` now falls back to a case-insensitive
+  name-only suffix match and recovers the real pallet.
+
+### Security
+- **Terminal-escape hardening** (`stripControlChars` in `core/errors.ts`):
+  chain-sourced text (chain name, node/runtime version, pallet/error
+  names, bare storage values) is stripped of raw ANSI/OSC control bytes
+  before rendering. picocolors doesn't parse Rich-style `[tag]` markup,
+  but it passes raw OSC 8 hyperlink escapes straight through — a
+  malicious/misconfigured node could otherwise inject a clickable link
+  into pdk-ts's own output. Mirrors Python's `decoder.strip_control_chars`.
+
+### Added
 - **`doctor` gains a liveness check** (default on, matching Python
   `pdk doctor`'s `--liveness/--no-liveness`): reads the chain head
   block number, waits ~7s, reads it again, and reports whether the

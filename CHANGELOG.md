@@ -28,6 +28,53 @@ here for repo-level chronology.
   `@polkadot/api` chain queries, shared KB parser reads Python's
   `error_fixes.yaml`. `doctor` verified against `wss://rpc.polkadot.io`.
 
+## [Unreleased]
+
+A hardening + correctness pass across the CLI surface (post-0.1.7,
+not yet published to PyPI).
+
+### Security
+- **Rich-markup injection blocked.** Chain-sourced doc comments, error
+  labels, storage values, and AI-response text are now `escape()`d
+  before rendering. A malicious/compromised chain's error doc comment
+  could otherwise embed Rich markup — including a real clickable
+  `[link=...]` — that rendered inside pdk's own trusted-looking output.
+- **Terminal-escape injection blocked** (`decoder.strip_control_chars`).
+  `escape()` only neutralizes Rich's `[tag]` syntax, not raw ANSI/OSC
+  control bytes; a raw OSC 8 hyperlink escape rendered as a native
+  clickable link in many terminals. Stripped at the source
+  (`decode_receipt`) plus every direct render site.
+- **Prompt-injection defense in depth** for the AI layer: the untrusted
+  metadata doc is fenced (`<<<DOC ... DOC>>>`, breakout markers
+  neutralized) and the system prompt marks it UNTRUSTED reference data,
+  never instructions.
+
+### Fixed
+- **`simulate` mispredicted SUCCEED** for a transfer that would drain
+  the sender below the existential deposit — `transfer_keep_alive`
+  actually fails there. Now models the ED and reports the right error
+  (`Balances.KeepAlive` vs `Balances.InsufficientBalance`).
+- **Exact planck math.** `pot_to_plancks` uses `Decimal` — the old
+  `int(amount * 10**14)` lost a planck to float64 for values like 2.3 /
+  0.7 POT, so `pdk send` transferred a hair less than typed.
+- **`keys` git-bash mangling.** `pdk keys //Alice` from Git Bash
+  silently derived a *different* keypair (MSYS strips a leading slash);
+  now normalized, with a hint on the heavier full-path rewrite.
+- **`debug --json` / `report --json` now emit JSON on every exit path**
+  (bad input, unreachable node, tx-not-found) — the documented CI-citizen
+  contract was broken on exactly the error branches automation hits.
+- **`PDK_KB_PATH` / `PDK_INDEX_PATH` env overrides honored** (Python
+  ignored them, though pdk-ts documented them as "shared with pdk");
+  a typo'd path fails fast instead of silently using the bundled default.
+- `load_knowledge` degrades gracefully if the KB file is missing/corrupt
+  instead of crashing the hero command with a raw traceback.
+
+### Added
+- **`pdk kb`** — knowledge-base introspection (coverage, `--missing`
+  shortlist, `--list`), matching `pdk-ts kb`. 15th command.
+- **`keys --json`** for scripting/seed-fixture consumers.
+- Test suite grew to **96 pytest cases** (from 40).
+
 ## [0.1.7] — 2026-07-09
 ### Description
 - `pyproject.toml` description regenerated to mention the TS companion
