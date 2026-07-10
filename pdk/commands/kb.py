@@ -20,10 +20,13 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
+from pdk.config import DEFAULT_NODE_URL
+from pdk.core.chain import connect
 from pdk.core.knowledge import _kb_path as _resolved_kb_path
-from pdk.core.knowledge import load_error_index, load_knowledge
+from pdk.core.knowledge import build_live_index, diff_index, load_error_index, load_knowledge
 
 console = Console()
 
@@ -80,9 +83,11 @@ def _missing_entries() -> list[tuple[str, str]]:
 def run(
     missing: bool = typer.Option(False, "--missing", help="list index entries without a curated fix"),
     list_all: bool = typer.Option(False, "--list", help="list every curated KB entry"),
+    verify: bool = typer.Option(False, "--verify", help="check the offline index against a live node's metadata (needs --node)."),
+    node: str = typer.Option(DEFAULT_NODE_URL, "--node", help="Portaldot node WS endpoint (for --verify)."),
     json: bool = typer.Option(False, "--json", help="emit machine-readable JSON"),
 ) -> None:
-    """Knowledge base introspection — coverage, missing entries, or full list."""
+    """Knowledge base introspection — coverage, missing entries, full list, or live index verification."""
     kb = load_knowledge()
     index = load_error_index()
     kb_entries = len(kb)
@@ -90,6 +95,9 @@ def run(
     coverage = round(kb_entries / index_entries * 100, 1) if index_entries else 0.0
     drift, drift_reason = _index_drift()
 
+    if verify:
+        _verify_index(index, node, json)
+        return
     if missing:
         _report_missing(json)
         return
@@ -130,7 +138,67 @@ def run(
     console.print("[dim]  Subcommands:[/dim]")
     console.print(f"  [dim]  --missing[/dim]  list the {index_entries - kb_entries} errors without a curated fix")
     console.print("  [dim]  --list   [/dim]  list every curated entry")
+    console.print("  [dim]  --verify [/dim]  check the offline index against a live node (--node)")
     console.print()
+
+
+def _verify_index(shipped: dict, node: str, as_json: bool) -> None:
+    """Diff the shipped offline index against a live node's metadata.
+
+    The offline fast-path (`explain --module N --error M`) is only as
+    correct as the bundled index. After a runtime upgrade the pallet/error
+    layout can shift; this walks the live metadata and reports whether the
+    shipped index still matches — exit 1 (and non-empty diff) if it drifted.
+    """
+    try:
+        substrate = connect(node)
+        substrate.init_runtime()  # metadata is lazy; --verify needs it loaded
+    except Exception as exc:  # noqa: BLE001
+        msg = f"Cannot reach a Portaldot node at {node}"
+        if as_json:
+            typer.echo(_json.dumps({"error": msg, "detail": str(exc)}))
+        else:
+            console.print(f"[red]{msg}[/red]")
+            console.print(f"[dim]{escape(str(exc))}[/dim]")
+        raise typer.Exit(code=1)
+
+    live = build_live_index(substrate)
+    report = diff_index(shipped, live)
+
+    if as_json:
+        typer.echo(_json.dumps({
+            "schemaVersion": 1,
+            "endpoint": node,
+            "shippedEntries": len(shipped),
+            "liveEntries": len(live),
+            **report,
+        }, indent=2))
+        raise typer.Exit(code=0 if report["inSync"] else 1)
+
+    console.print()
+    console.print("[bold]  pdk kb --verify[/bold]  " + f"[dim]({escape(node)})[/dim]")
+    console.print()
+    console.print(f"  [dim]shipped index  [/dim]  {len(shipped)} entries")
+    console.print(f"  [dim]live metadata  [/dim]  {len(live)} entries")
+    console.print(f"  [dim]matching       [/dim]  [green]{report['matches']}[/green]")
+    if report["inSync"]:
+        console.print()
+        console.print("  [green]✓ the offline index exactly matches this chain's runtime metadata.[/green]")
+        console.print()
+        return
+
+    # Drift — show the actionable detail. Mismatches are the dangerous
+    # kind (fast path returns a wrong name), so surface them first.
+    for m in report["mismatches"][:20]:
+        console.print(f"  [red]MISMATCH[/red]  {m['code']}  shipped=[yellow]{escape(m['shipped'])}[/yellow]  live=[cyan]{escape(m['live'])}[/cyan]")
+    for m in report["missing"][:20]:
+        console.print(f"  [yellow]MISSING [/yellow]  {m['code']}  live=[cyan]{escape(m['live'])}[/cyan] [dim](not in shipped index)[/dim]")
+    for s in report["stale"][:20]:
+        console.print(f"  [yellow]STALE   [/yellow]  {s['code']}  shipped=[yellow]{escape(s['shipped'])}[/yellow] [dim](not on live chain)[/dim]")
+    console.print()
+    console.print("  [dim]Regenerate: python extract_index.py > pdk/data/error_index.json[/dim]")
+    console.print()
+    raise typer.Exit(code=1)
 
 
 def _report_missing(as_json: bool) -> None:

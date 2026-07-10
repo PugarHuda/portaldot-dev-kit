@@ -55,6 +55,58 @@ def _index_path() -> Path:
     return _resolve_override("PDK_INDEX_PATH", _INDEX_PATH)
 
 
+def build_live_index(substrate) -> dict[str, str]:
+    """Walk a connected node's runtime metadata and build the same
+    ``"<pallet_index>.<error_index>"`` → ``"Pallet.ErrorName"`` map that
+    the shipped ``error_index.json`` holds.
+
+    Used by ``pdk kb --verify`` to diff the offline fast-path index
+    against a live chain — the same extraction ``extract_index.py`` does,
+    but in-process so a user can confirm the bundled index still matches
+    their node (or discover it drifted after a runtime upgrade).
+    """
+    live: dict[str, str] = {}
+    for pallet in substrate.metadata.pallets:
+        idx = getattr(pallet, "index", None)
+        if idx is None:
+            try:
+                idx = pallet.value["index"]
+            except Exception:  # noqa: BLE001
+                continue
+        errors = getattr(pallet, "errors", None) or []
+        for ei, err in enumerate(errors):
+            name = getattr(err, "name", None) or (err.value.get("name") if hasattr(err, "value") else None)
+            if name:
+                live[f"{int(idx)}.{ei}"] = f"{pallet.name}.{name}"
+    return live
+
+
+def diff_index(shipped: dict[str, str], live: dict[str, str]) -> dict:
+    """Compare the shipped index against a freshly-walked live index.
+
+    Returns a structured report: matching count, and lists of
+    ``mismatches`` (same code, different name — the dangerous kind:
+    the fast path would return a WRONG name), ``missing`` (live has a
+    code the shipped index lacks), and ``stale`` (shipped has a code the
+    live chain no longer defines).
+    """
+    mismatches = [
+        {"code": k, "shipped": shipped[k], "live": live[k]}
+        for k in live
+        if k in shipped and shipped[k] != live[k]
+    ]
+    missing = [{"code": k, "live": live[k]} for k in live if k not in shipped]
+    stale = [{"code": k, "shipped": shipped[k]} for k in shipped if k not in live]
+    matches = sum(1 for k in live if shipped.get(k) == live[k])
+    return {
+        "matches": matches,
+        "mismatches": mismatches,
+        "missing": missing,
+        "stale": stale,
+        "inSync": not (mismatches or missing or stale),
+    }
+
+
 def load_error_index() -> dict[str, str]:
     """Load the verified ``"<pallet_index>.<error_index>"`` → ``"Pallet.ErrorName"``
     map, extracted from the live ``portaldot-1002`` runtime metadata."""

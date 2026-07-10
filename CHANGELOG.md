@@ -72,8 +72,16 @@ not yet published to PyPI).
 ### Added
 - **`pdk kb`** — knowledge-base introspection (coverage, `--missing`
   shortlist, `--list`), matching `pdk-ts kb`. 15th command.
+- **`pdk kb --verify --node <url>`** — walks a live node's runtime
+  metadata and diffs it against the shipped offline `error_index.json`,
+  reporting mismatches (a code whose name changed — the fast path would
+  return the wrong error), missing, and stale entries. The offline
+  fast-path (`explain --module N --error M`) is only as correct as the
+  bundled index; after a runtime upgrade this confirms it still matches
+  (or flags exactly what drifted). `--json` for CI; exit 1 on any drift.
+  Verified live against `portaldot-1002`: 202/202 exact match.
 - **`keys --json`** for scripting/seed-fixture consumers.
-- Test suite grew to **96 pytest cases** (from 40).
+- Test suite grew to **102 pytest cases** (from 40).
 
 ## [0.1.7] — 2026-07-09
 ### Description
