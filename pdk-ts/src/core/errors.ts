@@ -10,6 +10,30 @@
  * we never hide real information — only annotate common cases.
  */
 
+// biome-ignore lint/suspicious/noControlCharactersInRegex: intentional — this IS the control-character filter.
+const CONTROL_CHARS = /[\x00-\x08\x0b-\x1f\x7f]/g;
+
+/**
+ * Strip ASCII control characters (keeps \t and \n) from chain-sourced
+ * free text before it reaches a real terminal.
+ *
+ * picocolors (unlike Rich) never parses `[tag]`-style markup from
+ * string content, so pdk-ts has no equivalent of the Rich
+ * markup-injection class. It does NOT filter raw ANSI/OSC escape
+ * sequences either, though — verified directly: a raw OSC 8 hyperlink
+ * escape byte survives `pc.dim(...)` completely unchanged. Many real
+ * terminals (Windows Terminal, iTerm2, kitty, VS Code) render OSC 8 as
+ * a genuine clickable hyperlink natively, independent of any styling
+ * library. Chain data with no syntax constraint — a node's
+ * self-reported `system_chain` name, a pallet/error name from a
+ * malicious/fake RPC server, or free-form storage content any
+ * ordinary account can set — could embed this. Mirrors Python's
+ * `decoder.strip_control_chars`.
+ */
+export function stripControlChars(text: string): string {
+  return text.replace(CONTROL_CHARS, '');
+}
+
 export function readableError(err: unknown): string {
   if (err instanceof Error) return err.message;
   if (err && typeof err === 'object') {

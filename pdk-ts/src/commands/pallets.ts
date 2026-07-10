@@ -14,7 +14,7 @@
 import pc from 'picocolors';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
-import {humanizeChainError} from '../core/errors.js';
+import {humanizeChainError, stripControlChars} from '../core/errors.js';
 
 export interface PalletsOptions {
   node?: string;
@@ -129,6 +129,16 @@ export async function run(
   await closeApi();
 }
 
+// Every *.name below is read straight off SCALE-decoded metadata with
+// no syntax validation by pdk-ts. A genuine Rust-compiled chain
+// constrains identifiers to `[a-zA-Z_][a-zA-Z0-9_]*`, but pdk-ts
+// connects to any --node URL a user provides — a malicious/fake server
+// speaking the same RPC protocol could forge a raw terminal escape
+// sequence (e.g. an OSC 8 hyperlink) into a name field. picocolors
+// doesn't parse markup like Rich does, but doesn't filter control
+// bytes either — stripControlChars() at render time (not at data
+// construction, so --json output keeps the raw value, already safely
+// encoded by JSON.stringify's own \uXXXX escaping).
 function renderList(rows: PalletRow[]): void {
   const nameW = Math.max(6, ...rows.map((r) => r.name.length));
   console.log();
@@ -139,7 +149,7 @@ function renderList(rows: PalletRow[]): void {
   );
   for (const r of rows) {
     console.log(
-      `  ${pc.cyan(r.name.padEnd(nameW))}  ${String(r.calls).padStart(6)}  ${String(r.events).padStart(6)}  ${String(r.errors).padStart(6)}`,
+      `  ${pc.cyan(stripControlChars(r.name).padEnd(nameW))}  ${String(r.calls).padStart(6)}  ${String(r.events).padStart(6)}  ${String(r.errors).padStart(6)}`,
     );
   }
   console.log();
@@ -147,16 +157,16 @@ function renderList(rows: PalletRow[]): void {
 
 function renderDetail(d: PalletDetail): void {
   console.log();
-  console.log(pc.bold(`  ${d.name}`) + pc.dim(`  (${d.calls} calls · ${d.events} events · ${d.errors} errors)`));
+  console.log(pc.bold(`  ${stripControlChars(d.name)}`) + pc.dim(`  (${d.calls} calls · ${d.events} events · ${d.errors} errors)`));
   console.log();
   if (d.callNames.length > 0) {
     console.log(pc.dim('  Calls'));
-    for (const n of d.callNames) console.log(`    ${pc.green(n)}`);
+    for (const n of d.callNames) console.log(`    ${pc.green(stripControlChars(n))}`);
     console.log();
   }
   if (d.errorNames.length > 0) {
     console.log(pc.dim('  Errors'));
-    for (const n of d.errorNames) console.log(`    ${pc.red(n)}`);
+    for (const n of d.errorNames) console.log(`    ${pc.red(stripControlChars(n))}`);
     console.log();
   }
 }

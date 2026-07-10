@@ -6,10 +6,12 @@ import time
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from pdk.config import DEFAULT_NODE_URL, EXPLORER_URL
 from pdk.core.chain import connect
+from pdk.core.decoder import strip_control_chars
 
 console = Console()
 
@@ -33,8 +35,15 @@ def run(
     pallet_names = [pallet.name for pallet in substrate.metadata.pallets]
     table = Table(title="pdk doctor — Portaldot node health", show_header=False)
     table.add_row("Endpoint", node)
-    table.add_row("Chain", str(substrate.chain or "unknown"))
-    table.add_row("Runtime version", str(substrate.runtime_version))
+    # `substrate.chain` is the node's self-reported display name via the
+    # system_chain RPC — free text set in whatever chain spec the node
+    # operator configured, with no identifier-syntax constraint at all
+    # (unlike a pallet/error name). A malicious/misconfigured node needs
+    # no transaction, no compromise — just its own RPC response — to put
+    # markup or a raw terminal escape sequence in front of every `pdk
+    # doctor --node <that-endpoint>` user.
+    table.add_row("Chain", escape(strip_control_chars(str(substrate.chain or "unknown"))))
+    table.add_row("Runtime version", escape(strip_control_chars(str(substrate.runtime_version))))
     table.add_row("Pallets", str(len(pallet_names)))
 
     has_contracts = "Contracts" in pallet_names

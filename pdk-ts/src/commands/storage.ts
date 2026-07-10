@@ -24,7 +24,7 @@
 import pc from 'picocolors';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
-import {humanizeChainError} from '../core/errors.js';
+import {humanizeChainError, stripControlChars} from '../core/errors.js';
 
 export interface StorageOptions {
   node?: string;
@@ -128,7 +128,14 @@ function normalise(v: unknown): unknown {
 
 function formatValue(v: unknown): string {
   if (v == null) return pc.dim('(none)');
-  if (typeof v === 'string') return v;
+  // A bare string can be arbitrary chain-set content (e.g. an Identity
+  // display name, an on-chain remark) with no syntax constraint — any
+  // ordinary account can set it via a normal transaction, no chain
+  // compromise needed. Strip control bytes so a raw terminal escape
+  // sequence (OSC 8 hyperlink and similar) can't reach the terminal.
+  // Structured values (the JSON.stringify branch below) are already
+  // safe — JSON.stringify escapes control chars to \uXXXX notation.
+  if (typeof v === 'string') return stripControlChars(v);
   return JSON.stringify(v, null, 2)
     .split('\n')
     .map((l, i) => (i === 0 ? l : `  ${l}`))

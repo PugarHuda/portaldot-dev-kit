@@ -15,7 +15,7 @@
 import pc from 'picocolors';
 import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
-import {humanizeChainError} from '../core/errors.js';
+import {humanizeChainError, stripControlChars} from '../core/errors.js';
 
 export interface DoctorOptions {
   node?: string;
@@ -80,11 +80,19 @@ export async function collectReport(
 }
 
 export function renderText(r: DoctorReport): string {
+  // r.chain/nodeName/nodeVersion/specName are the node's own
+  // self-reported RPC strings (system_chain, system_name,
+  // system_version, runtime spec name) — free text with no identifier-
+  // syntax constraint. A malicious/misconfigured node needs no
+  // transaction, no compromise, just its own RPC response to embed a
+  // raw terminal escape sequence in front of every user who points
+  // `pdk-ts doctor` at it. picocolors doesn't parse markup (unlike
+  // Rich) but does not filter control bytes either — strip them here.
   const rows: [string, string][] = [
     ['Endpoint', r.endpoint],
-    ['Chain', r.chain],
-    ['Node', `${r.nodeName} ${r.nodeVersion}`],
-    ['Runtime', `${r.specName} ${r.specVersion}`],
+    ['Chain', stripControlChars(r.chain)],
+    ['Node', stripControlChars(`${r.nodeName} ${r.nodeVersion}`)],
+    ['Runtime', stripControlChars(`${r.specName} ${r.specVersion}`)],
     ['Pallets', String(r.palletCount)],
     [
       'Contracts pallet',
