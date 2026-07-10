@@ -8,6 +8,17 @@
  *
  * For map/double-map/n-map storage items, positional keys are passed
  * through to `api.query.<pallet>.<item>(key1, key2, ...)` in order.
+ *
+ * Values print via `.toHuman()` when available, which does NOT apply
+ * chain-decimal scaling for Balance-type values (confirmed against a
+ * live node: `Balances.TotalIssuance` prints the raw planck count,
+ * comma-grouped, not divided by 10^decimals). This command is a
+ * generic storage browser — most items have no monetary meaning at
+ * all (System.Number, arbitrary pallet storage) — so it intentionally
+ * does NOT guess which values are Balance-shaped and auto-scale them;
+ * that heuristic would be unreliable and is `accounts.ts`'s job, not
+ * this one. If you need a human POT amount, divide by 10^14 yourself
+ * or use `pdk-ts accounts`.
  */
 
 import pc from 'picocolors';

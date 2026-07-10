@@ -93,7 +93,7 @@ program
 
 program
   .command('storage <pallet> <item> [keys...]')
-  .description('Read a value from runtime storage')
+  .description('Read a value from runtime storage (raw, in the storage item\'s native unit — Balance-type values are plancks, not POT/DOT)')
   .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
   .option('--timeout <seconds>', 'connect timeout in seconds (default 15)')
   .option('--json', 'emit machine-readable JSON')

@@ -1,4 +1,14 @@
-"""`pdk storage` — read any value from the connected runtime's storage."""
+"""`pdk storage` — read any value from the connected runtime's storage.
+
+Values print as substrate-interface decodes them — raw, in the storage
+item's native unit. Balance-type values (e.g. Balances.TotalIssuance,
+System.Account's `data.free`) print in plancks, NOT POT — this command
+is a generic browser over arbitrary storage (most of which has no
+monetary meaning at all), so it never guesses which values are
+Balance-shaped and auto-scales them. For a human POT amount divide by
+10**14 (POT_DECIMALS) yourself, or use `pdk accounts` for pre-funded
+dev account balances already formatted in POT.
+"""
 
 from __future__ import annotations
 
