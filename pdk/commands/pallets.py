@@ -6,6 +6,8 @@ browsable from the terminal — what can I call, and what can go wrong.
 
 from __future__ import annotations
 
+import json as jsonlib
+
 import typer
 from rich.console import Console
 from rich.markup import escape
@@ -21,20 +23,32 @@ console = Console()
 def run(
     pallet: str = typer.Argument(None, help="Pallet name to inspect (omit to list all)."),
     node: str = typer.Option(DEFAULT_NODE_URL, "--node", help="Portaldot node WS endpoint."),
+    json_out: bool = typer.Option(False, "--json", help="Emit pallets as JSON (for scripts)."),
 ) -> None:
     """List the runtime's pallets, or inspect one pallet's calls and errors."""
     try:
         substrate = connect(node)
         substrate.init_runtime()
     except Exception as exc:  # noqa: BLE001
-        console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
-        console.print(f"[dim]{exc}[/dim]")
-        console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
+        if json_out:
+            typer.echo(jsonlib.dumps({"error": f"Cannot reach a Portaldot node at {node}", "detail": str(exc)}))
+        else:
+            console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
+            console.print(f"[dim]{exc}[/dim]")
+            console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
         raise typer.Exit(code=1)
 
     pallets = substrate.metadata.pallets
 
     if not pallet:
+        if json_out:
+            # Bare array of {name, calls, events, errors} (counts) — matches pdk-ts.
+            rows = [
+                {"name": str(p.name), "calls": len(p.calls or []), "events": len(p.events or []), "errors": len(p.errors or [])}
+                for p in sorted(pallets, key=lambda x: str(x.name))
+            ]
+            typer.echo(jsonlib.dumps(rows))
+            return
         table = Table(title=f"Portaldot runtime — {len(pallets)} pallets")
         table.add_column("pallet", style="cyan")
         table.add_column("calls", justify="right")
@@ -48,11 +62,26 @@ def run(
 
     match = next((p for p in pallets if p.name.lower() == pallet.lower()), None)
     if match is None:
+        if json_out:
+            typer.echo(jsonlib.dumps({"error": f"No pallet named '{pallet}'."}))
+            raise typer.Exit(code=1)
         console.print(f"[yellow]No pallet named '{escape(pallet)}'.[/yellow]")
         hits = [p.name for p in pallets if pallet.lower() in p.name.lower()]
         if hits:
             console.print("Did you mean: " + ", ".join(f"[cyan]{escape(h)}[/cyan]" for h in hits))
         raise typer.Exit(code=1)
+
+    if json_out:
+        # Detail: {name, calls, events, errors, callNames, errorNames} — matches pdk-ts.
+        typer.echo(jsonlib.dumps({
+            "name": str(match.name),
+            "calls": len(match.calls or []),
+            "events": len(match.events or []),
+            "errors": len(match.errors or []),
+            "callNames": [str(c.name) for c in (match.calls or [])],
+            "errorNames": [str(e.name) for e in (match.errors or [])],
+        }))
+        return
 
     # Every *.name below is read straight off SCALE-decoded metadata with
     # no syntax validation by pdk. A genuine Rust-compiled chain

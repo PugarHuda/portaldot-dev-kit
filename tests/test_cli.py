@@ -76,6 +76,13 @@ def test_accounts_json_unreachable_emits_valid_json() -> None:
     assert "error" in payload
 
 
+def test_pallets_json_unreachable_emits_valid_json() -> None:
+    result = runner.invoke(app, ["pallets", "--json", "--node", "ws://127.0.0.1:19999"])
+    assert result.exit_code != 0
+    payload = _json.loads(result.output)
+    assert "error" in payload and "detail" in payload
+
+
 def test_simulate_rejects_negative_amount() -> None:
     # The amount guard runs before any node connection.
     result = runner.invoke(app, ["simulate", "--amount", "-5"])

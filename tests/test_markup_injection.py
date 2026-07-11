@@ -95,7 +95,10 @@ class TestPalletsNameEscaping:
         fake_substrate.metadata.pallets = [fake_pallet]
 
         with patch.object(pallets_module, "connect", return_value=fake_substrate):
-            out = _capture(monkeypatch, pallets_module.run, pallet=None, node="ws://fake")
+            # json_out=False: these tests exercise the Rich render path.
+            # (Called directly, a typer.Option default is an OptionInfo,
+            # which is truthy — so pass the flag explicitly.)
+            out = _capture(monkeypatch, pallets_module.run, pallet=None, node="ws://fake", json_out=False)
 
         assert "[link=" in out
 
@@ -111,7 +114,7 @@ class TestPalletsNameEscaping:
         fake_substrate.metadata.pallets = [fake_pallet]
 
         with patch.object(pallets_module, "connect", return_value=fake_substrate):
-            out = _capture(monkeypatch, pallets_module.run, pallet="RealPallet", node="ws://fake")
+            out = _capture(monkeypatch, pallets_module.run, pallet="RealPallet", node="ws://fake", json_out=False)
 
         assert "\x1b" not in out
         assert "[link=" in out  # literal, not a real hyperlink
