@@ -14,9 +14,16 @@ from rich.console import Console
 from rich.table import Table
 
 from pdk.config import DEFAULT_NODE_URL
-from pdk.core.chain import connect, dev_account_balances
+from pdk.core.chain import POT_DECIMALS, connect, dev_account_balances, dev_account_rows
 
 console = Console()
+
+
+def _format_pot(raw: int) -> str:
+    """Human POT string matching pdk-ts's freeBalance ('48,246.5800 POT')."""
+    whole = raw // 10**POT_DECIMALS
+    frac = str(raw % 10**POT_DECIMALS).rjust(POT_DECIMALS, "0")[:4]
+    return f"{whole:,}.{frac} POT"
 
 
 def render_balances(substrate, con: Console) -> None:
@@ -47,11 +54,16 @@ def run(
         raise typer.Exit(code=1)
 
     if json_out:
-        accounts = [
-            {"name": name, "address": address, "pot": pot}
-            for name, address, pot in dev_account_balances(substrate)
+        # Bare array matching pdk-ts's `accounts --json` shape exactly
+        # (name / uri / address / freeBalance / freeRaw) so a script can
+        # consume either CLI. freeRaw is the exact plancks; freeBalance
+        # the human string.
+        rows = [
+            {"name": name, "uri": uri, "address": address,
+             "freeBalance": _format_pot(free), "freeRaw": str(free)}
+            for name, uri, address, free in dev_account_rows(substrate)
         ]
-        typer.echo(jsonlib.dumps({"accounts": accounts}))
+        typer.echo(jsonlib.dumps(rows))
         return
 
     render_balances(substrate, console)

@@ -41,11 +41,26 @@ def run(
     has_contracts = "Contracts" in pallet_names
 
     if json_out:
+        # Shape matches pdk-ts's `doctor --json` so a script can consume
+        # either CLI interchangeably (same field names: nodeName,
+        # nodeVersion, specName, specVersion, palletCount).
+        node_name = node_version = ""
+        spec_name = ""
+        try:
+            node_name = str(substrate.rpc_request("system_name", []).get("result", ""))
+            node_version = str(substrate.rpc_request("system_version", []).get("result", ""))
+            rv = substrate.rpc_request("state_getRuntimeVersion", []).get("result") or {}
+            spec_name = str(rv.get("specName", ""))
+        except Exception:  # noqa: BLE001 — best-effort enrichment; core fields below still emit
+            pass
         report = {
             "endpoint": node,
             "chain": str(substrate.chain or "unknown"),
-            "runtimeVersion": str(substrate.runtime_version),
-            "pallets": len(pallet_names),
+            "nodeName": node_name,
+            "nodeVersion": node_version,
+            "specName": spec_name,
+            "specVersion": int(substrate.runtime_version) if substrate.runtime_version is not None else 0,
+            "palletCount": len(pallet_names),
             "contractsPresent": has_contracts,
         }
         if liveness:

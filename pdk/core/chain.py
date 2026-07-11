@@ -154,13 +154,24 @@ def dev_account_balances(substrate: SubstrateInterface) -> list[tuple[str, str, 
     Answers the question every Portaldot newcomer asks ("how do I get POT?"):
     on a --dev chain these accounts already hold POT at genesis — no faucet.
     """
-    balances: list[tuple[str, str, float]] = []
+    return [(name, address, free / 10**POT_DECIMALS) for name, _uri, address, free in dev_account_rows(substrate)]
+
+
+def dev_account_rows(substrate: SubstrateInterface) -> list[tuple[str, str, str, int]]:
+    """Return (name, uri, ss58 address, raw free plancks) for the dev accounts.
+
+    Richer than dev_account_balances — keeps the derivation URI and the
+    exact raw plancks so `accounts --json` can mirror pdk-ts's shape
+    (name / uri / address / freeBalance / freeRaw) instead of losing the
+    raw value to a float.
+    """
+    rows: list[tuple[str, str, str, int]] = []
     for uri in _DEV_ACCOUNTS:
         keypair = Keypair.create_from_uri(uri)
         account = substrate.query("System", "Account", [keypair.ss58_address])
         free = int(account.value["data"]["free"])
-        balances.append((uri.lstrip("/"), keypair.ss58_address, free / 10**POT_DECIMALS))
-    return balances
+        rows.append((uri.lstrip("/"), uri, keypair.ss58_address, free))
+    return rows
 
 
 def free_balance(substrate: SubstrateInterface, address: str) -> float:
