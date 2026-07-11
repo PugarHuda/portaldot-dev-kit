@@ -160,6 +160,35 @@ export function indexLookup(moduleIdx: number, errorIdx: number): string | undef
   return loadIndex()[`${moduleIdx}.${errorIdx}`];
 }
 
+export interface IndexDiff {
+  matches: number;
+  mismatches: Array<{code: string; shipped: string; live: string}>;
+  missing: Array<{code: string; live: string}>;
+  stale: Array<{code: string; shipped: string}>;
+  inSync: boolean;
+}
+
+/**
+ * Diff the shipped offline index against a freshly-walked live index.
+ * Mirrors Python's `diff_index`: mismatches (same code, different name —
+ * the dangerous kind), missing (live has, shipped lacks), stale (shipped
+ * has, live lacks).
+ */
+export function diffIndex(shipped: Record<string, string>, live: Record<string, string>): IndexDiff {
+  const mismatches: IndexDiff['mismatches'] = [];
+  const missing: IndexDiff['missing'] = [];
+  let matches = 0;
+  for (const [code, name] of Object.entries(live)) {
+    if (!(code in shipped)) missing.push({code, live: name});
+    else if (shipped[code] !== name) mismatches.push({code, shipped: shipped[code], live: name});
+    else matches++;
+  }
+  const stale = Object.entries(shipped)
+    .filter(([code]) => !(code in live))
+    .map(([code, shipped_]) => ({code, shipped: shipped_}));
+  return {matches, mismatches, missing, stale, inSync: mismatches.length === 0 && missing.length === 0 && stale.length === 0};
+}
+
 export function indexSize(): number {
   return Object.keys(loadIndex()).length;
 }

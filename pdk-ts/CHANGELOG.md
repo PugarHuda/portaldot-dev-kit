@@ -51,6 +51,14 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 ## [Unreleased]
 
 ### Added
+- **`kb --verify --node <url>`** — walks a live node's runtime metadata
+  and diffs it against the shipped offline error index, flagging
+  mismatches (a code whose name changed — the fast path would return the
+  wrong error), missing, and stale entries. Mirrors the Python
+  `pdk kb --verify`; `--json` for CI, exit 1 on any drift. Verified live
+  against `portaldot-1002`: 202/202 exact match, and drift correctly
+  detected against a corrupted index. `diffIndex` + `buildLiveIndex`
+  exported; `diffIndex` covered by `tests/kb.test.ts`.
 - **`explain --name` resolves a bare error name** (no pallet), matching
   Python `lookup_fix`'s tier-2 name-only fallback. `explain --name
   InsufficientBalance` previously returned "no KB entry" on pdk-ts while

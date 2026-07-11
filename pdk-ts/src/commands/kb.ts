@@ -10,18 +10,29 @@
  */
 
 import pc from 'picocolors';
-import {loadKb, loadIndex, indexSize, kbPath, indexDrift, INDEX_SPEC_NAME, INDEX_SPEC_VERSION} from '../core/kb.js';
+import {closeApi} from '../core/chain.js';
+import {resolveNode} from '../core/config.js';
+import {humanizeChainError} from '../core/errors.js';
+import {loadKb, loadIndex, indexSize, kbPath, indexDrift, diffIndex, INDEX_SPEC_NAME, INDEX_SPEC_VERSION} from '../core/kb.js';
+import {buildLiveIndex} from './explain.js';
 
 export interface KbOptions {
   missing?: boolean;
   list?: boolean;
+  verify?: boolean;
+  node?: string;
+  timeout?: string;
   json?: boolean;
 }
 
-export function run(opts: KbOptions): void {
+export async function run(opts: KbOptions): Promise<void> {
   const kb = loadKb();
   const index = loadIndex();
 
+  if (opts.verify) {
+    await verifyIndex(index, opts);
+    return;
+  }
   if (opts.missing) {
     reportMissing(kb, index, opts);
     return;
@@ -31,6 +42,56 @@ export function run(opts: KbOptions): void {
     return;
   }
   reportSummary(kb, index, opts);
+}
+
+async function verifyIndex(shipped: Record<string, string>, opts: KbOptions): Promise<void> {
+  const node = resolveNode(opts.node);
+  const timeoutMs = opts.timeout ? Math.round(Number(opts.timeout) * 1000) : undefined;
+  let live: Record<string, string>;
+  try {
+    live = await buildLiveIndex(node, timeoutMs);
+  } catch (err) {
+    const msg = humanizeChainError(err, node);
+    if (opts.json) console.log(JSON.stringify({error: msg, endpoint: node}, null, 2));
+    else console.error(pc.red(`\n  ✗ kb --verify failed — ${msg}\n`));
+    await closeApi();
+    process.exit(1);
+  }
+
+  const report = diffIndex(shipped, live);
+  await closeApi();
+
+  if (opts.json) {
+    console.log(JSON.stringify({schemaVersion: 1, endpoint: node, shippedEntries: Object.keys(shipped).length, liveEntries: Object.keys(live).length, ...report}, null, 2));
+    process.exit(report.inSync ? 0 : 1);
+  }
+
+  console.log();
+  console.log(pc.bold('  pdk-ts kb --verify') + pc.dim(`  (${node})`));
+  console.log();
+  console.log(`  ${pc.dim('shipped index')}  ${Object.keys(shipped).length} entries`);
+  console.log(`  ${pc.dim('live metadata')}  ${Object.keys(live).length} entries`);
+  console.log(`  ${pc.dim('matching')}       ${pc.green(String(report.matches))}`);
+  if (report.inSync) {
+    console.log();
+    console.log(pc.green("  ✓ the offline index exactly matches this chain's runtime metadata."));
+    console.log();
+    return;
+  }
+  console.log();
+  for (const m of report.mismatches.slice(0, 20)) {
+    console.log(`  ${pc.red('MISMATCH')}  ${m.code}  shipped=${pc.yellow(m.shipped)}  live=${pc.cyan(m.live)}`);
+  }
+  for (const m of report.missing.slice(0, 20)) {
+    console.log(`  ${pc.yellow('MISSING ')}  ${m.code}  live=${pc.cyan(m.live)} ${pc.dim('(not in shipped index)')}`);
+  }
+  for (const s of report.stale.slice(0, 20)) {
+    console.log(`  ${pc.yellow('STALE   ')}  ${s.code}  shipped=${pc.yellow(s.shipped)} ${pc.dim('(not on live chain)')}`);
+  }
+  console.log();
+  console.log(pc.dim('  Regenerate: python extract_index.py > pdk/data/error_index.json'));
+  console.log();
+  process.exit(1);
 }
 
 function reportMissing(kb: ReturnType<typeof loadKb>, index: Record<string, string>, opts: KbOptions): void {

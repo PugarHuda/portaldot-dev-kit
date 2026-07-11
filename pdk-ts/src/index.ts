@@ -134,9 +134,12 @@ program
 
 program
   .command('kb')
-  .description('Knowledge-base introspection — coverage, missing entries, or full list')
+  .description('Knowledge-base introspection — coverage, missing entries, list, or live index verification')
   .option('--missing', 'list index entries without a curated KB fix')
   .option('--list', 'list every curated KB entry')
+  .option('--verify', 'check the offline index against a live node (needs --node)')
+  .option('--node <url>', 'WebSocket endpoint (for --verify)')
+  .option('--timeout <seconds>', 'connect timeout in seconds (for --verify)')
   .option('--json', 'emit machine-readable JSON')
   .action((opts) => kb.run(opts));
 

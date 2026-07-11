@@ -105,6 +105,28 @@ export async function resolve(
   };
 }
 
+/**
+ * Walk a connected node's runtime metadata and build the
+ * `"<pallet_index>.<error_index>"` → `"Pallet.ErrorName"` map that the
+ * shipped error index holds — the TS counterpart of Python's
+ * `build_live_index`, used by `pdk-ts kb --verify`.
+ */
+export async function buildLiveIndex(node: string, timeoutMs?: number): Promise<Record<string, string>> {
+  const api = await getApi(node, timeoutMs);
+  const live: Record<string, string> = {};
+  for (const pallet of api.runtimeMetadata.asLatest.pallets) {
+    if (!pallet.errors.isSome) continue;
+    const palletIdx = pallet.index.toNumber();
+    const typeId = pallet.errors.unwrap().type.toNumber();
+    const t = (api as unknown as VariantsHost).registry.lookup.getSiType(typeId);
+    if (!t?.def?.isVariant) continue;
+    for (const v of t.def.asVariant.variants) {
+      live[`${palletIdx}.${v.index.toNumber()}`] = `${pallet.name.toString()}.${v.name.toString()}`;
+    }
+  }
+  return live;
+}
+
 /** Look up a `<pallet>.<error>` name directly against the KB, no node needed. */
 export function resolveByName(name: string): ExplainReport | null {
   const entry = lookup(name);
