@@ -25,6 +25,37 @@ from pdk.core.decoder import strip_control_chars
 console = Console()
 
 
+def _resolve_names(substrate, pallet: str, item: str) -> tuple[str, str]:
+    """Case-insensitively resolve a pallet + storage-item name to their
+    canonical casing from the runtime metadata.
+
+    Returns the input unchanged if no case-insensitive match is found, so
+    substrate-interface still produces its normal "not found" error for a
+    genuinely wrong name (rather than us swallowing it).
+    """
+    try:
+        pallets = substrate.metadata.pallets
+    except Exception:  # noqa: BLE001 — metadata not loaded; let query() handle it
+        return pallet, item
+
+    p_match = next((p for p in pallets if str(p.name).lower() == pallet.lower()), None)
+    if p_match is None:
+        return pallet, item
+    canonical_pallet = str(p_match.name)
+
+    # Storage entries live under `pallet.value["storage"]["entries"]` as
+    # dicts with a "name" key (substrate-interface shape).
+    try:
+        entries = (p_match.value.get("storage") or {}).get("entries") or []
+    except Exception:  # noqa: BLE001
+        entries = []
+    for e in entries:
+        name = e.get("name") if isinstance(e, dict) else None
+        if name and name.lower() == item.lower():
+            return canonical_pallet, name
+    return canonical_pallet, item
+
+
 def run(
     pallet: str = typer.Argument(..., help="Pallet, e.g. System or Balances."),
     item: str = typer.Argument(..., help="Storage item, e.g. Account or TotalIssuance."),
@@ -34,11 +65,19 @@ def run(
     """Query a storage value from the chain — inspect on-chain state directly."""
     try:
         substrate = connect(node)
+        substrate.init_runtime()  # load metadata so name resolution can see the pallets
     except Exception as exc:  # noqa: BLE001
         console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
         console.print(f"[dim]{exc}[/dim]")
         console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
         raise typer.Exit(code=1)
+
+    # Resolve pallet/item names case-insensitively against the runtime
+    # metadata, so `storage balances totalissuance` works like the
+    # canonical `Balances TotalIssuance` — matching pdk-ts's behavior
+    # (its findKey lowercases both sides). Without this, Python rejected
+    # any non-exact casing with "Pallet not found" while pdk-ts accepted it.
+    pallet, item = _resolve_names(substrate, pallet, item)
 
     try:
         result = substrate.query(module=pallet, storage_function=item, params=list(keys) if keys else [])
