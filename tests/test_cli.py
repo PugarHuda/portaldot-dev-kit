@@ -206,6 +206,39 @@ def test_explain_unknown_raw_code_is_graceful() -> None:
     assert "No error at module" in result.output
 
 
+def test_explain_json_raw_code_matches_pdk_ts_shape() -> None:
+    # `explain --json` (raw-code path) — offline, no node. Shape must
+    # match pdk-ts so a script consumes either CLI. Canonical index
+    # casing (Balances, not balances).
+    result = runner.invoke(app, ["explain", "--module", "6", "--error", "2", "--json"])
+    assert result.exit_code == 0
+    d = _json.loads(result.output)
+    assert d["palletName"] == "Balances"
+    assert d["errorName"] == "InsufficientBalance"
+    assert d["source"] == "index"
+    assert d["kbEntry"] is True
+    assert d["indexFingerprint"] == {"specName": "portaldot", "specVersion": 1002}
+    assert set(d) >= {"palletIndex", "errorIndex", "palletName", "errorName", "key", "summary", "steps", "kbEntry", "source"}
+
+
+def test_explain_json_name_lookup_source() -> None:
+    result = runner.invoke(app, ["explain", "balances.InsufficientBalance", "--json"])
+    assert result.exit_code == 0
+    d = _json.loads(result.output)
+    assert d["source"] == "kb-name-only"
+    assert d["kbEntry"] is True
+
+
+def test_explain_json_error_paths_emit_json() -> None:
+    # missing --error, and a not-found name, both emit parseable JSON.
+    r1 = runner.invoke(app, ["explain", "--module", "6", "--json"])
+    assert r1.exit_code == 1
+    assert "error" in _json.loads(r1.output)
+    r2 = runner.invoke(app, ["explain", "TotallyFakeError", "--json"])
+    assert r2.exit_code == 1
+    assert "error" in _json.loads(r2.output)
+
+
 def test_resolve_code_maps_verified_index() -> None:
     from pdk.core.knowledge import resolve_code
 

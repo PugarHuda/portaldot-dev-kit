@@ -7,6 +7,8 @@ it on-chain.
 
 from __future__ import annotations
 
+import json as jsonlib
+
 import typer
 from rich.console import Console
 from rich.markup import escape
@@ -17,6 +19,9 @@ from pdk.core.decoder import DecodedError, strip_control_chars
 from pdk.core.knowledge import load_knowledge, lookup_fix, resolve_code
 
 console = Console()
+
+_INDEX_SPEC_NAME = "portaldot"
+_INDEX_SPEC_VERSION = 1002
 
 
 def run(
@@ -40,6 +45,7 @@ def run(
         False, "--no-ai",
         help="Skip the AI diagnosis even if PDK_AI_KEY is set.",
     ),
+    json_out: bool = typer.Option(False, "--json", help="Emit the decoded error as JSON (for scripts/CI)."),
 ) -> None:
     """Explain a Portaldot error — what it means and how to fix it — without a transaction.
 
@@ -48,22 +54,28 @@ def run(
     into the named error + its fix, using the verified runtime index.
     """
     kb = load_knowledge()
+    from_index = False
 
     # Raw-code mode: resolve `Module: { index, error }` to a name, no tx needed.
     if module is not None or err_index is not None:
         if module is None or err_index is None:
-            console.print("[red]Provide both --module and --error to decode a raw code.[/red]")
-            raise typer.Exit(code=1)
+            _emit_error(json_out, "Provide both --module and --error to decode a raw code.")
         resolved = resolve_code(module, err_index)
         if resolved is None:
-            console.print(f"[yellow]No error at module {module}, error {err_index} in the "
-                          "verified portaldot-1002 index.[/yellow]")
-            console.print("[dim]Indices are runtime-specific; check the module/error numbers.[/dim]")
-            raise typer.Exit(code=1)
-        console.print(f"[dim]Module {{ index: {module}, error: {err_index} }} → [bold]{resolved}[/bold][/dim]")
+            _emit_error(
+                json_out,
+                f"No error at module {module}, error {err_index} in the verified portaldot-1002 index.",
+                detail="Indices are runtime-specific; check the module/error numbers.",
+            )
+        from_index = True
+        if not json_out:
+            console.print(f"[dim]Module {{ index: {module}, error: {err_index} }} → [bold]{resolved}[/bold][/dim]")
         error = resolved
 
     if not error:
+        if json_out:
+            typer.echo(jsonlib.dumps({"errors": [{"key": k, "summary": kb[k].get("summary", "")} for k in sorted(kb)]}))
+            return
         table = Table(title=f"Errors pdk can explain ({len(kb)})", header_style="bold")
         table.add_column("error", style="cyan", no_wrap=True)
         table.add_column("summary")
@@ -77,6 +89,9 @@ def run(
     fix = lookup_fix(decoded, kb)
 
     if not fix.known:
+        if json_out:
+            typer.echo(jsonlib.dumps({"error": f"No curated entry for '{error}'."}))
+            raise typer.Exit(code=1)
         console.print(f"[yellow]No curated entry for '{error}'.[/yellow]")
         if _should_run_ai(ai, no_ai) and _ai_section(pallet or "Unknown", name, decoded.docs, explicit=ai):
             return  # AI provided a diagnosis for the long-tail error
@@ -88,6 +103,31 @@ def run(
         raise typer.Exit(code=1)
 
     display = fix.matched_key or error
+
+    if json_out:
+        # Shape matches pdk-ts's `explain --json` so scripts consume either
+        # CLI. Python explain is offline, so source is 'index' (raw-code
+        # decode) or 'kb-name-only' (name lookup) — never 'metadata'.
+        # For the raw-code path use the index's canonical casing
+        # ("Balances.InsufficientBalance") like pdk-ts, not the lowercase
+        # KB key; for name lookup mirror pdk-ts's entry.key.
+        names_src = error if from_index else display
+        src_pallet, _, src_name = names_src.partition(".") if "." in names_src else ("", "", names_src)
+        report = {
+            "palletIndex": module if from_index else -1,
+            "errorIndex": err_index if from_index else -1,
+            "palletName": src_pallet or (pallet or "Unknown"),
+            "errorName": src_name or name,
+            "key": display.lower(),
+            "summary": fix.summary,
+            "steps": fix.steps,
+            "kbEntry": fix.known,
+            "source": "index" if from_index else "kb-name-only",
+        }
+        if from_index:
+            report["indexFingerprint"] = {"specName": _INDEX_SPEC_NAME, "specVersion": _INDEX_SPEC_VERSION}
+        typer.echo(jsonlib.dumps(report))
+        return
     # `fix.summary` can be the raw runtime doc comment (knowledge.py's
     # tier-3 fallback for any error outside the curated KB — i.e. most
     # errors on any non-Portaldot chain `--live` can query). Doc
@@ -107,6 +147,21 @@ def run(
     if _should_run_ai(ai, no_ai):
         _ai_section(pallet or (display.split(".")[0] if "." in display else "Unknown"),
                     name, decoded.docs, explicit=ai)
+
+
+def _emit_error(json_out: bool, message: str, *, detail: str = "") -> None:
+    """Emit an error and exit 1 — JSON under --json, Rich text otherwise.
+    Keeps `pdk explain --json` a CI citizen on every exit path. Always raises."""
+    if json_out:
+        payload = {"error": message}
+        if detail:
+            payload["detail"] = detail
+        typer.echo(jsonlib.dumps(payload))
+    else:
+        console.print(f"[red]{message}[/red]" if "Provide both" in message else f"[yellow]{message}[/yellow]")
+        if detail:
+            console.print(f"[dim]{detail}[/dim]")
+    raise typer.Exit(code=1)
 
 
 def _should_run_ai(ai_flag: bool, no_ai_flag: bool) -> bool:
