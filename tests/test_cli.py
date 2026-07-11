@@ -60,6 +60,22 @@ def test_debug_json_unreachable_node_emits_valid_json() -> None:
     assert "detail" in payload
 
 
+def test_doctor_json_unreachable_emits_valid_json() -> None:
+    # doctor --json must emit JSON (not Rich text) on the connection-fail
+    # path — a CI health-check consumer pipes it to jq.
+    result = runner.invoke(app, ["doctor", "--json", "--node", "ws://127.0.0.1:19999"])
+    assert result.exit_code != 0
+    payload = _json.loads(result.output)
+    assert "error" in payload and "detail" in payload
+
+
+def test_accounts_json_unreachable_emits_valid_json() -> None:
+    result = runner.invoke(app, ["accounts", "--json", "--node", "ws://127.0.0.1:19999"])
+    assert result.exit_code != 0
+    payload = _json.loads(result.output)
+    assert "error" in payload
+
+
 def test_simulate_rejects_negative_amount() -> None:
     # The amount guard runs before any node connection.
     result = runner.invoke(app, ["simulate", "--amount", "-5"])

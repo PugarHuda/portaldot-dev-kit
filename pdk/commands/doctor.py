@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json as jsonlib
 import time
 
 import typer
@@ -21,18 +22,40 @@ def run(
     liveness: bool = typer.Option(
         True, "--liveness/--no-liveness", help="Check that the chain is producing blocks (waits ~7s)."
     ),
+    json_out: bool = typer.Option(False, "--json", help="Emit health as JSON (for CI/scripts)."),
 ) -> None:
     """Report node version, runtime info, ink! compatibility, and chain liveness."""
     try:
         substrate = connect(node)
         substrate.init_runtime()  # load runtime + metadata (lazy by default)
     except Exception as exc:  # noqa: BLE001 — surface any connection failure plainly
-        console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
-        console.print(f"[dim]{exc}[/dim]")
-        console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
+        if json_out:
+            typer.echo(jsonlib.dumps({"error": f"Cannot reach a Portaldot node at {node}", "detail": str(exc)}))
+        else:
+            console.print(f"[red]Cannot reach a Portaldot node at {node}[/red]")
+            console.print(f"[dim]{exc}[/dim]")
+            console.print("Start a node with [bold]pdk up[/bold] (run the node in WSL on Windows; pdk itself runs natively).")
         raise typer.Exit(code=1)
 
-    pallet_names = [pallet.name for pallet in substrate.metadata.pallets]
+    pallet_names = [str(pallet.name) for pallet in substrate.metadata.pallets]
+    has_contracts = "Contracts" in pallet_names
+
+    if json_out:
+        report = {
+            "endpoint": node,
+            "chain": str(substrate.chain or "unknown"),
+            "runtimeVersion": str(substrate.runtime_version),
+            "pallets": len(pallet_names),
+            "contractsPresent": has_contracts,
+        }
+        if liveness:
+            first = substrate.get_block_number(substrate.get_chain_head())
+            time.sleep(7)
+            second = substrate.get_block_number(substrate.get_chain_head())
+            report["liveness"] = {"checked": True, "producing": second > first, "blockBefore": first, "blockAfter": second}
+        typer.echo(jsonlib.dumps(report))
+        stalled = liveness and not report["liveness"]["producing"]
+        raise typer.Exit(code=1 if stalled else 0)
     table = Table(title="pdk doctor — Portaldot node health", show_header=False)
     table.add_row("Endpoint", node)
     # `substrate.chain` is the node's self-reported display name via the
