@@ -18,6 +18,7 @@ import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
 import {humanizeChainError, stripControlChars} from '../core/errors.js';
 import {normaliseUri} from './keys.js';
+import {predictOutcome} from './simulate.js';
 
 const POT_DECIMALS = 14;
 
@@ -27,6 +28,7 @@ export interface SendOptions {
   node?: string;
   timeout?: string;
   json?: boolean;
+  dryRun?: boolean;
 }
 
 /**
@@ -178,6 +180,48 @@ export function submitTransfer(
   });
 }
 
+/**
+ * Preview the fee + feasibility for THIS exact sender/recipient/amount —
+ * reuses simulate's predictOutcome, submits nothing.
+ */
+async function dryRun(
+  // biome-ignore lint/suspicious/noExplicitAny: ApiPromise surface is broad.
+  api: any,
+  // biome-ignore lint/suspicious/noExplicitAny: KeyringPair.
+  sender: any,
+  dest: string,
+  fromLabel: string,
+  toLabel: string,
+  amount: number,
+  value: bigint,
+  json: boolean,
+): Promise<void> {
+  const tx = api.tx.balances.transferKeepAlive(dest, value.toString());
+  const info = await tx.paymentInfo(sender);
+  const feeRaw = BigInt(info.partialFee.toString());
+  const accountInfo = await api.query.system.account(sender.address);
+  const balanceRaw = BigInt(accountInfo.data.free.toString());
+  const edRaw = BigInt(api.consts.balances.existentialDeposit.toString());
+
+  const toPot = (raw: bigint) => Number(raw) / 10 ** POT_DECIMALS;
+  const fee = toPot(feeRaw);
+  const balance = toPot(balanceRaw);
+  const ed = toPot(edRaw);
+  const {feasible, likelyError} = predictOutcome(amount, fee, balance, ed);
+
+  if (json) {
+    console.log(JSON.stringify({dryRun: true, from: fromLabel, to: toLabel, amount, fee, senderBalance: balance, existentialDeposit: ed, feasible, likelyError}));
+  } else {
+    console.log(`\n  ${pc.bold('pdk-ts send --dry-run')}  ${fromLabel} → ${toLabel}  ${pc.dim('(not submitted)')}`);
+    console.log(`  ${pc.dim('Amount'.padEnd(20))}${amount.toLocaleString('en-US')} POT`);
+    console.log(`  ${pc.dim('Estimated fee'.padEnd(20))}${fee.toFixed(6)} POT`);
+    console.log(`  ${pc.dim('Sender balance'.padEnd(20))}${balance.toLocaleString('en-US')} POT`);
+    console.log(`  ${pc.dim('Existential deposit'.padEnd(20))}${ed.toFixed(6)} POT`);
+    console.log(`  ${pc.dim('Prediction'.padEnd(20))}${feasible ? pc.green('likely SUCCEED') : pc.red(`would FAIL — ${likelyError}`)}\n`);
+  }
+  if (!feasible) process.exitCode = 1;
+}
+
 export async function run(to: string, opts: SendOptions): Promise<void> {
   const node = resolveNode(opts.node);
   const amountStr = opts.amount;
@@ -196,6 +240,12 @@ export async function run(to: string, opts: SendOptions): Promise<void> {
     const sender = keyring.addFromUri(normaliseUri(opts.from ?? '//Alice'));
     const dest = resolveRecipient(keyring, to);
     const value = potToPlancks(String(amountStr));
+
+    if (opts.dryRun) {
+      await dryRun(api, sender, dest, opts.from ?? '//Alice', to, Number(amountStr), value, Boolean(opts.json));
+      await closeApi();
+      return;
+    }
 
     const outcome = await submitTransfer(api, sender, dest, value);
 

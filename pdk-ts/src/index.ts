@@ -35,6 +35,7 @@ import * as kb from './commands/kb.js';
 import * as report from './commands/report.js';
 import * as simulate from './commands/simulate.js';
 import * as send from './commands/send.js';
+import * as fund from './commands/fund.js';
 import * as seed from './commands/seed.js';
 import * as watch from './commands/watch.js';
 import * as debug from './commands/debug.js';
@@ -143,10 +144,21 @@ program
   .description('Submit a REAL POT transfer (transferKeepAlive) — <to> is a //URI or SS58 address')
   .option('--amount <pot>', 'POT to send (required)')
   .option('--from <uri>', 'sender dev account URI (default //Alice)')
+  .option('--dry-run', 'preview the fee + feasibility for this exact transfer, submit nothing')
   .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
   .option('--timeout <seconds>', 'connect timeout in seconds')
   .option('--json', 'emit machine-readable JSON')
   .action((to, opts) => send.run(to, opts));
+
+program
+  .command('fund <to>')
+  .description('Top up an account with POT from //Alice (default 100 POT)')
+  .option('--amount <pot>', 'POT to fund with (default 100)')
+  .option('--dry-run', 'preview the fee + feasibility, submit nothing')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--json', 'emit machine-readable JSON')
+  .action((to, opts) => fund.run(to, opts));
 
 program
   .command('seed')

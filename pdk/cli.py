@@ -22,7 +22,7 @@ import typer  # noqa: E402 — must follow the stdout reconfigure above
 
 from pdk import __version__  # noqa: E402
 from pdk.commands import (  # noqa: E402
-    accounts, ai_setup, debug, doctor, explain, kb, keys, pallets, report, seed, send, simulate, storage, up, watch,
+    accounts, ai_setup, debug, doctor, explain, fund, kb, keys, pallets, report, seed, send, simulate, storage, up, watch,
 )
 
 app = typer.Typer(
@@ -41,6 +41,7 @@ app.command("simulate", help="Preview a transfer's fee and feasibility, without 
 app.command("seed", help="Fund dev accounts on a local node from YAML fixtures.")(seed.run)
 app.command("pallets", help="Discover the runtime's pallets, calls, and errors.")(pallets.run)
 app.command("send", help="Send POT from a dev account — a real on-chain transfer.")(send.run)
+app.command("fund", help="Top up an account with POT from //Alice (answers 'how do I get POT?').")(fund.run)
 app.command("storage", help="Read any value from the chain's storage.")(storage.run)
 app.command("watch", help="Stream all chain events live (optionally filtered by pallet).")(watch.run)
 app.command("report", help="Scan recent blocks and summarise decoded failures by type.")(report.run)

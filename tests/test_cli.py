@@ -20,7 +20,7 @@ def test_help_lists_all_commands(monkeypatch) -> None:
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
     for command in ("up", "accounts", "debug", "explain", "doctor", "simulate", "seed",
-                    "pallets", "send", "storage", "watch", "keys", "report", "ai-setup"):
+                    "pallets", "send", "fund", "storage", "watch", "keys", "report", "ai-setup"):
         assert command in result.output
 
 
