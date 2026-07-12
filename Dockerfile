@@ -11,11 +11,13 @@ RUN npm ci --no-audit --no-fund
 
 COPY pdk-ts/tsconfig.json pdk-ts/tsconfig.build.json ./
 COPY pdk-ts/src ./src
+COPY pdk-ts/scripts ./scripts
+# `npm run build` runs scripts/copy-data.mjs, which resolves the shared KB
+# at ../../pdk/data relative to itself (the real repo layout: pdk-ts/ and
+# pdk/ are siblings) — inside this build stage that's /pdk/data, so it has
+# to exist at exactly that path before the build script runs.
+COPY pdk/data /pdk/data
 RUN npm run build
-
-# Copy shared KB + index into the image next to dist/ so the parent
-# path lookups in kb.ts still find them at runtime.
-COPY pdk/data /pdk-data
 
 # --- runtime stage ---
 FROM node:22-alpine AS runtime
@@ -32,12 +34,10 @@ WORKDIR /app
 COPY pdk-ts/package.json pdk-ts/package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
 
-# Bring compiled JS + KB data
+# dist/ already contains pdk-data/ (written by scripts/copy-data.mjs during
+# the build) — the same dist/pdk-data/ layout the npm package ships, so
+# kb.ts's own fallback resolution finds it with no env var needed.
 COPY --from=builder /build/dist ./dist
-COPY --from=builder /pdk-data ./pdk-data
-
-ENV PDK_KB_PATH=/app/pdk-data/error_fixes.yaml
-ENV PDK_INDEX_PATH=/app/pdk-data/error_index.json
 
 # Least privilege — no reason for pdk-ts to hold root inside the container.
 RUN addgroup -S pdk && adduser -S pdk -G pdk && chown -R pdk:pdk /app
