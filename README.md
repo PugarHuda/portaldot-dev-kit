@@ -64,7 +64,7 @@ npm install portaldot-pdk-ts@alpha
 npx portaldot-pdk-ts explain --module 6 --error 2
 
 # Docker — zero-install
-docker run --rm ghcr.io/pugarhuda/portaldot-pdk-ts:0.2.0-alpha.5 \
+docker run --rm ghcr.io/pugarhuda/portaldot-pdk-ts:0.2.0-alpha.7 \
   explain --name balances.InsufficientBalance
 ```
 
