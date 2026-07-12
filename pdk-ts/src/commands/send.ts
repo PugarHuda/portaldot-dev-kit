@@ -288,11 +288,16 @@ export async function run(to: string, opts: SendOptions): Promise<void> {
       console.log(pc.green(`\n  ✓ sent ${Number(amountStr).toLocaleString('en-US')} POT`) + pc.dim(`  ${opts.from ?? '//Alice'} → ${to}`));
       console.log(pc.dim(`  tx: ${outcome.txHash}\n`));
     } else if (outcome.status === 'unconfirmed') {
-      console.error(pc.yellow(`\n  ⚠ transfer submitted but the outcome couldn't be confirmed — @polkadot/api can't decode Portaldot's result events.`));
-      console.error(pc.dim(`  This usually means it FAILED. Confirm with Python: pdk debug ${outcome.txHash}\n`));
+      if (outcome.txHash) {
+        console.error(pc.yellow(`\n  ⚠ transfer submitted but the outcome couldn't be confirmed — @polkadot/api can't decode Portaldot's result events.`));
+        console.error(pc.dim(`  This usually means it FAILED. Confirm with Python: pdk debug ${outcome.txHash}\n`));
+      } else {
+        console.error(pc.yellow(`\n  ⚠ no block inclusion within the timeout — the tx may still land later, or never reached the pool.`));
+        console.error(pc.dim('  Check node connectivity (a stalled/non-authoring node causes this) and retry.\n'));
+      }
     } else {
       console.error(pc.red(`\n  ✗ transfer failed${outcome.error ? ` — ${outcome.error}` : ''}`));
-      console.error(pc.dim(`  tx: ${outcome.txHash}  ·  dig in: pdk debug ${outcome.txHash}\n`));
+      console.error(pc.dim(outcome.txHash ? `  tx: ${outcome.txHash}  ·  dig in: pdk debug ${outcome.txHash}\n` : '\n'));
     }
     await closeApi();
     if (!ok) process.exit(1);
