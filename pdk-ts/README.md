@@ -4,7 +4,7 @@
 [![CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml)
 [![Docker](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml)
 
-Status: **v0.2.0-alpha.4** — 12 of 14 commands live (`doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `report`, `simulate`, `diagnose`, `examples`, `kb`, `version`) + library-importable public surface.
+Status: **v0.2.0-alpha.4** — 13 of 14 commands live (`doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `report`, `simulate`, `send`, `diagnose`, `examples`, `kb`, `version`) + library-importable public surface.
 
 pdk-ts is the TypeScript companion CLI to the Python
 [`portaldot-pdk`](https://pypi.org/project/portaldot-pdk/). It exists to

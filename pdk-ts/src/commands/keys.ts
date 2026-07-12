@@ -42,7 +42,7 @@ function isMnemonic(s: string): boolean {
 // Windows strips a leading slash from `//Alice` → `/Alice`; PowerShell
 // preserves it. We accept `//Alice`, `/Alice`, and bare `Alice` as
 // equivalent, all resolving to `//Alice` for the keyring.
-function normaliseUri(input: string): string {
+export function normaliseUri(input: string): string {
   const s = input.trim();
   if (s.startsWith('//')) return s;
   if (s.startsWith('/')) return `/${s}`;

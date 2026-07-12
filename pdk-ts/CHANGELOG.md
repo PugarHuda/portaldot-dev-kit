@@ -51,6 +51,19 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 ## [Unreleased]
 
 ### Added
+- **`send`** — submit a REAL POT transfer (transferKeepAlive). The
+  signing tier: pdk-ts signs on Portaldot's metadata. `<to>` is a //URI
+  or SS58 address; `--from` defaults to //Alice; `--amount` in POT
+  (exact 14-decimal BigInt). **Success is confirmed by a positive
+  `system.ExtrinsicSuccess` event, never by the mere absence of a
+  dispatchError** — because @polkadot/api can't decode Portaldot's
+  result events on a FAILED block, "no dispatchError" would otherwise
+  report a failed transfer as sent (verified: a drain-below-ED transfer
+  left the balance untouched yet looked successful). When the outcome
+  can't be confirmed, `send` reports `status: unconfirmed` and points at
+  Python `pdk debug <hash>`, never a false success. Verified live: a
+  valid transfer moves the exact amount and reports success; a failing
+  one reports unconfirmed.
 - **`simulate`** — preview a transfer's POT fee + feasibility without
   sending (read-only: `paymentInfo` + balance read, no submission).
   Mirrors Python `pdk simulate`, including the existential-deposit-aware

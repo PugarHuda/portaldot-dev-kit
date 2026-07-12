@@ -34,6 +34,7 @@ import * as examples from './commands/examples.js';
 import * as kb from './commands/kb.js';
 import * as report from './commands/report.js';
 import * as simulate from './commands/simulate.js';
+import * as send from './commands/send.js';
 
 const program = new Command();
 
@@ -133,6 +134,16 @@ program
   .command('examples')
   .description('Print a curated list of example invocations, grouped by task')
   .action(() => examples.run());
+
+program
+  .command('send <to>')
+  .description('Submit a REAL POT transfer (transferKeepAlive) — <to> is a //URI or SS58 address')
+  .option('--amount <pot>', 'POT to send (required)')
+  .option('--from <uri>', 'sender dev account URI (default //Alice)')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--json', 'emit machine-readable JSON')
+  .action((to, opts) => send.run(to, opts));
 
 program
   .command('simulate')
