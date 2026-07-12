@@ -7,10 +7,12 @@
 Status: **v0.2.0-alpha.6** — 16 commands, covering every chain / FailLens / signing command Python pdk has: `doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `debug`, `report`, `simulate`, `send`, `seed`, `watch`, `diagnose`, `examples`, `kb`, `version` + library-importable public surface. (Python-only `up` (node lifecycle) and `ai-setup` are out of scope for the companion.)
 
 pdk-ts is the TypeScript companion CLI to the Python
-[`portaldot-pdk`](https://pypi.org/project/portaldot-pdk/). It exists to
-cover the parts of Portaldot's runtime that Python `substrate-interface`
-cannot sign on V13 metadata — Assets pallet operations, ink! contract
-deploy, and any custom-pallet that ships with the chain going forward.
+[`portaldot-pdk`](https://pypi.org/project/portaldot-pdk/). Its reason to
+exist is to sign on Portaldot's V13 metadata where Python
+`substrate-interface` can't — Assets pallet operations, ink! contract
+deploy, and future custom pallets. Today it ships the signing plumbing
+proven on Balances (`send`/`seed`); extending it to Assets and contract
+calls is the next roadmap step, not a shipped capability yet.
 
 16 commands covering Python pdk's full chain/FailLens/signing surface, Node-backed, same terminal UX.
 
