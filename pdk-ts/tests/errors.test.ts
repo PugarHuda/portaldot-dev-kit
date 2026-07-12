@@ -106,4 +106,11 @@ describe('humanizeChainError', () => {
     const out = humanizeChainError(new Error('rpc error -32603 internal server error'));
     expect(out).toMatch(/internal error|runtime blew up/i);
   });
+
+  it('maps a nonce-clash (1014 Priority is too low) → "nonce clash" hint', () => {
+    // Verified live: two signing commands from the same account submitted
+    // back-to-back trip this exact RPC error.
+    const out = humanizeChainError(new Error('1014: Priority is too low: (16346723139429082 vs 9867938168167471)'));
+    expect(out).toMatch(/nonce clash/i);
+  });
 });

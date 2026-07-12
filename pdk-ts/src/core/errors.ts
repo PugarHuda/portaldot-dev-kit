@@ -110,5 +110,14 @@ export function humanizeChainError(err: unknown, endpoint?: string): string {
     return `${raw} — RPC internal error. Endpoint reachable but the runtime blew up on this call.`;
   }
 
+  // Nonce clash (RPC 1014): two signing commands from the SAME account
+  // submitted close together each read the same on-chain nonce, so the
+  // second collides with the first still sitting in the pool. Every
+  // signing command (send/seed/assets/fund/debug --demo) hits this the
+  // same way, so the hint lives here once instead of in each caller.
+  if (raw.includes('1014') || lowered.includes('priority is too low')) {
+    return `${raw} — nonce clash: another transaction from the same account is still pending. Wait for it to land, or retry.`;
+  }
+
   return raw;
 }
