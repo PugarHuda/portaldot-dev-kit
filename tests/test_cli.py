@@ -261,6 +261,37 @@ def test_explain_json_error_paths_emit_json() -> None:
     assert "error" in _json.loads(r2.output)
 
 
+def test_explain_raw_code_without_kb_entry_returns_decoded_name() -> None:
+    # A raw code IN the index but WITHOUT a curated KB entry (Assets.BalanceZero
+    # at 26.1) must return the decoded name with kbEntry=false — NOT error.
+    # Mirrors pdk-ts (summary=null, steps=[]). Offline, no node.
+    result = runner.invoke(app, ["explain", "--module", "26", "--error", "1", "--json"])
+    assert result.exit_code == 0
+    d = _json.loads(result.output)
+    assert d["errorName"] == "BalanceZero"
+    assert d["kbEntry"] is False
+    assert d["summary"] is None
+    assert d["steps"] == []
+    assert d["source"] == "index"
+
+
+def test_explain_code_not_in_index_without_node_hints_live() -> None:
+    # A code outside the offline index and no --node → error that points at
+    # --live, rather than pretending the code doesn't exist anywhere.
+    result = runner.invoke(app, ["explain", "--module", "250", "--error", "0"])
+    assert result.exit_code == 1
+    assert "--live" in result.output
+
+
+def test_explain_live_unreachable_node_emits_json_error() -> None:
+    result = runner.invoke(
+        app, ["explain", "--module", "6", "--error", "2", "--live",
+              "--node", "ws://127.0.0.1:19999", "--json"]
+    )
+    assert result.exit_code == 1
+    assert "error" in _json.loads(result.output)
+
+
 def test_resolve_code_maps_verified_index() -> None:
     from pdk.core.knowledge import resolve_code
 

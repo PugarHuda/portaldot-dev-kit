@@ -70,6 +70,22 @@ not yet published to PyPI).
   instead of crashing the hero command with a raw traceback.
 
 ### Added
+- **`pdk explain --live` / `--node`** — the raw-code decoder can now walk
+  a live node's runtime metadata, not just the shipped offline index.
+  `--live` forces the metadata walk; otherwise a `--node` makes it a
+  fallback that kicks in only when the offline index misses — so a code
+  from a *newer* runtime (a pallet/error added after the bundled index was
+  extracted) still decodes. `source` in `--json` is now `index` |
+  `metadata` | `kb-name-only`, matching pdk-ts.
+- **`explain` raw-code now returns the decoded name even without a curated
+  KB entry** (e.g. `Assets.BalanceZero`) instead of erroring — `kbEntry:
+  false`, `summary: null`, `steps: []`, mirroring pdk-ts. Previously a
+  raw code outside the ~29 curated errors exited non-zero.
+- **`--json` on every scriptable command** (debug, report, kb, keys,
+  explain, doctor, accounts, pallets), shapes byte-identical to pdk-ts so
+  a script consumes either CLI interchangeably.
+- **`pdk kb --verify --node`** — diff the offline index against a live
+  node's metadata (mismatch / missing / stale), `--json` for CI.
 - **`pdk kb`** — knowledge-base introspection (coverage, `--missing`
   shortlist, `--list`), matching `pdk-ts kb`. 15th command.
 - **`pdk kb --verify --node <url>`** — walks a live node's runtime

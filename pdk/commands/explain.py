@@ -15,8 +15,10 @@ from rich.markup import escape
 from rich.panel import Panel
 from rich.table import Table
 
+from pdk.config import DEFAULT_NODE_URL
+from pdk.core.chain import connect
 from pdk.core.decoder import DecodedError, strip_control_chars
-from pdk.core.knowledge import load_knowledge, lookup_fix, resolve_code
+from pdk.core.knowledge import build_live_index, load_knowledge, lookup_fix, resolve_code
 
 console = Console()
 
@@ -37,6 +39,14 @@ def run(
         None, "--error", "-e",
         help="Raw error index from a DispatchError, e.g. 2. Decodes the bare code with --module.",
     ),
+    node: str = typer.Option(
+        None, "--node",
+        help="Node WS endpoint. With --module/--error, falls back to live metadata if the code isn't in the offline index.",
+    ),
+    live: bool = typer.Option(
+        False, "--live",
+        help="Skip the offline index and walk the live node's metadata directly (needs --node, or uses the default).",
+    ),
     ai: bool = typer.Option(
         False, "--ai",
         help="Force the AI diagnosis even when no key is set (prints the setup hint).",
@@ -54,22 +64,52 @@ def run(
     into the named error + its fix, using the verified runtime index.
     """
     kb = load_knowledge()
-    from_index = False
+    source: str | None = None  # "index" | "metadata" | "kb-name-only"
 
     # Raw-code mode: resolve `Module: { index, error }` to a name, no tx needed.
     if module is not None or err_index is not None:
         if module is None or err_index is None:
             _emit_error(json_out, "Provide both --module and --error to decode a raw code.")
-        resolved = resolve_code(module, err_index)
+
+        resolved: str | None = None
+        # Offline fast-path first (unless --live forces a metadata walk).
+        if not live:
+            resolved = resolve_code(module, err_index)
+            if resolved is not None:
+                source = "index"
+
+        # Live fallback: --live forces it; otherwise it kicks in only when
+        # the offline index misses AND a node was given — so a code from a
+        # newer runtime (not yet in the shipped index) still decodes.
+        if resolved is None and (live or node):
+            try:
+                substrate = connect(node or DEFAULT_NODE_URL)
+                substrate.init_runtime()
+                resolved = build_live_index(substrate).get(f"{module}.{err_index}")
+            except Exception as exc:  # noqa: BLE001
+                _emit_error(
+                    json_out,
+                    f"Cannot reach a Portaldot node at {node or DEFAULT_NODE_URL}",
+                    detail=str(exc),
+                )
+            if resolved is not None:
+                source = "metadata"
+
         if resolved is None:
+            hint = (
+                "Indices are runtime-specific; check the module/error numbers."
+                if (live or node)
+                else "Not in the offline index. Pass --live --node <url> to walk the live runtime's metadata."
+            )
             _emit_error(
                 json_out,
-                f"No error at module {module}, error {err_index} in the verified portaldot-1002 index.",
-                detail="Indices are runtime-specific; check the module/error numbers.",
+                f"No error at module {module}, error {err_index}"
+                + (" on the live chain." if (live or node) else " in the verified portaldot-1002 index."),
+                detail=hint,
             )
-        from_index = True
         if not json_out:
-            console.print(f"[dim]Module {{ index: {module}, error: {err_index} }} → [bold]{resolved}[/bold][/dim]")
+            src_note = "" if source == "index" else "  [dim](live metadata)[/dim]"
+            console.print(f"[dim]Module {{ index: {module}, error: {err_index} }} → [bold]{resolved}[/bold]{src_note}[/dim]")
         error = resolved
 
     if not error:
@@ -88,7 +128,12 @@ def run(
     decoded = DecodedError(pallet=pallet or "Unknown", name=name, docs="", extrinsic_call="")
     fix = lookup_fix(decoded, kb)
 
-    if not fix.known:
+    # A raw-code decode (source set) resolved a real Pallet.Error name — that
+    # IS the answer, even if no curated KB entry exists (a new runtime error
+    # via --live, or an uncurated one). Only the pure --name lookup treats a
+    # KB miss as "not found". This mirrors pdk-ts, which returns the decoded
+    # name with kbEntry=false rather than erroring.
+    if not fix.known and source is None:
         if json_out:
             typer.echo(jsonlib.dumps({"error": f"No curated entry for '{error}'."}))
             raise typer.Exit(code=1)
@@ -102,29 +147,33 @@ def run(
             console.print("Run [bold]pdk explain[/bold] (no argument) to list every error.")
         raise typer.Exit(code=1)
 
+    if source is None:
+        source = "kb-name-only"
     display = fix.matched_key or error
+
+    raw_code = source in ("index", "metadata")
 
     if json_out:
         # Shape matches pdk-ts's `explain --json` so scripts consume either
-        # CLI. Python explain is offline, so source is 'index' (raw-code
-        # decode) or 'kb-name-only' (name lookup) — never 'metadata'.
-        # For the raw-code path use the index's canonical casing
-        # ("Balances.InsufficientBalance") like pdk-ts, not the lowercase
-        # KB key; for name lookup mirror pdk-ts's entry.key.
-        names_src = error if from_index else display
+        # CLI. source is 'index' (offline fast-path), 'metadata' (--live /
+        # fallback walk), or 'kb-name-only' (name lookup). Raw-code paths
+        # use the index/metadata canonical casing ("Balances.Insufficient-
+        # Balance") like pdk-ts; a KB miss yields summary=null / steps=[]
+        # (not the tier-3 fallback) so the shape matches pdk-ts exactly.
+        names_src = error if raw_code else display
         src_pallet, _, src_name = names_src.partition(".") if "." in names_src else ("", "", names_src)
         report = {
-            "palletIndex": module if from_index else -1,
-            "errorIndex": err_index if from_index else -1,
+            "palletIndex": module if raw_code else -1,
+            "errorIndex": err_index if raw_code else -1,
             "palletName": src_pallet or (pallet or "Unknown"),
             "errorName": src_name or name,
             "key": display.lower(),
-            "summary": fix.summary,
-            "steps": fix.steps,
+            "summary": fix.summary if fix.known else None,
+            "steps": fix.steps if fix.known else [],
             "kbEntry": fix.known,
-            "source": "index" if from_index else "kb-name-only",
+            "source": source,
         }
-        if from_index:
+        if source == "index":
             report["indexFingerprint"] = {"specName": _INDEX_SPEC_NAME, "specVersion": _INDEX_SPEC_VERSION}
         typer.echo(jsonlib.dumps(report))
         return
