@@ -108,7 +108,7 @@ export function buildReport(
 
 /** Decode a DispatchError into a `Pallet.Error` label matching Python's casing. */
 // biome-ignore lint/suspicious/noExplicitAny: @polkadot codec types are structural; a narrow shim conflicts with findMetaError's real signature.
-function labelFor(api: any, dispatchError: any): string {
+export function labelFor(api: any, dispatchError: any): string {
   if (dispatchError?.isModule) {
     try {
       const meta = api.registry.findMetaError(dispatchError.asModule);

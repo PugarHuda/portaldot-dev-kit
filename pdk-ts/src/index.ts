@@ -37,6 +37,7 @@ import * as simulate from './commands/simulate.js';
 import * as send from './commands/send.js';
 import * as seed from './commands/seed.js';
 import * as watch from './commands/watch.js';
+import * as debug from './commands/debug.js';
 
 const program = new Command();
 
@@ -164,6 +165,16 @@ program
   .option('--timeout <seconds>', 'connect timeout in seconds')
   .option('--json', 'emit machine-readable JSON')
   .action((opts) => simulate.run(opts));
+
+program
+  .command('debug [txhash]')
+  .description('FailLens: diagnose a failed transaction into a named error + fix steps')
+  .option('--demo', 'submit a failing transfer, then diagnose it')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--exit-code', 'exit 2 when a failure is decoded (for CI gating)')
+  .option('--json', 'emit machine-readable JSON')
+  .action((txhash, opts) => debug.run(txhash, opts));
 
 program
   .command('report')
