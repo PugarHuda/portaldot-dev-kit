@@ -6,7 +6,7 @@ Scripts wrapping pdk-ts should treat these as a stable contract.
 |-----:|:---------------------------------------------------------------------|
 |   0  | Command succeeded. For probes (`doctor`/`diagnose`): endpoint healthy.|
 |   1  | Command failed at the tool level: bad input, unresolvable name, connection failed, unreachable node. Message printed to stderr; `--json` still emits a machine-readable body on stdout when the failure is domain-level (e.g. `explain` couldn't resolve a name). |
-|   2  | Reserved for commander's own argument-parsing failures (unknown flag, missing required option). Not raised by our handlers directly. |
+|   2  | `debug --exit-code` / `report --exit-code`: a failure was decoded / found in range — the CI-gate signal, raised directly by our handlers. Also used by commander for its own argument-parsing failures (unknown flag, missing required option) on paths we don't intercept. |
 | 130  | Interrupted by `SIGINT` (Ctrl+C). WebSocket cleanly closed first.    |
 | 143  | Interrupted by `SIGTERM`. WebSocket cleanly closed first.            |
 

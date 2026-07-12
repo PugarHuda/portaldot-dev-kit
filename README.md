@@ -165,7 +165,7 @@ PDK does not compete with the low-level SDKs — it sits on top of them.
 | Layer | `@polkadot/api` | PAPI | subxt (Rust) | `substrate-interface` (Py) | **PDK** |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Low-level RPC + codec | ✅ | ✅ | ✅ | ✅ | uses these |
-| Light-client first | — | ✅ | — | — | future (α.6) |
+| Light-client first | — | ✅ | — | — | future (α.8) |
 | Ready-made CLI | — | — | — | — | ✅ |
 | Metadata-driven error decoder | — | — | — | — | ✅ |
 | Curated fix knowledge base | — | — | — | — | ✅ |
@@ -174,8 +174,8 @@ PDK does not compete with the low-level SDKs — it sits on top of them.
 | Cross-language coverage (Python + TS) | — | — | — | — | ✅ |
 
 PAPI wins on bundle size and light-client design; that is why PDK will
-benchmark against it at α.6 and adopt what fits. But no low-level SDK
-ships FailLens, the KB, or the 14-command dev-loop surface — that is
+benchmark against it at α.8 and adopt what fits. But no low-level SDK
+ships FailLens, the KB, or the 16-command dev-loop surface — that is
 PDK's layer.
 
 ## Commands
@@ -455,7 +455,7 @@ How to fix
 ```
 ┌──────────────┐   typer CLI   ┌──────────────┐   substrate-interface   ┌────────────────┐
 │  pdk <cmd>   │ ───────────▶  │  pdk/core/   │ ─────────────────────▶ │  Portaldot     │
-│ (14 commands)│               │  chain.py    │   websocket RPC        │  node (1002)   │
+│ (16 commands)│               │  chain.py    │   websocket RPC        │  node (1002)   │
 └──────────────┘               │  decoder.py  │ ◀───────────────────── └────────────────┘
                                │  knowledge.py│      ExtrinsicFailed event
                                │  report.py   │      DispatchError { Module: idx,err }
@@ -479,8 +479,8 @@ How to fix
 - **Chain RPC client:** [`substrate-interface`](https://github.com/polkascan/py-substrate-interface) (with the `substrate-node-template` type-registry preset for Portaldot's legacy `LookupSource`)
 - **CLI framework:** [`typer`](https://typer.tiangolo.com/) + [`rich`](https://github.com/Textualize/rich) (terminal UI), [`pyyaml`](https://pyyaml.org/) (knowledge base)
 - **Optional AI layer:** standard-library `urllib` → any OpenAI-compatible endpoint (defaults to OpenRouter's free `openai/gpt-oss-120b:free`); zero hard dependency, auto-on when `PDK_AI_KEY` is set
-- **Web companion:** Next.js 14 (App Router, React) deployed on Vercel — landing, in-browser dashboard, error reference, pitch deck, **interactive asciinema replay of all 14 commands**
-- **Test + CI:** `pytest` (40 unit tests) on Python 3.11 & 3.12 via GitHub Actions; comprehensive QA harness (gitignored) covers 84 additional integration + stress cases against a live node
+- **Web companion:** static HTML/CSS/JS deployed on Vercel — landing, in-browser dashboard, error reference, pitch deck, **interactive asciinema replay of the original 14-command demo recording**
+- **Test + CI:** 122 pytest cases (Python) + 125 vitest cases (pdk-ts) on GitHub Actions, verified against a real `portaldot-1002` node
 - **Release pipeline:** auto-publish to PyPI on `v*` tag push (token-auth, survives repo renames; manually re-triggerable via `gh workflow run release.yml`)
 
 ## Smart Contracts
@@ -510,8 +510,8 @@ designed to work on the real chain without that caveat.
 
 ```
 pdk/
-  cli.py            typer app; registers the 15 commands (up, accounts, debug,
-                    explain, doctor, simulate, seed, pallets, send, storage, watch, keys, report, ai-setup, kb)
+  cli.py            typer app; registers the 16 commands (up, accounts, debug,
+                    explain, doctor, simulate, seed, pallets, send, fund, storage, watch, keys, report, ai-setup, kb)
   config.py         static defaults (node URL, scan depth, binary name)
   commands/         one thin module per command (parse args → call core → render)
   core/

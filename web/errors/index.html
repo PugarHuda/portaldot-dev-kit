@@ -119,7 +119,7 @@
 </footer>
 
 <script>
-// Mirrors pdk/data/error_fixes.yaml (29 entries, verified vs live runtime metadata).
+// Mirrors pdk/data/error_fixes.yaml (38 entries, verified vs live runtime metadata).
 const ERRORS = [
   {p:"balances", n:"InsufficientBalance", s:"You tried to transfer more POT than the sending account holds.", f:["Check the sender balance via the Portaldot explorer (portalscan.portaldot.io) or `pdk doctor`.","Lower the transfer amount, or fund the account first (dev accounts are pre-funded on a --dev chain)."]},
   {p:"balances", n:"ExistentialDeposit", s:"The transfer would leave an account below the Existential Deposit, so it was rejected.", f:["Leave at least the Existential Deposit in both the sender and receiver.","Or move the whole balance with `transfer` (allow death) instead of `transfer_keep_alive`."]},
@@ -150,6 +150,15 @@ const ERRORS = [
   {p:"scheduler", n:"TargetBlockNumberInPast", s:"The scheduled call's target block is already in the past.", f:["Schedule for a block number greater than the current chain head."]},
   {p:"dispatch", n:"BadOrigin", s:"The call requires a different origin (e.g. Root or a specific owner) than the signer used.", f:["Sign with an account authorised for this call.","Root-only calls must be routed through the `sudo` pallet on a dev node."]},
   {p:"dispatch", n:"CannotLookup", s:"An address lookup failed — e.g. an account index that does not resolve to an account.", f:["Pass a full account address instead of an index, or check the index exists."]},
+  {p:"sudo", n:"RequireSudo", s:"The call needs the Sudo (Root) key, but it was signed by another account or not wrapped in a sudo call.", f:["Wrap the inner call in `sudo.sudo(call)` — Root-only calls must go through the Sudo pallet.","Sign with the current sudo key (it is //Alice on a --dev chain). Confirm it via `pdk storage Sudo Key`."]},
+  {p:"staking", n:"AlreadyBonded", s:"This stash is already bonded, so you cannot bond it again.", f:["Add to the existing bond with `staking.bondExtra` instead of `staking.bond`.","To start over, `staking.unbond` then `staking.withdrawUnbonded` first."]},
+  {p:"staking", n:"EmptyTargets", s:"You called `staking.nominate` with an empty validator list.", f:["Pass at least one validator address to nominate.","Find candidates via `staking.validators` before nominating."]},
+  {p:"staking", n:"NotStash", s:"The signing account is not the stash account this call expects.", f:["Sign with the stash account (the one that holds the bonded funds), not the controller."]},
+  {p:"assets", n:"BalanceZero", s:"The account holds zero of this asset, so there is nothing for the operation to act on.", f:["Mint or transfer some of the asset to the account first (`assets.mint` / `assets.transfer`)."]},
+  {p:"assets", n:"InUse", s:"The asset ID is already taken, so it cannot be created again.", f:["Pick a different, unused asset ID for `assets.create`.","Inspect existing assets to find a free ID before creating."]},
+  {p:"assets", n:"NoProvider", s:"The target account has no provider reference, so it cannot hold a non-zero balance of this (non-sufficient) asset yet.", f:["Give the account a provider first — fund it with a small POT transfer so it exists on-chain, then retry."]},
+  {p:"balances", n:"ExistingVestingSchedule", s:"A vesting schedule already exists for this account, so another cannot be added.", f:["Target a different account, or wait for the existing schedule to release before adding one."]},
+  {p:"balances", n:"TooManyReserves", s:"The account already holds the maximum number of named reserves (MaxReserves).", f:["Release an existing reserve before creating a new one."]},
 ];
 
 const listEl = document.getElementById("list");

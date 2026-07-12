@@ -8,6 +8,29 @@ TypeScript companion (`pdk-ts`) tracks its own changelog at
 here for repo-level chronology.
 
 ## [Cross-repo milestones]
+- **2026-07-12** — pdk-ts **0.2.0-alpha.7** ships `assets` (create/mint/
+  transfer) — signs Assets pallet calls Python `substrate-interface`
+  cannot sign on Portaldot V13 metadata at all, verified live
+  (`Assets.create` fails at the RPC layer with "bad signature" from
+  Python, succeeds via `@polkadot/api`). Also: `send --dry-run`, `fund`,
+  `report --exit-code`. First npm publish of the fix landed here after
+  alpha.5's tarball shipped with zero KB data (see alpha.6). Published to
+  npm `alpha` + `latest` dist-tags.
+- **2026-07-12** — pdk-ts **0.2.0-alpha.6** — post-publish QA pass.
+  alpha.5 was pdk-ts's first-ever npm publish, and installing it
+  surfaced a critical bug: the shared knowledge base never shipped in
+  the tarball, so `explain`/`debug`/`kb` returned "KB size: 0" for every
+  installer. Fixed with a build-time copy step; also fixed a hang on
+  `send`/`seed` when a tx never reached a block, `--json` parity with
+  Python, and a nondeterministic `watch` exit code. alpha.5 deprecated
+  on npm; `latest` moved to alpha.6.
+- **2026-07-12** — pdk-ts **0.2.0-alpha.5** — the signing tier + hero
+  `debug` (FailLens) land, reaching full command-surface coverage
+  (16 commands) with Python. `send`/`seed` confirm success only via a
+  positive `system.ExtrinsicSuccess` event, never absence-of-error — a
+  verified false-success bug on the money path was caught and fixed
+  before shipping. `report`/`watch` degrade honestly on Portaldot's
+  known @polkadot/api event-decode limit rather than guessing.
 - **2026-07-09** — pdk-ts **0.2.0-alpha.4** ships the library entry.
   `import { resolveByName, collectReport } from 'portaldot-pdk-ts'`
   cold-imports in ~430 ms (down from 2792 ms) because `@polkadot/api`

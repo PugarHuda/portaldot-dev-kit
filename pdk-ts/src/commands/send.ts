@@ -292,7 +292,7 @@ export async function run(to: string, opts: SendOptions): Promise<void> {
         console.error(pc.yellow(`\n  ⚠ transfer submitted but the outcome couldn't be confirmed — @polkadot/api can't decode Portaldot's result events.`));
         console.error(pc.dim(`  This usually means it FAILED. Confirm with Python: pdk debug ${outcome.txHash}\n`));
       } else {
-        console.error(pc.yellow(`\n  ⚠ no block inclusion within the timeout — the tx may still land later, or never reached the pool.`));
+        console.error(pc.yellow('\n  ⚠ no block inclusion within the timeout — the tx may still land later, or never reached the pool.'));
         console.error(pc.dim('  Check node connectivity (a stalled/non-authoring node causes this) and retry.\n'));
       }
     } else {

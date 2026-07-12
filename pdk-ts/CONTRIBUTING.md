@@ -7,9 +7,11 @@ the same repository and share the same knowledge base
 
 ## Ground rules
 
-- **Read-only until alpha.3.** Do not add commands that sign or submit
-  transactions before signing lands in alpha.3. Contributors should be
-  able to `npm test` and `npm run dev` without ever moving POT.
+- **Signing is explicit and opt-in.** Only commands that deliberately sign
+  (`send`, `seed`, `assets create/mint/transfer`) move POT, and only when
+  invoked live against a node. `npm test` never touches a live chain —
+  node-dependent behavior is verified separately against a `--dev` node,
+  so contributors can trust the suite won't move POT.
 - **Metadata-driven.** No hardcoded pallet lists, error tables, or
   chain-specific magic strings. Every fact comes from the runtime
   metadata or from the shared KB.

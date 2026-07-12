@@ -23,7 +23,7 @@ add helps every Portaldot developer who hits that error next.
 
 **Where to start:** run `pdk kb --missing` (Python) or `pdk-ts kb --missing`
 (TypeScript) — both read the same shared KB and show the same shortlist — to
-see the 175 indexed errors that don't yet have a curated fix. Each one is a
+see the 166 indexed errors that don't yet have a curated fix. Each one is a
 5-line YAML PR. Pick any pallet you know — Assets, Contracts, Staking,
 Identity — and open a small PR with 3-5 entries.
 

@@ -228,11 +228,11 @@ the alpha.8 PAPI/bundle pass and a beta.1 hardening pass.
 **Q: How is pdk-ts different from `@polkadot/api` or PAPI?**
 A: pdk-ts is a **CLI** built on top of those libraries. See the
 comparison table at the root README. Short version: PAPI/api are
-libraries, pdk-ts is the 16-command dev-loop toolkit.
+libraries, pdk-ts is the 17-command dev-loop toolkit.
 
 **Q: What about ink! contracts?**
-A: pdk-ts uses native pallets (Balances etc). ink! contract deploy is a
-post-parity roadmap item, not yet in the current surface.
+A: pdk-ts uses native pallets (Balances, Assets). ink! contract deploy is
+the next signing target on the same path as Assets — not yet shipped.
 
 ## Bundle size
 
@@ -241,7 +241,7 @@ mostly `@polkadot/api` and its transitive dependencies for chain
 encoding, metadata handling, and crypto. The compiled distributable
 (`dist/`) is under **200 KB**; the size lives in the runtime
 dependencies, not our code. Bundle-size optimisation is scoped for
-α.6 alongside the PAPI migration spike, since PAPI's smaller
+α.8 alongside the PAPI migration spike, since PAPI's smaller
 footprint is one of its main selling points.
 
 ## Design bets

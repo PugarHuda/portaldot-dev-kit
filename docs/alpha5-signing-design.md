@@ -1,5 +1,13 @@
 # pdk-ts α.4 — signing tier design
 
+> **SUPERSEDED.** This is a pre-implementation design note, kept for
+> historical record. The signing tier actually shipped in **alpha.5**
+> (not α.4 as planned here), and the surface has since grown well past
+> this doc's scope — `assets` (create/mint/transfer), `fund`,
+> `send --dry-run`, `report --exit-code`, and the hero `debug` all
+> shipped through alpha.7. See `pdk-ts/CHANGELOG.md` for what actually
+> happened.
+
 Status: **DESIGN** (not implemented). This document scopes the α.4
 alpha which introduces the first commands that move POT: `simulate`,
 `send`, `seed`. Everything before α.4 has been read-only by design.

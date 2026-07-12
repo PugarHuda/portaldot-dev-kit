@@ -30,6 +30,19 @@ def test_version_flag_reports_version() -> None:
     assert __version__ in result.output
 
 
+def test_version_matches_pyproject() -> None:
+    # Regression guard: pdk/__init__.py's __version__ drifted from
+    # pyproject.toml's version for a full release (0.1.6 vs 0.1.7 on PyPI)
+    # because the only prior test compared __version__ against itself, not
+    # against the source of truth. Cross-check both against pyproject.toml
+    # directly so a bump to one without the other fails CI.
+    import tomllib
+    from pathlib import Path
+
+    pyproject = tomllib.loads((Path(__file__).resolve().parent.parent / "pyproject.toml").read_text(encoding="utf-8"))
+    assert __version__ == pyproject["project"]["version"]
+
+
 def test_debug_without_hash_or_demo_errors() -> None:
     # No node is contacted: the missing-argument check runs first.
     result = runner.invoke(app, ["debug"])

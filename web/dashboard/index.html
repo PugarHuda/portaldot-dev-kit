@@ -7,7 +7,7 @@
 <meta name="description" content="A visual companion to the pdk CLI — node health, FailLens diagnoses, dev accounts, and the full command surface for the Portaldot blockchain." />
 <meta name="theme-color" content="#0a0c10" />
 <meta property="og:title" content="pdk — Portaldot Developer Dashboard" />
-<meta property="og:description" content="See what pdk surfaces from a live Portaldot node: node health, decoded failures, dev accounts, and 14 commands." />
+<meta property="og:description" content="See what pdk surfaces from a live Portaldot node: node health, decoded failures, dev accounts, and 16 commands." />
 <meta property="og:url" content="https://portaldot-pdk.vercel.app/dashboard" />
 <meta property="og:image" content="https://portaldot-pdk.vercel.app/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -114,7 +114,7 @@
   <section class="hero">
     <div class="kicker">Portaldot · developer dashboard</div>
     <h1>Everything pdk surfaces — at a glance.</h1>
-    <p class="lede">pdk is a 12-command CLI for the Portaldot local dev loop. This dashboard
+    <p class="lede">pdk is a 16-command CLI for the Portaldot local dev loop. This dashboard
       is its visual companion: the node's health, a decoded failure from <span class="mono">FailLens</span>,
       the funded dev accounts, and the full command surface — the same data the CLI prints, laid out visually.</p>
     <div class="note">
@@ -146,7 +146,7 @@
       <div class="term" id="decoded"></div>
       <div style="margin-top:12px; color:var(--muted); font-size:13.5px;">
         Decoded against the chain's own metadata — <strong style="color:var(--text)">try any of the
-        <a href="/errors">29 verified errors</a></strong>. This runs the real knowledge base, in your browser.
+        <a href="/errors">38 verified errors</a></strong>. This runs the real knowledge base, in your browser.
       </div>
     </div>
 
@@ -178,7 +178,7 @@
 
     <!-- Command surface -->
     <div class="card col-12">
-      <h2>The command surface <span class="cmd">14 commands</span></h2>
+      <h2>The command surface <span class="cmd">16 commands</span></h2>
       <div class="cmds">
         <div class="cmd-card"><div class="c">pdk up</div><div class="d">Start a node + verify with a real tx</div></div>
         <div class="cmd-card"><div class="c">pdk accounts</div><div class="d">Funded dev accounts + POT</div></div>
@@ -188,15 +188,17 @@
         <div class="cmd-card"><div class="c">pdk simulate</div><div class="d">Preview fee + feasibility</div></div>
         <div class="cmd-card"><div class="c">pdk seed</div><div class="d">Fund accounts from fixtures</div></div>
         <div class="cmd-card"><div class="c">pdk pallets</div><div class="d">Browse pallets / calls / errors</div></div>
-        <div class="cmd-card"><div class="c">pdk send</div><div class="d">A real POT transfer</div></div>
+        <div class="cmd-card"><div class="c">pdk send</div><div class="d">A real POT transfer (--dry-run to preview)</div></div>
+        <div class="cmd-card"><div class="c">pdk fund</div><div class="d">Top up an account from //Alice</div></div>
         <div class="cmd-card"><div class="c">pdk storage</div><div class="d">Read any chain storage</div></div>
         <div class="cmd-card"><div class="c">pdk watch</div><div class="d">Stream chain events live</div></div>
         <div class="cmd-card"><div class="c">pdk keys</div><div class="d">Generate / inspect a keypair</div></div>
-        <div class="cmd-card"><div class="c">pdk report</div><div class="d">Group + count every failure</div></div>
+        <div class="cmd-card"><div class="c">pdk report</div><div class="d">Group + count every failure (--exit-code for CI)</div></div>
+        <div class="cmd-card"><div class="c">pdk kb</div><div class="d">Knowledge-base coverage + missing entries</div></div>
         <div class="cmd-card"><div class="c">pdk ai-setup</div><div class="d">Wire up the optional AI layer</div></div>
       </div>
       <div style="margin-top:14px; color:var(--muted); font-size:13.5px;">
-        <span class="mono">pip install portaldot-pdk</span> (v0.1.6) · Linux, macOS &amp; Windows ·
+        <span class="mono">pip install portaldot-pdk</span> (v0.1.7) · Linux, macOS &amp; Windows ·
         CI-gating with <span class="mono">pdk debug --json --exit-code</span>.
       </div>
     </div>
@@ -236,7 +238,7 @@
 </footer>
 
 <script>
-// Mirrors pdk/data/error_fixes.yaml (29 entries, verified vs live runtime metadata).
+// Mirrors pdk/data/error_fixes.yaml (38 entries, verified vs live runtime metadata).
 const ERRORS = [
   {p:"balances", n:"InsufficientBalance", s:"You tried to transfer more POT than the sending account holds.", f:["Check the sender balance via the Portaldot explorer (portalscan.portaldot.io) or `pdk doctor`.","Lower the transfer amount, or fund the account first (dev accounts are pre-funded on a --dev chain)."]},
   {p:"balances", n:"ExistentialDeposit", s:"The transfer would leave an account below the Existential Deposit, so it was rejected.", f:["Leave at least the Existential Deposit in both the sender and receiver.","Or move the whole balance with `transfer` (allow death) instead of `transfer_keep_alive`."]},
@@ -267,6 +269,15 @@ const ERRORS = [
   {p:"scheduler", n:"TargetBlockNumberInPast", s:"The scheduled call's target block is already in the past.", f:["Schedule for a block number greater than the current chain head."]},
   {p:"dispatch", n:"BadOrigin", s:"The call requires a different origin (e.g. Root or a specific owner) than the signer used.", f:["Sign with an account authorised for this call.","Root-only calls must be routed through the `sudo` pallet on a dev node."]},
   {p:"dispatch", n:"CannotLookup", s:"An address lookup failed — e.g. an account index that does not resolve to an account.", f:["Pass a full account address instead of an index, or check the index exists."]},
+  {p:"sudo", n:"RequireSudo", s:"The call needs the Sudo (Root) key, but it was signed by another account or not wrapped in a sudo call.", f:["Wrap the inner call in `sudo.sudo(call)` — Root-only calls must go through the Sudo pallet.","Sign with the current sudo key (it is //Alice on a --dev chain). Confirm it via `pdk storage Sudo Key`."]},
+  {p:"staking", n:"AlreadyBonded", s:"This stash is already bonded, so you cannot bond it again.", f:["Add to the existing bond with `staking.bondExtra` instead of `staking.bond`.","To start over, `staking.unbond` then `staking.withdrawUnbonded` first."]},
+  {p:"staking", n:"EmptyTargets", s:"You called `staking.nominate` with an empty validator list.", f:["Pass at least one validator address to nominate.","Find candidates via `staking.validators` before nominating."]},
+  {p:"staking", n:"NotStash", s:"The signing account is not the stash account this call expects.", f:["Sign with the stash account (the one that holds the bonded funds), not the controller."]},
+  {p:"assets", n:"BalanceZero", s:"The account holds zero of this asset, so there is nothing for the operation to act on.", f:["Mint or transfer some of the asset to the account first (`assets.mint` / `assets.transfer`)."]},
+  {p:"assets", n:"InUse", s:"The asset ID is already taken, so it cannot be created again.", f:["Pick a different, unused asset ID for `assets.create`.","Inspect existing assets to find a free ID before creating."]},
+  {p:"assets", n:"NoProvider", s:"The target account has no provider reference, so it cannot hold a non-zero balance of this (non-sufficient) asset yet.", f:["Give the account a provider first — fund it with a small POT transfer so it exists on-chain, then retry."]},
+  {p:"balances", n:"ExistingVestingSchedule", s:"A vesting schedule already exists for this account, so another cannot be added.", f:["Target a different account, or wait for the existing schedule to release before adding one."]},
+  {p:"balances", n:"TooManyReserves", s:"The account already holds the maximum number of named reserves (MaxReserves).", f:["Release an existing reserve before creating a new one."]},
 ];
 const QUICK = ["balances.InsufficientBalance","contracts.OutOfGas","dispatch.BadOrigin","contracts.ContractTrapped","assets.Frozen"];
 

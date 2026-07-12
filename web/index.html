@@ -136,7 +136,7 @@
 <header>
   <div class="wrap">
     <span class="tag" style="background:rgba(63,185,80,.12); border-color:var(--green); color:var(--green);">🏆 1st Place · Portaldot Online Mini Hackathon S1 · Builder Tools</span>
-    <span class="tag" style="background:rgba(210,153,34,.10); border-color:var(--amber); color:var(--amber); margin-left:6px;">v0.2 alpha.4 · 10/14 cmds on TS side →&nbsp;<a href="https://github.com/PugarHuda/portaldot-dev-kit/tree/master/pdk-ts" style="color:inherit;text-decoration:underline;">pdk-ts</a></span>
+    <span class="tag" style="background:rgba(210,153,34,.10); border-color:var(--amber); color:var(--amber); margin-left:6px;">v0.2 alpha.7 · signs Assets pallet calls Python can't →&nbsp;<a href="https://github.com/PugarHuda/portaldot-dev-kit/tree/master/pdk-ts" style="color:inherit;text-decoration:underline;">pdk-ts</a></span>
     <h1>Portaldot Dev Kit<span class="dot">.</span></h1>
     <p class="lede">
       A command-line toolkit for the Portaldot blockchain. Its hero feature,
@@ -155,7 +155,7 @@
       Your browser cannot play MP4. <a href="/pitch.mp4">Download the video</a>.
     </video>
     <p style="color:var(--muted);font-size:13px;margin-top:8px;font-family:var(--mono);">
-      90 s · voiced narration · all 14 commands running against a real local Portaldot node ·
+      90 s · voiced narration · all 16 commands running against a real local Portaldot node ·
       <a href="/demo">replay the terminal in your browser →</a>
     </p>
   </div>
@@ -248,7 +248,11 @@
       </div>
       <div class="card">
         <div class="cmd">pdk send</div>
-        <p>Send POT from a dev account — a real on-chain transfer.</p>
+        <p>Send POT from a dev account — a real on-chain transfer. <code>--dry-run</code> previews the fee first.</p>
+      </div>
+      <div class="card">
+        <div class="cmd">pdk fund</div>
+        <p>Top up an account with POT from //Alice — the literal answer to <em>"how do I get POT?"</em>.</p>
       </div>
       <div class="card">
         <div class="cmd">pdk storage</div>
@@ -261,6 +265,18 @@
       <div class="card">
         <div class="cmd">pdk keys</div>
         <p>Generate or inspect a keypair — no separate tool needed.</p>
+      </div>
+      <div class="card">
+        <div class="cmd">pdk report</div>
+        <p>Scan recent blocks and summarise every failure by type. <code>--exit-code</code> gates CI on the result.</p>
+      </div>
+      <div class="card">
+        <div class="cmd">pdk kb</div>
+        <p>Knowledge-base introspection — coverage, missing entries, and live verification against a node.</p>
+      </div>
+      <div class="card">
+        <div class="cmd">pdk ai-setup</div>
+        <p>Set up (or verify) the optional AI diagnosis layer — auto-on once <code>PDK_AI_KEY</code> is set.</p>
       </div>
     </div>
   </div>
@@ -305,37 +321,45 @@
 
 <section id="pdk-ts">
   <div class="wrap">
-    <h2>v0.2 — TypeScript companion (α.1 shipped)</h2>
-    <h3><span class="mono">pdk-ts</span> covers what Python can't sign on Portaldot V13 metadata.</h3>
+    <h2>v0.2 — TypeScript companion (α.7 · signs what Python can't)</h2>
+    <h3><span class="mono">pdk-ts</span> signs Assets pallet calls Python cannot sign on Portaldot at all.</h3>
     <p class="body">
-      The Python <span class="mono">substrate-interface</span> library
-      mis-signs custom-pallet calls on Portaldot's V13 metadata
+      Verified directly against a live node: <span class="mono">Assets.create</span>
+      from Python's <span class="mono">substrate-interface</span> fails at the RPC
+      layer with <span class="mono">"Invalid Transaction: bad signature"</span> before
+      it even reaches a dispatch error
       (upstream <a href="https://github.com/polkascan/py-substrate-interface/issues/9">polkascan/py-substrate-interface#9</a>).
-      <span class="mono">pdk-ts</span> is a TypeScript companion CLI on
-      <span class="mono">@polkadot/api</span> that reaches the parts
-      Python can't — Assets pallet, ink! contract deploy, and any
-      custom-pallet Portaldot ships next.
+      <span class="mono">@polkadot/api</span> signs the identical call
+      successfully — <span class="mono">pdk-ts assets create/mint/transfer</span>
+      is the only member of the pair that can do this. ink! contract deploy is
+      next on the same path.
     </p>
     <p class="body" style="margin-top:12px;">
-      Alpha.4 covers <span class="mono">doctor</span> ·
+      Alpha.7 covers all 17 commands — the full chain / FailLens / signing
+      surface Python has (<span class="mono">doctor</span> ·
       <span class="mono">accounts</span> ·
       <span class="mono">pallets</span> ·
       <span class="mono">storage</span> ·
       <span class="mono">keys</span> ·
       <span class="mono">explain</span> ·
+      <span class="mono">debug</span> ·
+      <span class="mono">report</span> ·
+      <span class="mono">simulate</span> ·
+      <span class="mono">send</span> ·
+      <span class="mono">fund</span> ·
+      <span class="mono">seed</span> ·
+      <span class="mono">watch</span> ·
       <span class="mono">diagnose</span> ·
       <span class="mono">examples</span> ·
       <span class="mono">kb</span> ·
-      <span class="mono">version</span> —
-      <strong>10 of 14</strong> commands live, and it's now importable as a
-      library (<span class="mono">import { resolveByName } from 'portaldot-pdk-ts'</span>).
-      The hero <span class="mono">explain</span> command (raw-code decoder — the
-      unique feature) works standalone from the shared YAML KB, no
-      node needed. Both CLIs read the same knowledge base so one PR
-      benefits both.
+      <span class="mono">version</span>), <strong>plus <span class="mono">assets</span></strong> —
+      the surface Python can't touch. Importable as a
+      library too (<span class="mono">import { resolveByName } from 'portaldot-pdk-ts'</span>).
+      Both CLIs read the same knowledge base so one PR benefits both.
     </p>
     <div class="btns" style="margin-top:16px;">
-      <a class="btn primary" href="https://github.com/PugarHuda/portaldot-dev-kit/tree/master/pdk-ts">Browse pdk-ts source</a>
+      <a class="btn primary" href="https://www.npmjs.com/package/portaldot-pdk-ts">npm install portaldot-pdk-ts@alpha</a>
+      <a class="btn" href="https://github.com/PugarHuda/portaldot-dev-kit/tree/master/pdk-ts">Browse pdk-ts source</a>
       <a class="btn" href="https://github.com/PugarHuda/portaldot-dev-kit/blob/master/pdk-ts/README.md">Roadmap</a>
     </div>
   </div>
@@ -346,10 +370,11 @@
     <h2>Roadmap</h2>
     <h3>The standard Portaldot dev toolkit.</h3>
     <p class="body">
-      pdk is built to grow beyond this hackathon: v0.2 TypeScript
-      companion (α.1 shipped), VS Code + Cursor editor extensions,
-      community-owned knowledge base, and public-RPC readiness for
-      Portaldot mainnet.
+      pdk is built to grow beyond this hackathon: the v0.2 TypeScript
+      companion has shipped through alpha.7 (Assets pallet signing).
+      Next: ink! contract deploy in pdk-ts, VS Code + Cursor editor
+      extensions, community-owned knowledge base growth, and public-RPC
+      readiness for Portaldot mainnet.
     </p>
   </div>
 </section>

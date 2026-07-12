@@ -37,7 +37,8 @@ you do not, please DM `@PortaldotDevKit` on X as a fallback.
 ## What "signing" means in scope
 
 `pdk` (Python) already ships signing via `substrate-interface`. `pdk-ts`
-signing lands in v0.2.0-alpha.3. Any vulnerability that:
+signing shipped in v0.2.0-alpha.5 (now at alpha.7, including Assets pallet
+signing). Any vulnerability that:
 
 - Sends a private key over the network
 - Persists a private key to disk unencrypted

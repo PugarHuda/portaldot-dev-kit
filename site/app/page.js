@@ -9,11 +9,12 @@ const COMMANDS = [
   ["pdk simulate", "Preview a transfer's POT fee and feasibility — without sending it."],
   ["pdk seed", "Fund accounts from YAML fixtures so you start from realistic state."],
   ["pdk pallets", "Browse the runtime's pallets, calls, and errors — straight from metadata."],
-  ["pdk send", "Send POT from a dev account — a real on-chain transfer."],
+  ["pdk send", "Send POT from a dev account — a real on-chain transfer. --dry-run previews the fee first."],
+  ["pdk fund", 'Top up an account with POT from //Alice — the literal answer to "how do I get POT?".'],
   ["pdk storage", "Read any value from the chain's storage, straight from the terminal."],
   ["pdk watch", "Stream every chain event live — a general monitoring view."],
   ["pdk keys", "Generate or inspect a keypair — no separate tool needed."],
-  ["pdk report", "Scan recent blocks and summarise every failure by type — triage at a glance."],
+  ["pdk report", "Scan recent blocks and summarise every failure by type — triage at a glance. --exit-code gates CI."],
 ];
 
 export default function Home() {
@@ -103,7 +104,7 @@ export default function Home() {
 
       <Reveal as="section" className="sec">
         <div className="wrap">
-          <div className="sec-kicker">The toolkit · 13 commands</div>
+          <div className="sec-kicker">The toolkit · 16 commands</div>
           <div className="cards">
             {COMMANDS.map(([cmd, desc]) => (
               <div className="l-card" key={cmd}>
@@ -159,8 +160,14 @@ export default function Home() {
           <div className="sec-kicker">Roadmap</div>
           <h3>The standard Portaldot dev toolkit.</h3>
           <p className="body">
-            On PyPI today. Next: a typed TypeScript SDK (to unlock ink! contract deploy), editor extensions,
-            and deeper CI integrations — all under one CLI.
+            <span className="mono">pdk</span> is on PyPI today. Its TypeScript companion,{" "}
+            <span className="mono">pdk-ts</span> (on npm as{" "}
+            <span className="mono">portaldot-pdk-ts@alpha</span>), now signs Assets pallet calls
+            Python&apos;s <span className="mono">substrate-interface</span> cannot sign on Portaldot at
+            all — verified directly: <span className="mono">Assets.create</span> from Python fails at
+            the RPC layer with &quot;bad signature&quot; before it even reaches a dispatch error.
+            ink! contract deploy is next on the same path, plus editor extensions and deeper CI
+            integrations — all under one shared knowledge base.
           </p>
         </div>
       </Reveal>
