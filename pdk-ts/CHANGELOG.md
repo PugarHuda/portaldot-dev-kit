@@ -51,6 +51,16 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 ## [Unreleased]
 
 ### Added
+- **`report`** — scan recent blocks and group every decoded failure by
+  error type (read-only failure analytics). `--blocks N`, `--json`. The
+  `{blocks_scanned, total_failures, by_error}` core shape matches Python
+  `pdk report` exactly. NOTE: on Portaldot, @polkadot/api cannot decode
+  the events in blocks that contain a failure (the same metadata/type
+  limitation behind "Unable to map [u8; 32]"; Python's substrate-interface
+  with its node-template preset does not hit this). Rather than silently
+  under-count, `report` skips undecodable blocks and surfaces
+  `blocks_undecodable` + a warning pointing at Python. Works fully on
+  chains @polkadot/api decodes natively (verified clean against Polkadot).
 - **`kb --verify --node <url>`** — walks a live node's runtime metadata
   and diffs it against the shipped offline error index, flagging
   mismatches (a code whose name changed — the fast path would return the

@@ -32,6 +32,7 @@ import * as explain from './commands/explain.js';
 import * as diagnose from './commands/diagnose.js';
 import * as examples from './commands/examples.js';
 import * as kb from './commands/kb.js';
+import * as report from './commands/report.js';
 
 const program = new Command();
 
@@ -131,6 +132,15 @@ program
   .command('examples')
   .description('Print a curated list of example invocations, grouped by task')
   .action(() => examples.run());
+
+program
+  .command('report')
+  .description('Scan recent blocks and group every decoded failure by error type')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--blocks <n>', 'how many recent blocks to scan (default 20)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--json', 'emit machine-readable JSON')
+  .action((opts) => report.run(opts));
 
 program
   .command('kb')
