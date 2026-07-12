@@ -43,13 +43,27 @@ export interface TransferOutcome {
   error: string | null;
 }
 
-/** Resolve a recipient (//URI or bare name → derive address; SS58 → as-is). */
+/**
+ * Resolve a transfer recipient — deliberately STRICTER than `keys`'
+ * `normaliseUri`. On a money command a bare word like `NOTANADDRESS` is far
+ * more likely a typo or a mangled address than a deliberate `//NOTANADDRESS`
+ * dev-derivation, and silently deriving one and sending real POT to it is a
+ * black-hole footgun (verified: it reported success while the money left).
+ *
+ * So: an explicit `//URI` (or a git-bash-mangled `/URI`) derives an account;
+ * anything else MUST be a valid SS58 address (checked, not assumed). A bare
+ * word that is neither is a hard error — use `//Name` to mean a dev account.
+ */
 export function resolveRecipient(keyring: Keyring, to: string): string {
-  const norm = normaliseUri(to);
-  if (norm.startsWith('//') || norm.includes('/')) {
-    return keyring.addFromUri(norm).address;
+  const s = to.trim();
+  if (s.startsWith('//')) return keyring.addFromUri(s).address;
+  if (s.startsWith('/')) return keyring.addFromUri(`/${s}`).address; // git-bash mangled //
+  try {
+    keyring.decodeAddress(s); // throws if not a valid SS58 address
+    return s;
+  } catch {
+    throw new Error(`"${to}" is not a valid SS58 address or //derivation URI — to send to a dev account use its //URI (e.g. //Bob).`);
   }
-  return norm; // already an SS58 address
 }
 
 /** Best-effort decode of a dispatch error; null if @polkadot/api can't. */
