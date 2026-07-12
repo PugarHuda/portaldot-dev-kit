@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.2.0-alpha.5 — 2026-07-12
+
+Full command parity with Python `pdk`. The signing tier and the hero
+`debug` (FailLens) all land here — pdk-ts now covers every command it can
+sign or read on Portaldot's V13 metadata, verified end-to-end against a
+live `--dev` node.
+
+### Added
+- **`debug`** — FailLens ported. `debug <txhash>` scans recent blocks for
+  the extrinsic, decodes its `ExtrinsicFailed` DispatchError to a
+  `Pallet.Error` (reusing `report`'s decoder), and resolves the curated
+  fix (reusing `explain`'s KB lookup). `--demo` submits a failing transfer
+  then diagnoses it; `--exit-code` exits 2 on a decoded failure (CI gate).
+  Honest about the decode wall: a real failed tx whose events
+  @polkadot/api can't decode resolves to `undecodable` and points at
+  Python `pdk debug <hash>` rather than fabricating a decode. The demo
+  stays useful — it knows it triggered `Balances.InsufficientBalance`
+  (verified via Python), so it shows that diagnosis even on the wall.
+- Signing tier reached parity this cycle: **`send`**, **`seed`**,
+  **`simulate`**, **`report`**, **`watch`** — see the detailed entries
+  below. All share one money-path invariant: success is confirmed by a
+  positive `system.ExtrinsicSuccess` event, never by the absence of a
+  dispatchError.
+
+### Fixed
+- **Money-path footgun in `send`/`seed`**: `send NOTANADDRESS --amount 1`
+  reported success and moved real POT — `resolveRecipient` reused `keys`'
+  bare-word `//`-prepend and silently derived a junk account. Recipient
+  resolution is now strict: explicit `//URI` derives, anything else must
+  decode as a valid SS58 address, a bare word is a hard error.
+
 ## 0.2.0-alpha.4 — 2026-07-09
 
 Publishability + library-consumer pass. `pdk-ts` is now importable as a
