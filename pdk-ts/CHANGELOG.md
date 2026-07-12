@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- `report --exit-code` — exit 2 when any failure is found in range, for CI
+  gating (mirrors `debug --exit-code`). On Portaldot, pdk-ts only counts
+  failures it can decode; Python `pdk report --exit-code` is the reliable
+  gate there.
+- Shared KB grew from 29 → 38 curated entries (sudo/staking/assets/balances
+  dev-loop errors). Bundled into pdk-ts on this release.
+
 ## 0.2.0-alpha.6 — 2026-07-12
 
 Post-publish QA sweep. alpha.5 was the first version on npm; installing it

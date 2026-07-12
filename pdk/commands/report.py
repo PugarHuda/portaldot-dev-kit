@@ -27,6 +27,7 @@ def run(
     node: str = typer.Option(DEFAULT_NODE_URL, "--node", help="Portaldot node WS endpoint."),
     blocks: int = typer.Option(RECENT_BLOCKS_SCAN, "--blocks", help="How many recent blocks to scan."),
     json_out: bool = typer.Option(False, "--json", help="Emit the report as JSON (for CI/scripts)."),
+    exit_code: bool = typer.Option(False, "--exit-code", help="Exit 2 when any failure is found in range — for CI gating (mirrors `pdk debug --exit-code`)."),
     ai: bool = typer.Option(False, "--ai", help="Force the AI pattern summary even when no key is set (prints the setup hint)."),
     no_ai: bool = typer.Option(False, "--no-ai", help="Skip the AI pattern summary even if PDK_AI_KEY is set."),
 ) -> None:
@@ -74,6 +75,8 @@ def run(
             "total_failures": len(hits),
             "by_error": [{"error": e, "count": c} for e, c in grouped],
         }))
+        if exit_code and hits:
+            raise typer.Exit(code=2)
         return
 
     if not hits:
@@ -97,6 +100,9 @@ def run(
     console.print(table)
     console.print(f"[bold]{len(hits)}[/bold] failed extrinsic(s) across {len(grouped)} error type(s). "
                   "Use [bold]pdk debug <hash>[/bold] to dig into one.")
+    if exit_code:
+        # We only reach here when hits exist (the no-hits branch returned).
+        raise typer.Exit(code=2)
     if _should_run_ai(ai, no_ai):
         _ai_pattern_summary(grouped, blocks, explicit=ai)
 

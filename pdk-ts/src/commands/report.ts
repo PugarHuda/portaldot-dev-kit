@@ -21,6 +21,7 @@ export interface ReportOptions {
   blocks?: string;
   timeout?: string;
   json?: boolean;
+  exitCode?: boolean;
 }
 
 export interface ReportResult {
@@ -138,9 +139,14 @@ export async function run(opts: ReportOptions): Promise<void> {
 
   try {
     const result = await collectFailures(node, blocks, timeoutMs);
+    // CI gate: exit 2 when any failure is in range (mirrors debug --exit-code).
+    const gate = () => {
+      if (opts.exitCode && result.total_failures > 0) process.exit(2);
+    };
     if (opts.json) {
       console.log(JSON.stringify(result));
       await closeApi();
+      gate();
       return;
     }
     console.log();
@@ -173,4 +179,5 @@ export async function run(opts: ReportOptions): Promise<void> {
     process.exit(1);
   }
   await closeApi();
+  if (opts.exitCode) process.exit(2); // reached only when total_failures > 0
 }

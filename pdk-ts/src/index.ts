@@ -182,6 +182,7 @@ program
   .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
   .option('--blocks <n>', 'how many recent blocks to scan (default 20)')
   .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--exit-code', 'exit 2 when any failure is found in range (for CI gating)')
   .option('--json', 'emit machine-readable JSON')
   .action((opts) => report.run(opts));
 
