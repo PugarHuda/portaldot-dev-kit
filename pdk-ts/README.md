@@ -1,8 +1,8 @@
 # pdk-ts — TypeScript companion for pdk
 
 [![npm version](https://img.shields.io/npm/v/portaldot-pdk-ts?label=npm%20%40alpha&color=orange)](https://www.npmjs.com/package/portaldot-pdk-ts)
-[![CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml)
-[![Docker](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml)
+[![CI](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml)
+[![Docker](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/docker.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/docker.yml)
 
 Status: **v0.2.0-alpha.5** — full command parity: `doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `debug`, `report`, `simulate`, `send`, `seed`, `watch`, `diagnose`, `examples`, `kb`, `version` + library-importable public surface.
 
@@ -69,10 +69,10 @@ today's read-only slice; alpha.3 lights up signing.
 
 ## Support
 
-- Bugs & feature requests → [issues](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/issues)
-- Security disclosures → [SECURITY.md](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/blob/master/SECURITY.md)
-- Support policy → [SUPPORT.md](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/blob/master/SUPPORT.md)
-- Contribution guide → [CONTRIBUTING.md](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/blob/master/CONTRIBUTING.md)
+- Bugs & feature requests → [issues](https://github.com/PugarHuda/portaldot-dev-kit/issues)
+- Security disclosures → [SECURITY.md](https://github.com/PugarHuda/portaldot-dev-kit/blob/master/SECURITY.md)
+- Support policy → [SUPPORT.md](https://github.com/PugarHuda/portaldot-dev-kit/blob/master/SUPPORT.md)
+- Contribution guide → [CONTRIBUTING.md](https://github.com/PugarHuda/portaldot-dev-kit/blob/master/CONTRIBUTING.md)
 
 ## Roadmap
 

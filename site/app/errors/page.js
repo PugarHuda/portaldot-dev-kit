@@ -31,7 +31,7 @@ export default function ErrorsPage() {
             Want the same answers in your terminal, live against your own failed transactions?{" "}
             <span className="mono">pip install portaldot-pdk</span> → <span className="mono">pdk debug &lt;txhash&gt;</span>.
             Spot a missing or better fix? Every entry is community-owned —{" "}
-            <a href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/blob/master/CONTRIBUTING.md">add one in a five-line PR</a>.
+            <a href="https://github.com/PugarHuda/portaldot-dev-kit/blob/master/CONTRIBUTING.md">add one in a five-line PR</a>.
           </div>
         </section>
 
@@ -43,7 +43,7 @@ export default function ErrorsPage() {
       <footer className="site-foot">
         <div className="wrap row">
           <span>pdk — Portaldot Dev Kit · verified against runtime <span className="mono">portaldot-1002</span></span>
-          <span><a href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang">github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang</a></span>
+          <span><a href="https://github.com/PugarHuda/portaldot-dev-kit">github.com/PugarHuda/portaldot-dev-kit</a></span>
         </div>
       </footer>
     </>

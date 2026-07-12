@@ -11,7 +11,7 @@
 
 ## Something isn't working
 
-Open a GitHub Issue with the [bug template](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/issues/new?template=bug_report.md).
+Open a GitHub Issue with the [bug template](https://github.com/PugarHuda/portaldot-dev-kit/issues/new?template=bug_report.md).
 The template captures the info a maintainer needs to reproduce fast:
 CLI + version, exact command, expected vs actual, environment.
 
@@ -23,7 +23,7 @@ That's the community KB opportunity. Two paths:
 
 1. **PR the fix directly** — 5-line YAML entry in `pdk/data/error_fixes.yaml`.
    Both `pdk` and `pdk-ts` pick it up automatically.
-2. **Open a KB issue** — use the [KB entry template](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/issues/new?template=kb_entry.md).
+2. **Open a KB issue** — use the [KB entry template](https://github.com/PugarHuda/portaldot-dev-kit/issues/new?template=kb_entry.md).
    Tagged `good first issue` — maintainer will help you land the PR.
 
 ## Security disclosures
@@ -35,9 +35,9 @@ the maintainer directly at the address listed there. Response window
 ## Feature ideas
 
 Open a GitHub Discussion or issue with the `enhancement` label. The
-roadmap on the [partnership plan §2](docs/pdk-partnership-plan.md) is
-the authoritative source for what's on deck; feature ideas outside
-that scope get triaged after each alpha ship.
+CHANGELOG and the alpha roadmap in the README are the source for what's
+on deck; feature ideas outside that scope get triaged after each alpha
+ship.
 
 ## Real-time chat
 

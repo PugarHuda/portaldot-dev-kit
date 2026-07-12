@@ -72,7 +72,7 @@ export const Outro: React.FC = () => {
       >
         <div style={{color: '#3fb950', marginBottom: 8}}>pip install portaldot-pdk</div>
         <div style={{fontSize: 22, color: '#7d8590'}}>
-          portaldot-pdk.vercel.app · github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
+          portaldot-pdk.vercel.app · github.com/PugarHuda/portaldot-dev-kit
         </div>
       </div>
 

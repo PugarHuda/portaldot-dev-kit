@@ -49,7 +49,7 @@ Rules:
 ## Development
 
 ```bash
-git clone https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang pdk
+git clone https://github.com/PugarHuda/portaldot-dev-kit pdk
 cd pdk
 pip install -e .
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests/ -q

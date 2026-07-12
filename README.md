@@ -2,10 +2,10 @@
 
 <img src="docs/logo.png" alt="pdk — Portaldot Dev Kit" width="116" align="right" />
 
-[![pdk (Python) CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/ci.yml)
-[![pdk-ts CI](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/pdk-ts.yml)
-[![Docker](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/docker.yml)
-[![Security](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/security.yml/badge.svg)](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/actions/workflows/security.yml)
+[![pdk (Python) CI](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/ci.yml)
+[![pdk-ts CI](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml)
+[![Docker](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/docker.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/docker.yml)
+[![Security](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/security.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/security.yml)
 [![PyPI](https://img.shields.io/pypi/v/portaldot-pdk?label=pypi)](https://pypi.org/project/portaldot-pdk/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/portaldot-pdk?label=downloads)](https://pypistats.org/packages/portaldot-pdk)
 [![npm@alpha](https://img.shields.io/npm/v/portaldot-pdk-ts?label=npm%20%40alpha&color=orange)](https://www.npmjs.com/package/portaldot-pdk-ts)
@@ -20,7 +20,7 @@
 A developer toolkit for the [Portaldot](https://www.portaldot.io/) blockchain.
 Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
-**[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Submission](SUBMISSION.md) · [Changelog](CHANGELOG.md)
+**[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Changelog](CHANGELOG.md)
 
 > **v0.1.7 ([on PyPI](https://pypi.org/project/portaldot-pdk/)).**
 > **15 commands** for the whole local dev loop · **AI auto-on** when `PDK_AI_KEY`
@@ -62,7 +62,7 @@ docker run --rm ghcr.io/pugarhuda/portaldot-pdk-ts:0.2.0-alpha.4 \
   explain --name balances.InsufficientBalance
 ```
 
-Live artifacts: [PyPI 0.1.7](https://pypi.org/project/portaldot-pdk/) · [npm alpha.4](https://www.npmjs.com/package/portaldot-pdk-ts) · [GHCR image](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/pkgs/container/portaldot-pdk-ts) · [GitHub Releases](https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/releases) · [Publishing guide](PUBLISHING.md)
+Live artifacts: [PyPI 0.1.7](https://pypi.org/project/portaldot-pdk/) · [npm alpha.5](https://www.npmjs.com/package/portaldot-pdk-ts) · [GHCR image](https://github.com/PugarHuda/portaldot-dev-kit/pkgs/container/portaldot-pdk-ts) · [GitHub Releases](https://github.com/PugarHuda/portaldot-dev-kit/releases)
 
 ---
 
@@ -233,7 +233,7 @@ pdk --help                            # if `pdk` isn't on PATH, run `python -m p
 …or from source:
 
 ```bash
-git clone https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang pdk
+git clone https://github.com/PugarHuda/portaldot-dev-kit pdk
 cd pdk
 pip install -e .
 ```
@@ -410,7 +410,7 @@ Actions tab without pushing a new tag.
 
 ```bash
 # from web/ directory, using cached Vercel CLI auth:
-vercel git connect https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
+vercel git connect https://github.com/PugarHuda/portaldot-dev-kit
 vercel deploy --prod
 vercel alias set <new-deploy-url> portaldot-pdk.vercel.app
 ```

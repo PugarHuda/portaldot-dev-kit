@@ -119,7 +119,7 @@ export const DemoEmbed: React.FC = () => {
           letterSpacing: '0.05em',
         }}
       >
-        github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang
+        github.com/PugarHuda/portaldot-dev-kit
       </div>
 
       <div

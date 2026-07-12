@@ -50,12 +50,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang.git",
+    "url": "https://github.com/PugarHuda/portaldot-dev-kit.git",
     "directory": "pdk-ts"
   },
   "homepage": "https://portaldot-pdk.vercel.app",
   "bugs": {
-    "url": "https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang/issues"
+    "url": "https://github.com/PugarHuda/portaldot-dev-kit/issues"
   },
   "funding": {
     "type": "github",

@@ -27,7 +27,7 @@ export default function Home() {
             <a href="/errors">Error reference</a>
             <a href="/slide">Pitch deck</a>
             <a href="https://portalscan.portaldot.io">Explorer ↗</a>
-            <a href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang">GitHub ↗</a>
+            <a href="https://github.com/PugarHuda/portaldot-dev-kit">GitHub ↗</a>
           </nav>
         </div>
       </header>
@@ -48,7 +48,7 @@ export default function Home() {
           <div className="btns">
             <a className="btn primary" href="#install">Get started</a>
             <a className="btn" href="/dashboard">Open dashboard</a>
-            <a className="btn" href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang">View source</a>
+            <a className="btn" href="https://github.com/PugarHuda/portaldot-dev-kit">View source</a>
           </div>
         </div>
       </section>
@@ -168,7 +168,7 @@ export default function Home() {
       <footer className="site-foot">
         <div className="wrap row">
           <span>pdk — Portaldot Dev Kit · MIT License</span>
-          <span><a href="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang">github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang</a></span>
+          <span><a href="https://github.com/PugarHuda/portaldot-dev-kit">github.com/PugarHuda/portaldot-dev-kit</a></span>
         </div>
       </footer>
     </>

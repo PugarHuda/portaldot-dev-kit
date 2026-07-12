@@ -23,7 +23,7 @@ FROM node:22-alpine AS runtime
 LABEL org.opencontainers.image.title="pdk-ts"
 LABEL org.opencontainers.image.description="TypeScript companion CLI for PDK (Portaldot Dev Kit) — decode failed Portaldot transactions."
 LABEL org.opencontainers.image.url="https://portaldot-pdk.vercel.app"
-LABEL org.opencontainers.image.source="https://github.com/PugarHuda/portaldot-hackathon-2026-pdk-AmpunBang"
+LABEL org.opencontainers.image.source="https://github.com/PugarHuda/portaldot-dev-kit"
 LABEL org.opencontainers.image.licenses="MIT"
 
 WORKDIR /app
