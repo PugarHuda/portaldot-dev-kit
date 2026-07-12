@@ -83,6 +83,21 @@ def test_pallets_json_unreachable_emits_valid_json() -> None:
     assert "error" in payload and "detail" in payload
 
 
+def test_report_rejects_non_positive_blocks() -> None:
+    # The guard runs before any node connection — a negative/zero scan is
+    # a mistake, not a silent "no failures in the last -5 blocks" no-op.
+    for bad in ("-5", "0"):
+        result = runner.invoke(app, ["report", "--blocks", bad])
+        assert result.exit_code == 1
+        assert "at least 1" in result.output
+
+
+def test_report_non_positive_blocks_json_is_valid() -> None:
+    result = runner.invoke(app, ["report", "--blocks", "-1", "--json"])
+    assert result.exit_code == 1
+    assert "error" in _json.loads(result.output)
+
+
 def test_simulate_rejects_negative_amount() -> None:
     # The amount guard runs before any node connection.
     result = runner.invoke(app, ["simulate", "--amount", "-5"])

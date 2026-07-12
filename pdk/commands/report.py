@@ -31,6 +31,16 @@ def run(
     no_ai: bool = typer.Option(False, "--no-ai", help="Skip the AI pattern summary even if PDK_AI_KEY is set."),
 ) -> None:
     """Decode every failed extrinsic in the last N blocks and group them by error."""
+    if blocks < 1:
+        # A negative/zero scan is a mistake, not a no-op — reject it clearly
+        # instead of silently reporting "no failures in the last -5 blocks".
+        msg = "--blocks must be at least 1."
+        if json_out:
+            typer.echo(jsonlib.dumps({"error": msg}))
+        else:
+            console.print(f"[red]{msg}[/red]")
+        raise typer.Exit(code=1)
+
     try:
         substrate = connect(node)
     except Exception as exc:  # noqa: BLE001
