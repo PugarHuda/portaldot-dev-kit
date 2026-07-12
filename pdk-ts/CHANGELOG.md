@@ -64,6 +64,16 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
   Python `pdk debug <hash>`, never a false success. Verified live: a
   valid transfer moves the exact amount and reports success; a failing
   one reports unconfirmed.
+- **`watch`** — live-stream chain events as blocks are produced
+  (`--pallet` to filter, `--json` for NDJSON). Subscribes to new heads and
+  decodes each block's events. Same honesty as `report`: a block whose
+  events @polkadot/api can't decode on Portaldot is skipped with a
+  one-line note (`⚠ events undecodable`), never aborting the stream —
+  Python `pdk watch` for guaranteed-complete decoding. Ctrl+C stops
+  cleanly (unsubscribe + close socket, exit 0). Verified live:
+  `balances.Transfer` / `treasury.Deposit` / `system.ExtrinsicSuccess`
+  stream on each transfer; `--pallet Balances` correctly shows only
+  Balances events.
 - **`seed`** — fund accounts from a YAML fixtures file so you start from
   realistic multi-account state instead of just //Alice. Each `fund`
   fixture is a REAL transfer from //Alice, reusing `send`'s

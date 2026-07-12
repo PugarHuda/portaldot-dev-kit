@@ -36,6 +36,7 @@ import * as report from './commands/report.js';
 import * as simulate from './commands/simulate.js';
 import * as send from './commands/send.js';
 import * as seed from './commands/seed.js';
+import * as watch from './commands/watch.js';
 
 const program = new Command();
 
@@ -172,6 +173,15 @@ program
   .option('--timeout <seconds>', 'connect timeout in seconds')
   .option('--json', 'emit machine-readable JSON')
   .action((opts) => report.run(opts));
+
+program
+  .command('watch')
+  .description('Live-stream chain events as blocks are produced (Ctrl+C to stop)')
+  .option('--pallet <name>', 'only show events from this pallet (e.g. Balances)')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--json', 'emit one JSON object per event (NDJSON)')
+  .action((opts) => watch.run(opts));
 
 program
   .command('kb')
