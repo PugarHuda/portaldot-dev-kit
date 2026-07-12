@@ -12,7 +12,7 @@ cover the parts of Portaldot's runtime that Python `substrate-interface`
 cannot sign on V13 metadata — Assets pallet operations, ink! contract
 deploy, and any custom-pallet that ships with the chain going forward.
 
-Same 14-command surface, Node-backed, same terminal UX.
+Full command parity with Python pdk — 16 commands, Node-backed, same terminal UX.
 
 ## In a hurry
 
@@ -42,10 +42,10 @@ Cold import ~430 ms · offline lookup ~40 ms · no `@polkadot/api` until you act
                 │                           │
         ┌───────▼───────┐          ┌────────▼────────┐
         │  pdk (Python) │          │  pdk-ts (TS)    │
-        │  v0.1.6 · PyPI│          │  v0.2 alpha · npm-next│
+        │  v0.1.7 · PyPI│          │ v0.2 alpha.5·npm α│
         │               │          │                 │
         │ substrate-    │          │ @polkadot/api   │
-        │ interface     │          │ (PAPI at α.5)   │
+        │ interface     │          │ (PAPI at α.6)   │
         └───────┬───────┘          └────────┬────────┘
                 │                           │
                 └───────────┬───────────────┘
@@ -64,8 +64,9 @@ Version numbers here are **per-package**, not a global release. Python
 pdk shipped stable at 0.1.6 during the hackathon. pdk-ts starts fresh
 at 0.2 to signal that this whole track is the *v0.2 initiative* —
 covering the parts of the runtime Python can't sign — and the first
-`.0` release lands only when it reaches feature parity. Alpha.1 is
-today's read-only slice; alpha.3 lights up signing.
+`.0` release lands only when it reaches feature parity. Alpha.1–4 built
+the read-only surface; alpha.5 lit up signing and reached full command
+parity.
 
 ## Support
 
@@ -76,17 +77,16 @@ today's read-only slice; alpha.3 lights up signing.
 
 ## Roadmap
 
-| Alpha | Scope |
-|---|---|
-| alpha.1 | `doctor` · `accounts` · `version` — real chain queries |
-| alpha.2 | `pallets` · `storage` · `keys` — read-only surface |
-| alpha.3 | `explain` — hero raw-code decoder (skipped ahead of signing) |
-| **alpha.4** (current) | Library entry (`import { resolve, collectReport } from 'portaldot-pdk-ts'`), `diagnose`, `examples`, `kb` introspection, hardening pass |
-| alpha.5 | `simulate` · `send` · `seed` — signing lands here |
-| alpha.6 | `debug` · `report` · `watch` · `ai-setup` |
-| alpha.6 | PAPI migration spike + benchmark vs `@polkadot/api` |
-| beta.1  | Feature parity with Python `pdk` |
-| 0.2.0   | Ship as `portaldot-pdk-ts` on npm |
+| Alpha | Scope | Status |
+|---|---|---|
+| alpha.1 | `doctor` · `accounts` · `version` — real chain queries | ✅ |
+| alpha.2 | `pallets` · `storage` · `keys` — read-only surface | ✅ |
+| alpha.3 | `explain` — hero raw-code decoder (skipped ahead of signing) | ✅ |
+| alpha.4 | Library entry (`import { resolve, collectReport } from 'portaldot-pdk-ts'`), `diagnose`, `examples`, `kb` introspection, hardening pass | ✅ |
+| **alpha.5** (current) | Signing tier (`simulate` · `send` · `seed`) + `report` · `watch` + hero `debug` (FailLens) — **full command parity**, verified live | ✅ |
+| alpha.6 | PAPI migration spike + benchmark vs `@polkadot/api`; bundle-size pass | ◻️ |
+| beta.1  | Hardening + docs pass on the full surface | ◻️ |
+| 0.2.0   | Ship as `portaldot-pdk-ts` on npm (`latest` dist-tag) | ◻️ |
 
 ## Install (local dev)
 
@@ -113,6 +113,15 @@ pdk-ts storage <p> <i> [k] Read any storage value from the runtime
 pdk-ts keys [source]       Inspect (//Alice, mnemonic) or generate a keypair
 pdk-ts explain --module N --error M   Decode a raw code → named error + fix
 pdk-ts explain --name <pallet.error>  KB-only lookup (no node required)
+pdk-ts debug [txhash]      FailLens — diagnose a failed tx (--demo to trigger one)
+pdk-ts report              Scan recent blocks, group failures by error type
+pdk-ts watch [--pallet N]  Live-stream chain events as blocks are produced
+pdk-ts simulate --amount N Preview a transfer's fee + feasibility (no send)
+pdk-ts send <to> --amount N  Submit a REAL POT transfer (transferKeepAlive)
+pdk-ts seed [--file f]     Fund accounts from a YAML fixtures file
+pdk-ts diagnose            Tool + KB + index + connectivity status
+pdk-ts examples            Curated ready-to-copy invocations
+pdk-ts kb [--missing]      Knowledge-base introspection
 pdk-ts version [--json]    Print CLI version
 ```
 
@@ -200,17 +209,18 @@ A: Yes — pass `--node wss://<endpoint> --live` for full metadata
 resolution. Only the offline fast path is Portaldot-specific.
 
 **Q: When will pdk-ts publish to npm?**
-A: 0.2.0 stable target — after α.4 (signing), α.5 (debug/report/watch),
-and beta.1 (parity). At current velocity: ~2 weeks.
+A: Prereleases already ship to the `alpha` dist-tag (`npm install
+portaldot-pdk-ts@alpha`). The `0.2.0` stable `latest` release lands after
+the alpha.6 PAPI/bundle pass and a beta.1 hardening pass.
 
 **Q: How is pdk-ts different from `@polkadot/api` or PAPI?**
 A: pdk-ts is a **CLI** built on top of those libraries. See the
 comparison table at the root README. Short version: PAPI/api are
-libraries, pdk-ts is the 14-command dev-loop toolkit.
+libraries, pdk-ts is the 16-command dev-loop toolkit.
 
 **Q: What about ink! contracts?**
-A: pdk-ts uses native pallets (Balances etc). ink! contract deploy
-lands in α.4 signing tier alongside `send`, `simulate`, `seed`.
+A: pdk-ts uses native pallets (Balances etc). ink! contract deploy is a
+post-parity roadmap item, not yet in the current surface.
 
 ## Bundle size
 
@@ -233,9 +243,10 @@ upgrades.
 factory — commands request the API from it and never construct their
 own connection. Same pattern the Python core uses.
 
-**No transactional side-effects until alpha.3.** Alpha.1 and alpha.2
-are strictly read-only so contributors can trust that `npm test` and
-`npm run dev` will never move POT.
+**Signing is explicit and opt-in.** Only `send` and `seed` move POT, and
+only when you invoke them — every other command is read-only. `npm test`
+never touches a live chain (node-dependent paths are verified separately
+against a `--dev` node), so contributors can trust the suite won't move POT.
 
 ## Contributing
 

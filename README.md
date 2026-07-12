@@ -26,18 +26,20 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 > **15 commands** for the whole local dev loop · **AI auto-on** when `PDK_AI_KEY`
 > is set (no `--ai` flag; the verified KB stays the source of truth) ·
 > **`/demo` web page** replays the actual asciinema cast in your browser ·
-> **96 pytest cases (Python) + 87 vitest cases (pdk-ts) + 84 integration &
-> stress cases** verified against a real `portaldot-1002` node, plus a
-> hardening pass (Rich-markup / terminal-escape injection, prompt-injection
-> defense, exact planck math, `--json` CI contract).
+> **119 pytest cases (Python) + 117 vitest cases (pdk-ts)** verified against a
+> real `portaldot-1002` node, plus a hardening pass (Rich-markup /
+> terminal-escape injection, prompt-injection defense, exact planck math,
+> `--json` CI contract).
 
-> **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) at alpha.4.**
-> 10 of 14 commands live (`doctor`, `accounts`, `pallets`, `storage`, `keys`,
-> `explain`, `diagnose`, `examples`, `kb`, `version`). Now importable as a
-> library — `import { resolveByName } from 'portaldot-pdk-ts'` cold-imports
-> in ~430 ms; offline FailLens lookup in ~40 ms. Signing (`simulate` ·
-> `send` · `seed`) lands in alpha.5. Read the
-> [pdk-ts roadmap](pdk-ts/README.md#roadmap) for the alpha.5 → 0.2.0 npm ship plan.
+> **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) at alpha.5.**
+> Full command parity — 16 commands live (`doctor`, `accounts`, `pallets`,
+> `storage`, `keys`, `explain`, `debug`, `report`, `simulate`, `send`, `seed`,
+> `watch`, `diagnose`, `examples`, `kb`, `version`), including the signing tier
+> (`send` · `seed` · `simulate`) and the hero `debug` (FailLens) — all verified
+> live against a `--dev` node. Also importable as a library —
+> `import { resolveByName } from 'portaldot-pdk-ts'` cold-imports in ~430 ms;
+> offline FailLens lookup in ~40 ms. Read the
+> [pdk-ts roadmap](pdk-ts/README.md#roadmap) for the 0.2.0 npm ship plan.
 >
 > Both CLIs read the same knowledge base (`pdk/data/error_fixes.yaml`), so
 > one PR benefits both — details in [pdk-ts/CONTRIBUTING.md](pdk-ts/CONTRIBUTING.md).
@@ -81,11 +83,11 @@ intended environment), and the developer experience is rough:
 
 **Solution.** `pdk` (Portaldot Dev Kit) is a Python CLI with
 **15 commands** that owns the local development loop end-to-end, plus a
-TypeScript companion (`pdk-ts`, [pdk-ts/](pdk-ts/), at alpha.4 with 10 of
-14 commands live — including a library entry point) that will reach parity
-by beta.1 and cover what Python currently can't sign on Portaldot V13
-metadata. Both CLIs share one knowledge base — run `pdk kb --missing` or
-`pdk-ts kb --missing` to see what needs curating:
+TypeScript companion (`pdk-ts`, [pdk-ts/](pdk-ts/), at alpha.5 with full
+command parity — 16 commands live, including a library entry point) that
+covers what Python can't sign on Portaldot V13 metadata. Both CLIs share
+one knowledge base — run `pdk kb --missing` or `pdk-ts kb --missing` to
+see what needs curating:
 
 1. **FailLens** (`pdk debug`) — the hero. Decode any failed transaction
    against the chain's own metadata + a verified 29-entry knowledge base.
