@@ -104,13 +104,24 @@ function decodeDispatchError(api: {registry: {findMetaError: (m: unknown) => {se
 /** Max wait for block inclusion before reporting `unconfirmed`. */
 export const SUBMIT_TIMEOUT_MS = 60_000;
 
-export function submitTransfer(
+/**
+ * Sign + submit ANY pre-composed extrinsic and detect the outcome honestly.
+ * The engine `send`/`seed` (balances.transferKeepAlive) and `assets` (Assets
+ * pallet calls) all submit through — one place that owns the false-success
+ * guard and the hang guard, so every signing command inherits both for free.
+ *
+ * Success is confirmed ONLY by a positive `system.ExtrinsicSuccess` event,
+ * never by the mere absence of a dispatchError — @polkadot/api cannot decode
+ * Portaldot's events in a FAILED block, so trusting "no error" reports a
+ * failed transfer as sent (a verified false-success on a money path).
+ */
+export function submitExtrinsic(
   // biome-ignore lint/suspicious/noExplicitAny: ApiPromise surface is broad; the fields we touch are guarded at runtime.
   api: any,
+  // biome-ignore lint/suspicious/noExplicitAny: SubmittableExtrinsic — varies per call, checked at runtime.
+  tx: any,
   // biome-ignore lint/suspicious/noExplicitAny: KeyringPair.
   sender: any,
-  dest: string,
-  value: bigint,
   timeoutMs: number = SUBMIT_TIMEOUT_MS,
 ): Promise<TransferOutcome> {
   return new Promise<TransferOutcome>((resolve, reject) => {
@@ -134,8 +145,7 @@ export function submitTransfer(
       timeoutMs,
     );
 
-    api.tx.balances
-      .transferKeepAlive(dest, value.toString())
+    tx
       // biome-ignore lint/suspicious/noExplicitAny: signAndSend callback payload.
       .signAndSend(sender, ({status, dispatchError, events, txHash}: any) => {
         // Terminal non-inclusion statuses: the tx will never land in a block.
@@ -178,6 +188,19 @@ export function submitTransfer(
         }
       });
   });
+}
+
+/** transferKeepAlive specifically — send/seed's call into the shared engine. */
+export function submitTransfer(
+  // biome-ignore lint/suspicious/noExplicitAny: ApiPromise surface is broad.
+  api: any,
+  // biome-ignore lint/suspicious/noExplicitAny: KeyringPair.
+  sender: any,
+  dest: string,
+  value: bigint,
+  timeoutMs: number = SUBMIT_TIMEOUT_MS,
+): Promise<TransferOutcome> {
+  return submitExtrinsic(api, api.tx.balances.transferKeepAlive(dest, value.toString()), sender, timeoutMs);
 }
 
 /**

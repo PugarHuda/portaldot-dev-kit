@@ -36,6 +36,7 @@ import * as report from './commands/report.js';
 import * as simulate from './commands/simulate.js';
 import * as send from './commands/send.js';
 import * as fund from './commands/fund.js';
+import * as assets from './commands/assets.js';
 import * as seed from './commands/seed.js';
 import * as watch from './commands/watch.js';
 import * as debug from './commands/debug.js';
@@ -159,6 +160,41 @@ program
   .option('--timeout <seconds>', 'connect timeout in seconds')
   .option('--json', 'emit machine-readable JSON')
   .action((to, opts) => fund.run(to, opts));
+
+const assetsCmd = program
+  .command('assets')
+  .description('Sign Assets pallet operations — the surface Python substrate-interface cannot sign on Portaldot V13 metadata');
+
+assetsCmd
+  .command('create <id>')
+  .description('Create a new asset class (id must be unused)')
+  .option('--admin <uri>', "admin account for the asset (default: --from's account)")
+  .option('--min-balance <n>', 'minimum balance for an account to hold this asset (default 1)')
+  .option('--from <uri>', 'signing account URI (default //Alice)')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--json', 'emit machine-readable JSON')
+  .action((id, opts) => assets.runCreate(id, opts));
+
+assetsCmd
+  .command('mint <id> <to>')
+  .description('Mint units of an asset to an account (signer must be the asset admin)')
+  .option('--amount <n>', 'amount to mint (required, integer)')
+  .option('--from <uri>', 'signing account URI (default //Alice)')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--json', 'emit machine-readable JSON')
+  .action((id, to, opts) => assets.runMint(id, to, opts));
+
+assetsCmd
+  .command('transfer <id> <to>')
+  .description('Transfer units of an asset to another account')
+  .option('--amount <n>', 'amount to transfer (required, integer)')
+  .option('--from <uri>', 'signing account URI (default //Alice)')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--json', 'emit machine-readable JSON')
+  .action((id, to, opts) => assets.runTransfer(id, to, opts));
 
 program
   .command('seed')

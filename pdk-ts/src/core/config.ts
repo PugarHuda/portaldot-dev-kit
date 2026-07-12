@@ -43,4 +43,4 @@ export function validateNodeUrl(url: string): void {
   }
 }
 
-export const VERSION = '0.2.0-alpha.6';
+export const VERSION = '0.2.0-alpha.7';

@@ -4,17 +4,19 @@
 [![CI](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml)
 [![Docker](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/docker.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/docker.yml)
 
-Status: **v0.2.0-alpha.6** — 16 commands, covering every chain / FailLens / signing command Python pdk has: `doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `debug`, `report`, `simulate`, `send`, `seed`, `watch`, `diagnose`, `examples`, `kb`, `version` + library-importable public surface. (Python-only `up` (node lifecycle) and `ai-setup` are out of scope for the companion.)
+Status: **v0.2.0-alpha.7** — 17 commands, covering every chain / FailLens / signing command Python pdk has (`doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `debug`, `report`, `simulate`, `send`, `fund`, `seed`, `watch`, `diagnose`, `examples`, `kb`, `version`), **plus `assets` (create/mint/transfer) — Assets pallet signing Python cannot do at all**, the actual reason this companion exists. (Python-only `up` (node lifecycle) and `ai-setup` are out of scope for the companion.)
 
 pdk-ts is the TypeScript companion CLI to the Python
 [`portaldot-pdk`](https://pypi.org/project/portaldot-pdk/). Its reason to
-exist is to sign on Portaldot's V13 metadata where Python
-`substrate-interface` can't — Assets pallet operations, ink! contract
-deploy, and future custom pallets. Today it ships the signing plumbing
-proven on Balances (`send`/`seed`); extending it to Assets and contract
-calls is the next roadmap step, not a shipped capability yet.
+exist, proven not just claimed: Python `substrate-interface` cannot sign
+Assets pallet calls on Portaldot's V13 metadata at all — verified directly
+against a live node, `Assets.create` from Python fails at the RPC layer
+with `Invalid Transaction: bad signature` before it even reaches a dispatch
+error. `@polkadot/api` signs the same call successfully. `pdk-ts assets` —
+`create` · `mint` · `transfer` — is the only member of the pair that can do
+this. ink! contract deploy is the next candidate for the same treatment.
 
-16 commands covering Python pdk's full chain/FailLens/signing surface, Node-backed, same terminal UX.
+17 commands covering Python pdk's full chain/FailLens/signing surface, plus Assets pallet signing Python can't do — Node-backed, same terminal UX.
 
 ## In a hurry
 
@@ -44,10 +46,10 @@ Cold import ~430 ms · offline lookup ~40 ms · no `@polkadot/api` until you act
                 │                           │
         ┌───────▼───────┐          ┌────────▼────────┐
         │  pdk (Python) │          │  pdk-ts (TS)    │
-        │  v0.1.7 · PyPI│          │ v0.2 alpha.6·npm α│
+        │  v0.1.7 · PyPI│          │ v0.2 alpha.7·npm α│
         │               │          │                 │
         │ substrate-    │          │ @polkadot/api   │
-        │ interface     │          │ (PAPI at α.7)   │
+        │ interface     │          │ (PAPI at α.8)   │
         └───────┬───────┘          └────────┬────────┘
                 │                           │
                 └───────────┬───────────────┘
@@ -68,7 +70,8 @@ at 0.2 to signal that this whole track is the *v0.2 initiative* —
 covering the parts of the runtime Python can't sign — and the first
 `.0` release lands only when it reaches feature parity. Alpha.1–4 built
 the read-only surface; alpha.5 lit up signing and the full command
-surface; alpha.6 was a post-publish QA + packaging-fix pass.
+surface; alpha.6 was a post-publish QA + packaging-fix pass; alpha.7
+shipped Assets pallet signing — the surface Python can't touch at all.
 
 ## Support
 
@@ -86,8 +89,9 @@ surface; alpha.6 was a post-publish QA + packaging-fix pass.
 | alpha.3 | `explain` — hero raw-code decoder (skipped ahead of signing) | ✅ |
 | alpha.4 | Library entry (`import { resolve, collectReport } from 'portaldot-pdk-ts'`), `diagnose`, `examples`, `kb` introspection, hardening pass | ✅ |
 | alpha.5 | Signing tier (`simulate` · `send` · `seed`) + `report` · `watch` + hero `debug` (FailLens) — full command surface, verified live | ✅ |
-| **alpha.6** (current) | Post-publish QA: ship the KB in the tarball, submission-timeout on `send`/`seed`, `--json` parity with Python, deterministic `watch` exit, doc fixes | ✅ |
-| alpha.7 | PAPI migration spike + benchmark vs `@polkadot/api`; bundle-size pass | ◻️ |
+| alpha.6 | Post-publish QA: ship the KB in the tarball, submission-timeout on `send`/`seed`, `--json` parity with Python, deterministic `watch` exit, doc fixes | ✅ |
+| **alpha.7** (current) | `assets` (create/mint/transfer) signing — the surface Python can't sign at all; `send --dry-run`; `fund`; `report --exit-code`; +9 curated KB entries | ✅ |
+| alpha.8 | PAPI migration spike + benchmark vs `@polkadot/api`; bundle-size pass | ◻️ |
 | beta.1  | Hardening + docs pass on the full surface | ◻️ |
 | 0.2.0   | Ship as `portaldot-pdk-ts` on npm (`latest` dist-tag) | ◻️ |
 
@@ -121,6 +125,11 @@ pdk-ts report              Scan recent blocks, group failures by error type
 pdk-ts watch [--pallet N]  Live-stream chain events as blocks are produced
 pdk-ts simulate --amount N Preview a transfer's fee + feasibility (no send)
 pdk-ts send <to> --amount N  Submit a REAL POT transfer (transferKeepAlive)
+pdk-ts send <to> --amount N --dry-run  Preview the fee + feasibility, submit nothing
+pdk-ts fund <to> [--amount N]  Top up an account with POT from //Alice (default 100)
+pdk-ts assets create <id>          Create an asset class — signs where Python can't
+pdk-ts assets mint <id> <to> --amount N      Mint asset units to an account
+pdk-ts assets transfer <id> <to> --amount N  Transfer asset units
 pdk-ts seed [--file f]     Fund accounts from a YAML fixtures file
 pdk-ts diagnose            Tool + KB + index + connectivity status
 pdk-ts examples            Curated ready-to-copy invocations
@@ -214,7 +223,7 @@ resolution. Only the offline fast path is Portaldot-specific.
 **Q: When will pdk-ts publish to npm?**
 A: Prereleases already ship to the `alpha` dist-tag (`npm install
 portaldot-pdk-ts@alpha`). The `0.2.0` stable `latest` release lands after
-the alpha.7 PAPI/bundle pass and a beta.1 hardening pass.
+the alpha.8 PAPI/bundle pass and a beta.1 hardening pass.
 
 **Q: How is pdk-ts different from `@polkadot/api` or PAPI?**
 A: pdk-ts is a **CLI** built on top of those libraries. See the

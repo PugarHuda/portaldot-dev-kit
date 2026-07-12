@@ -23,7 +23,7 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 **[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Changelog](CHANGELOG.md)
 
 > **v0.1.7 ([on PyPI](https://pypi.org/project/portaldot-pdk/)).**
-> **15 commands** for the whole local dev loop · **AI auto-on** when `PDK_AI_KEY`
+> **16 commands** for the whole local dev loop · **AI auto-on** when `PDK_AI_KEY`
 > is set (no `--ai` flag; the verified KB stays the source of truth) ·
 > **`/demo` web page** replays the actual asciinema cast in your browser ·
 > **119 pytest cases (Python) + 117 vitest cases (pdk-ts)** verified against a
@@ -31,12 +31,15 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 > terminal-escape injection, prompt-injection defense, exact planck math,
 > `--json` CI contract).
 
-> **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) at alpha.6.**
-> 16 commands covering every chain / FailLens / signing command Python has
+> **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) at alpha.7.**
+> 17 commands covering every chain / FailLens / signing command Python has
 > (`doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `debug`,
-> `report`, `simulate`, `send`, `seed`, `watch`, `diagnose`, `examples`, `kb`,
-> `version`), including the signing tier (`send` · `seed` · `simulate`) and the
-> hero `debug` (FailLens) — all verified live against a `--dev` node. (Node
+> `report`, `simulate`, `send`, `fund`, `seed`, `watch`, `diagnose`, `examples`,
+> `kb`, `version`), including the signing tier and the hero `debug` (FailLens)
+> — all verified live against a `--dev` node. **Plus `assets`
+> (create/mint/transfer): Portaldot Assets-pallet calls Python
+> `substrate-interface` cannot sign at all** (verified — it fails at the RPC
+> layer with "bad signature" before reaching a dispatch error). (Node
 > lifecycle `up` and `ai-setup` stay Python-only.) Also importable as a library —
 > `import { resolveByName } from 'portaldot-pdk-ts'` cold-imports in ~430 ms;
 > offline FailLens lookup in ~40 ms. Read the
@@ -65,7 +68,7 @@ docker run --rm ghcr.io/pugarhuda/portaldot-pdk-ts:0.2.0-alpha.4 \
   explain --name balances.InsufficientBalance
 ```
 
-Live artifacts: [PyPI 0.1.7](https://pypi.org/project/portaldot-pdk/) · [npm alpha.6](https://www.npmjs.com/package/portaldot-pdk-ts) · [GHCR image](https://github.com/PugarHuda/portaldot-dev-kit/pkgs/container/portaldot-pdk-ts) · [GitHub Releases](https://github.com/PugarHuda/portaldot-dev-kit/releases)
+Live artifacts: [PyPI 0.1.7](https://pypi.org/project/portaldot-pdk/) · [npm alpha.7](https://www.npmjs.com/package/portaldot-pdk-ts) · [GHCR image](https://github.com/PugarHuda/portaldot-dev-kit/pkgs/container/portaldot-pdk-ts) · [GitHub Releases](https://github.com/PugarHuda/portaldot-dev-kit/releases)
 
 ---
 
@@ -83,8 +86,8 @@ intended environment), and the developer experience is rough:
   channel is full of *"how do I get POT?"* and *"where's the RPC / faucet?"*).
 
 **Solution.** `pdk` (Portaldot Dev Kit) is a Python CLI with
-**15 commands** that owns the local development loop end-to-end, plus a
-TypeScript companion (`pdk-ts`, [pdk-ts/](pdk-ts/), at alpha.6 — 16
+**16 commands** that owns the local development loop end-to-end, plus a
+TypeScript companion (`pdk-ts`, [pdk-ts/](pdk-ts/), at alpha.7 — 17
 commands covering Python's full chain/FailLens/signing surface, plus a
 library entry point) that covers what Python can't sign on Portaldot V13
 metadata. Both CLIs share
@@ -92,7 +95,7 @@ one knowledge base — run `pdk kb --missing` or `pdk-ts kb --missing` to
 see what needs curating:
 
 1. **FailLens** (`pdk debug`) — the hero. Decode any failed transaction
-   against the chain's own metadata + a verified 29-entry knowledge base.
+   against the chain's own metadata + a verified 38-entry knowledge base.
 2. **Raw-code decoder** (`pdk explain --module 6 --error 2`) — the
    *unique* feature. Resolves the bare `Module { index, error }` code via
    a verified 202-entry runtime index. Nothing else in the Portaldot
@@ -130,7 +133,7 @@ failed tx ──▶ System.ExtrinsicFailed event ──▶ DispatchError
           ──▶ plain-language diagnosis + numbered fix
 ```
 
-The knowledge base (`pdk/data/error_fixes.yaml`) has 29 curated entries, every
+The knowledge base (`pdk/data/error_fixes.yaml`) has 38 curated entries, every
 name **verified against the live `portaldot-1002` runtime** (202 errors checked).
 Unknown errors fall back to the metadata doc comment, so FailLens is useful for
 the long tail too.
@@ -300,6 +303,8 @@ pdk seed                          # fund dev accounts from fixtures
 
 # 5. Transact & inspect
 pdk send //Bob --amount 5         # a real POT transfer
+pdk send //Bob --amount 5 --dry-run  # preview the exact transfer, submit nothing
+pdk fund //Bob                    # top up an account with POT from //Alice
 pdk storage Balances TotalIssuance  # read any chain storage value
 pdk watch --pallet Balances       # live stream of chain events
 pdk keys                          # generate a new keypair
@@ -460,7 +465,7 @@ How to fix
                                       ▼
                                ┌──────────────┐   optional: opt-in       ┌────────────────┐
                                │ verified KB  │   PDK_AI_KEY set         │ OpenRouter LLM │
-                               │ 29 entries   │ ─────────────────────▶  │ (gpt-oss-120b) │
+                               │ 38 entries   │ ─────────────────────▶  │ (gpt-oss-120b) │
                                │ + 202-entry  │                          └────────────────┘
                                │ runtime idx  │
                                └──────────────┘

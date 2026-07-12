@@ -1,13 +1,49 @@
 # Changelog
 
-## Unreleased
+## 0.2.0-alpha.7 — 2026-07-12
 
+The opportunity-backlog pass. Headline: **`assets` — the signing tier's
+actual reason to exist, shipped and proven, not just claimed.**
+
+### Added
+- **`assets create|mint|transfer`** — signs Assets pallet calls on
+  Portaldot's V13 metadata. Verified directly against a live node: Python
+  `substrate-interface` fails `Assets.create` at the RPC layer with
+  `Invalid Transaction: bad signature` before it even reaches a dispatch
+  error; `@polkadot/api` signs the identical call successfully. Full
+  lifecycle verified live — create → mint 5000 to Bob → transfer 1500
+  Bob→Charlie — with balances confirmed via `storage Assets Account`
+  (ground truth, not just the CLI's own "success" claim): Bob 5000→3500,
+  Charlie 0→1500. Error paths (duplicate asset id, non-admin mint) never
+  false-succeed — cross-checked against Python's decode, which confirmed
+  the exact errors (`Assets.NoPermission`) via the existing curated KB.
+  Submits through send.ts's `submitExtrinsic`, generalised from
+  `submitTransfer` so `assets` inherits the false-success guard and the
+  submission-timeout hang guard for free — no new signing-safety code.
+- **`send --dry-run`** — preview the fee + feasibility for the *exact*
+  sender/recipient/amount before submitting, reusing `simulate`'s
+  `predictOutcome`. `simulate` only ever previewed Alice → Bob; this
+  previews the real call. Both CLIs.
+- **`fund <account> [--amount]`** — thin wrapper over `send` with sender
+  forced to `//Alice` and a default 100 POT. Answers the #1 hackathon Q&A
+  question ("how do I get POT?") with a command instead of prose. Both
+  CLIs; pure delegation, inherits `send`'s guards for free.
 - `report --exit-code` — exit 2 when any failure is found in range, for CI
   gating (mirrors `debug --exit-code`). On Portaldot, pdk-ts only counts
   failures it can decode; Python `pdk report --exit-code` is the reliable
   gate there.
 - Shared KB grew from 29 → 38 curated entries (sudo/staking/assets/balances
   dev-loop errors). Bundled into pdk-ts on this release.
+
+### Fixed
+- `assets create ""` (empty asset id) resolved to asset `#0` instead of
+  erroring — `Number('')` is `0`, not `NaN`. Caught before publish by the
+  input-validation test suite; asset id now requires an explicit digit
+  string.
+
+124 vitest green (+5: assets validation, fund default). Overclaim in the
+package description corrected last release; this release is what makes
+it true.
 
 ## 0.2.0-alpha.6 — 2026-07-12
 

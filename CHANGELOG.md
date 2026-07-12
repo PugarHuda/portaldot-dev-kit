@@ -97,7 +97,26 @@ not yet published to PyPI).
   (or flags exactly what drifted). `--json` for CI; exit 1 on any drift.
   Verified live against `portaldot-1002`: 202/202 exact match.
 - **`keys --json`** for scripting/seed-fixture consumers.
-- Test suite grew to **102 pytest cases** (from 40).
+- **`pdk fund <account> [--amount]`** — top up an account with POT from
+  `//Alice` (default 100 POT). Thin wrapper over `send`; answers the #1
+  hackathon Q&A question ("how do I get POT?") with a command instead of
+  prose. 16th command.
+- **`send --dry-run`** — preview the fee + feasibility for the *exact*
+  sender/recipient/amount before submitting, reusing `simulate`'s
+  `predict_outcome`. `simulate` only ever previewed Alice → Bob; this
+  previews the real call.
+- **`report --exit-code`** — exit 2 when any failure is found in range,
+  mirroring `debug --exit-code`, for CI gating on `pdk report`.
+- Shared knowledge base grew **29 → 38 curated entries** (sudo, staking,
+  assets, balances dev-loop errors) — see `pdk-ts/CHANGELOG.md` alpha.7
+  for the full list; both CLIs load the same YAML.
+- Confirmed directly against a live node — the reason `pdk-ts` exists as
+  more than a companion: `substrate-interface` cannot sign Assets pallet
+  calls on Portaldot's V13 metadata at all (`Assets.create` fails at the
+  RPC layer with "Invalid Transaction: bad signature" before reaching a
+  dispatch error). `pdk-ts assets` (create/mint/transfer) signs it via
+  `@polkadot/api` — the pallet Python is structurally unable to touch.
+- Test suite grew to **102 pytest cases** (from 40), now **121**.
 
 ## [0.1.7] — 2026-07-09
 ### Description
