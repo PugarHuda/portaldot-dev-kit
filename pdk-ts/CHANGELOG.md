@@ -1,5 +1,59 @@
 # Changelog
 
+## 0.2.0-alpha.6 — 2026-07-12
+
+Post-publish QA sweep. alpha.5 was the first version on npm; installing it
+surfaced a critical packaging bug plus a batch of correctness/parity
+defects found by a multi-angle review. **alpha.5 is deprecated on npm — use
+alpha.6.**
+
+### Fixed
+- **CRITICAL: the knowledge base never shipped in the npm tarball** —
+  `files` allowed only `dist/**/*.js` + `*.d.ts`, and nothing copied
+  `pdk/data/*` into the package, so every `npm install` got a lobotomised
+  FailLens: `explain`/`debug`/`kb`/`diagnose` returned "KB size: 0". Fixed
+  with a `scripts/copy-data.mjs` build step that bundles the KB + error
+  index (+ meta + seed fixtures) into `dist/pdk-data/`, and a `files` entry
+  to ship it. Verified by installing the packed tarball: KB loads, offline
+  lookup works.
+- **`send`/`seed` hung forever if a tx never reached a block.**
+  `submitTransfer` only resolved on `isInBlock`; a dropped/invalid/usurped
+  tx or a non-authoring node left the promise pending — a silent hang on a
+  money command (mid-batch for `seed`, after partial funding). Now every
+  terminal status resolves, and a `SUBMIT_TIMEOUT_MS` (60 s) cap reports
+  `unconfirmed` instead of hanging. Subscription is torn down on settle.
+- **`send --amount 1e3` crashed with a raw `Cannot convert 1e3 to a
+  BigInt`.** `Number.isFinite` accepted scientific notation that
+  `potToPlancks`'s `BigInt()` then threw on. Added `isPlainDecimalAmount`
+  (plain decimals only) at the validation boundary for both `send` and
+  `seed`.
+- **`seed` reported failure + exit 1 on a fully-successful run** whenever
+  the fixtures file mixed in any non-`fund`/malformed entry — the
+  denominator counted all fixtures, not fundable ones. Now `applied /
+  attempted`.
+- **`watch` had a nondeterministic Ctrl+C exit code** (0 or 130) because it
+  added a second `SIGINT` handler alongside the one `getApi` installs. It
+  now owns the signal, exiting 0 deterministically (intentional stop).
+- **`debug --json` diverged from Python** — it emitted `error:
+  "Balances.InsufficientBalance"` and no `pallet` field; Python emits
+  `pallet: "Balances"` + `error: "InsufficientBalance"`. Now byte-identical
+  keys (`tx,pallet,error,known,summary,fix`), verified against both CLIs.
+- **`accounts`/`doctor`/`explain` `--json` were pretty-printed** while
+  Python emits compact — breaking the "byte-identical `--json`" contract
+  for line/hash-based consumers. All compact now.
+- **README documented deep library imports that crash** —
+  `import … from 'portaldot-pdk-ts/dist/commands/explain.js'` throws
+  `ERR_PACKAGE_PATH_NOT_EXPORTED` against the `exports` map. Fixed to the
+  bare `'portaldot-pdk-ts'` specifier (all public symbols are re-exported
+  from the root).
+- Corrected `stripControlChars`'s docstring: ESC **is** stripped (the
+  `\x0b-\x1f` range covers `\x1b`), so ANSI/OSC-escape injection is
+  neutralised — the old comment claimed the opposite and invited a
+  regression.
+- "Full command parity" softened to the accurate claim: 16 commands cover
+  Python's chain/FailLens/signing surface; Python-only `up` (node
+  lifecycle) and `ai-setup` are out of scope for the companion.
+
 ## 0.2.0-alpha.5 — 2026-07-12
 
 Full command parity with Python `pdk`. The signing tier and the hero

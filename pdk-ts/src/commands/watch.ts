@@ -49,7 +49,11 @@ export async function run(opts: WatchOptions): Promise<void> {
     }
 
     // Ctrl+C: unsubscribe + close the socket cleanly, then exit 0
-    // (stopping a monitor on purpose is success, not failure).
+    // (stopping a monitor on purpose is success, not failure). getApi()
+    // already installed its own SIGINT handler that exits 130; leaving both
+    // registered races them (nondeterministic 0-or-130 exit + a double
+    // provider.disconnect). Own the signal here so watch's intent wins.
+    process.removeAllListeners('SIGINT');
     process.on('SIGINT', () => {
       if (!opts.json) console.log(pc.dim('\n  stopped.'));
       void stop(0);

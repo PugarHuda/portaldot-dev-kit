@@ -22,8 +22,8 @@ interface Fixture {
 
 /** Same guard the run() loop applies to decide a fixture is fundable. */
 function isFundable(fx: Fixture): boolean {
-  const pot = Number(fx.pot ?? 0);
-  return fx.type === 'fund' && Boolean(fx.to) && Number.isFinite(pot) && pot > 0;
+  const potStr = String(fx.pot ?? '');
+  return fx.type === 'fund' && Boolean(fx.to) && /^\d+(\.\d+)?$/.test(potStr.trim()) && Number(potStr) > 0;
 }
 
 describe('seed fixture selection', () => {

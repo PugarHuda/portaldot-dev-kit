@@ -31,12 +31,13 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 > terminal-escape injection, prompt-injection defense, exact planck math,
 > `--json` CI contract).
 
-> **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) at alpha.5.**
-> Full command parity — 16 commands live (`doctor`, `accounts`, `pallets`,
-> `storage`, `keys`, `explain`, `debug`, `report`, `simulate`, `send`, `seed`,
-> `watch`, `diagnose`, `examples`, `kb`, `version`), including the signing tier
-> (`send` · `seed` · `simulate`) and the hero `debug` (FailLens) — all verified
-> live against a `--dev` node. Also importable as a library —
+> **v0.2 TypeScript companion — [pdk-ts/](pdk-ts/) at alpha.6.**
+> 16 commands covering every chain / FailLens / signing command Python has
+> (`doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `debug`,
+> `report`, `simulate`, `send`, `seed`, `watch`, `diagnose`, `examples`, `kb`,
+> `version`), including the signing tier (`send` · `seed` · `simulate`) and the
+> hero `debug` (FailLens) — all verified live against a `--dev` node. (Node
+> lifecycle `up` and `ai-setup` stay Python-only.) Also importable as a library —
 > `import { resolveByName } from 'portaldot-pdk-ts'` cold-imports in ~430 ms;
 > offline FailLens lookup in ~40 ms. Read the
 > [pdk-ts roadmap](pdk-ts/README.md#roadmap) for the 0.2.0 npm ship plan.
@@ -64,7 +65,7 @@ docker run --rm ghcr.io/pugarhuda/portaldot-pdk-ts:0.2.0-alpha.4 \
   explain --name balances.InsufficientBalance
 ```
 
-Live artifacts: [PyPI 0.1.7](https://pypi.org/project/portaldot-pdk/) · [npm alpha.5](https://www.npmjs.com/package/portaldot-pdk-ts) · [GHCR image](https://github.com/PugarHuda/portaldot-dev-kit/pkgs/container/portaldot-pdk-ts) · [GitHub Releases](https://github.com/PugarHuda/portaldot-dev-kit/releases)
+Live artifacts: [PyPI 0.1.7](https://pypi.org/project/portaldot-pdk/) · [npm alpha.6](https://www.npmjs.com/package/portaldot-pdk-ts) · [GHCR image](https://github.com/PugarHuda/portaldot-dev-kit/pkgs/container/portaldot-pdk-ts) · [GitHub Releases](https://github.com/PugarHuda/portaldot-dev-kit/releases)
 
 ---
 
@@ -83,9 +84,10 @@ intended environment), and the developer experience is rough:
 
 **Solution.** `pdk` (Portaldot Dev Kit) is a Python CLI with
 **15 commands** that owns the local development loop end-to-end, plus a
-TypeScript companion (`pdk-ts`, [pdk-ts/](pdk-ts/), at alpha.5 with full
-command parity — 16 commands live, including a library entry point) that
-covers what Python can't sign on Portaldot V13 metadata. Both CLIs share
+TypeScript companion (`pdk-ts`, [pdk-ts/](pdk-ts/), at alpha.6 — 16
+commands covering Python's full chain/FailLens/signing surface, plus a
+library entry point) that covers what Python can't sign on Portaldot V13
+metadata. Both CLIs share
 one knowledge base — run `pdk kb --missing` or `pdk-ts kb --missing` to
 see what needs curating:
 

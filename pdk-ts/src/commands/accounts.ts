@@ -109,7 +109,7 @@ export async function run(opts: AccountsOptions): Promise<void> {
   try {
     const rows = await collectAccounts(node, opts.all);
     if (opts.json) {
-      console.log(JSON.stringify(rows, null, 2));
+      console.log(JSON.stringify(rows));
     } else {
       console.log();
       console.log(pc.bold('  pdk-ts accounts  ') + pc.dim(`(${rows.length} dev accounts)`));
@@ -149,7 +149,7 @@ export async function run(opts: AccountsOptions): Promise<void> {
   } catch (err) {
     const msg = humanizeChainError(err, node);
     if (opts.json) {
-      console.log(JSON.stringify({error: msg, endpoint: node}, null, 2));
+      console.log(JSON.stringify({error: msg, endpoint: node}));
     } else {
       console.error(pc.red(`\n  ✗ accounts failed — ${msg}\n`));
       console.error(pc.dim(`  endpoint: ${node}\n`));

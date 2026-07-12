@@ -19,7 +19,7 @@ import {getApi, closeApi} from '../core/chain.js';
 import {resolveNode} from '../core/config.js';
 import {humanizeChainError} from '../core/errors.js';
 import {normaliseUri} from './keys.js';
-import {potToPlancks, resolveRecipient, submitTransfer, type TransferOutcome} from './send.js';
+import {isPlainDecimalAmount, potToPlancks, resolveRecipient, submitTransfer, type TransferOutcome} from './send.js';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -80,6 +80,7 @@ export async function run(opts: SeedOptions): Promise<void> {
 
     const results: Array<{to: string; pot: number; status: TransferOutcome['status']; tx: string | null}> = [];
     let applied = 0;
+    let attempted = 0; // fundable fixtures only — the honest denominator
 
     if (!opts.json) console.log(pc.bold(`\n  Seeding from ${basename(path)} — ${fixtures.length} fixtures`));
 
@@ -89,14 +90,16 @@ export async function run(opts: SeedOptions): Promise<void> {
         continue;
       }
       const to = String(fx.to ?? '');
-      const pot = Number(fx.pot ?? 0);
-      if (!to || !Number.isFinite(pot) || pot <= 0) {
+      const potStr = String(fx.pot ?? '');
+      if (!to || !isPlainDecimalAmount(potStr) || Number(potStr) <= 0) {
         if (!opts.json) console.log(pc.yellow(`  • skipped malformed fund fixture: ${JSON.stringify(fx)}`));
         continue;
       }
+      const pot = Number(potStr);
+      attempted += 1;
       try {
         const dest = resolveRecipient(keyring, to);
-        const outcome = await submitTransfer(api, alice, dest, potToPlancks(String(pot)));
+        const outcome = await submitTransfer(api, alice, dest, potToPlancks(potStr));
         if (outcome.status === 'success') applied += 1;
         results.push({to, pot, status: outcome.status, tx: outcome.txHash});
         if (!opts.json) {
@@ -118,13 +121,13 @@ export async function run(opts: SeedOptions): Promise<void> {
     }
 
     if (opts.json) {
-      console.log(JSON.stringify({file: basename(path), total: fixtures.length, applied, results}));
+      console.log(JSON.stringify({file: basename(path), total: fixtures.length, attempted, applied, results}));
     } else {
-      const tone = applied === fixtures.length ? pc.green : pc.yellow;
-      console.log(tone(`\n  seed complete — ${applied}/${fixtures.length} accounts funded.\n`));
+      const tone = applied === attempted ? pc.green : pc.yellow;
+      console.log(tone(`\n  seed complete — ${applied}/${attempted} accounts funded.\n`));
     }
     await closeApi();
-    if (applied < fixtures.length) process.exit(1);
+    if (applied < attempted) process.exit(1);
   } catch (err) {
     const msg = humanizeChainError(err, node);
     if (opts.json) console.log(JSON.stringify({error: msg, endpoint: node}));

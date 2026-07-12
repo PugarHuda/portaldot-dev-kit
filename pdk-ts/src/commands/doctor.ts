@@ -121,7 +121,7 @@ export async function run(opts: DoctorOptions): Promise<void> {
     const dt = Date.now() - t0;
     const stalled = report.liveness?.checked && !report.liveness.producing;
     if (opts.json) {
-      console.log(JSON.stringify(report, null, 2));
+      console.log(JSON.stringify(report));
     } else {
       console.log();
       console.log(pc.bold('  pdk-ts doctor  ') + pc.dim(`(${dt} ms)`));
@@ -136,7 +136,7 @@ export async function run(opts: DoctorOptions): Promise<void> {
   } catch (err) {
     const msg = humanizeChainError(err, node);
     if (opts.json) {
-      console.log(JSON.stringify({error: msg, endpoint: node}, null, 2));
+      console.log(JSON.stringify({error: msg, endpoint: node}));
     } else {
       console.error(pc.red(`\n  ✗ doctor failed — ${msg}\n`));
       console.error(pc.dim(`  endpoint: ${node}\n`));

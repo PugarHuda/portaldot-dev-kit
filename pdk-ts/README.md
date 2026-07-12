@@ -4,7 +4,7 @@
 [![CI](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml)
 [![Docker](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/docker.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/docker.yml)
 
-Status: **v0.2.0-alpha.5** — full command parity: `doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `debug`, `report`, `simulate`, `send`, `seed`, `watch`, `diagnose`, `examples`, `kb`, `version` + library-importable public surface.
+Status: **v0.2.0-alpha.6** — 16 commands, covering every chain / FailLens / signing command Python pdk has: `doctor`, `accounts`, `pallets`, `storage`, `keys`, `explain`, `debug`, `report`, `simulate`, `send`, `seed`, `watch`, `diagnose`, `examples`, `kb`, `version` + library-importable public surface. (Python-only `up` (node lifecycle) and `ai-setup` are out of scope for the companion.)
 
 pdk-ts is the TypeScript companion CLI to the Python
 [`portaldot-pdk`](https://pypi.org/project/portaldot-pdk/). It exists to
@@ -12,7 +12,7 @@ cover the parts of Portaldot's runtime that Python `substrate-interface`
 cannot sign on V13 metadata — Assets pallet operations, ink! contract
 deploy, and any custom-pallet that ships with the chain going forward.
 
-Full command parity with Python pdk — 16 commands, Node-backed, same terminal UX.
+16 commands covering Python pdk's full chain/FailLens/signing surface, Node-backed, same terminal UX.
 
 ## In a hurry
 
@@ -42,10 +42,10 @@ Cold import ~430 ms · offline lookup ~40 ms · no `@polkadot/api` until you act
                 │                           │
         ┌───────▼───────┐          ┌────────▼────────┐
         │  pdk (Python) │          │  pdk-ts (TS)    │
-        │  v0.1.7 · PyPI│          │ v0.2 alpha.5·npm α│
+        │  v0.1.7 · PyPI│          │ v0.2 alpha.6·npm α│
         │               │          │                 │
         │ substrate-    │          │ @polkadot/api   │
-        │ interface     │          │ (PAPI at α.6)   │
+        │ interface     │          │ (PAPI at α.7)   │
         └───────┬───────┘          └────────┬────────┘
                 │                           │
                 └───────────┬───────────────┘
@@ -65,8 +65,8 @@ pdk shipped stable at 0.1.6 during the hackathon. pdk-ts starts fresh
 at 0.2 to signal that this whole track is the *v0.2 initiative* —
 covering the parts of the runtime Python can't sign — and the first
 `.0` release lands only when it reaches feature parity. Alpha.1–4 built
-the read-only surface; alpha.5 lit up signing and reached full command
-parity.
+the read-only surface; alpha.5 lit up signing and the full command
+surface; alpha.6 was a post-publish QA + packaging-fix pass.
 
 ## Support
 
@@ -83,8 +83,9 @@ parity.
 | alpha.2 | `pallets` · `storage` · `keys` — read-only surface | ✅ |
 | alpha.3 | `explain` — hero raw-code decoder (skipped ahead of signing) | ✅ |
 | alpha.4 | Library entry (`import { resolve, collectReport } from 'portaldot-pdk-ts'`), `diagnose`, `examples`, `kb` introspection, hardening pass | ✅ |
-| **alpha.5** (current) | Signing tier (`simulate` · `send` · `seed`) + `report` · `watch` + hero `debug` (FailLens) — **full command parity**, verified live | ✅ |
-| alpha.6 | PAPI migration spike + benchmark vs `@polkadot/api`; bundle-size pass | ◻️ |
+| alpha.5 | Signing tier (`simulate` · `send` · `seed`) + `report` · `watch` + hero `debug` (FailLens) — full command surface, verified live | ✅ |
+| **alpha.6** (current) | Post-publish QA: ship the KB in the tarball, submission-timeout on `send`/`seed`, `--json` parity with Python, deterministic `watch` exit, doc fixes | ✅ |
+| alpha.7 | PAPI migration spike + benchmark vs `@polkadot/api`; bundle-size pass | ◻️ |
 | beta.1  | Hardening + docs pass on the full surface | ◻️ |
 | 0.2.0   | Ship as `portaldot-pdk-ts` on npm (`latest` dist-tag) | ◻️ |
 
@@ -151,9 +152,9 @@ a structured report. Use the helpers to embed FailLens in your own
 tools:
 
 ```ts
-import {resolveByName, resolve} from 'portaldot-pdk-ts/dist/commands/explain.js';
-import {collectReport} from 'portaldot-pdk-ts/dist/commands/doctor.js';
-import {loadKb, lookup, indexLookup} from 'portaldot-pdk-ts/dist/core/kb.js';
+// All public symbols come from the package root — deep imports into
+// dist/* are blocked by the package's `exports` map on purpose.
+import {resolveByName, resolve, collectReport, loadKb, lookup, indexLookup} from 'portaldot-pdk-ts';
 
 // Offline KB lookup — no node needed
 const named = resolveByName('balances.InsufficientBalance');
@@ -211,7 +212,7 @@ resolution. Only the offline fast path is Portaldot-specific.
 **Q: When will pdk-ts publish to npm?**
 A: Prereleases already ship to the `alpha` dist-tag (`npm install
 portaldot-pdk-ts@alpha`). The `0.2.0` stable `latest` release lands after
-the alpha.6 PAPI/bundle pass and a beta.1 hardening pass.
+the alpha.7 PAPI/bundle pass and a beta.1 hardening pass.
 
 **Q: How is pdk-ts different from `@polkadot/api` or PAPI?**
 A: pdk-ts is a **CLI** built on top of those libraries. See the

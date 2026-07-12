@@ -189,7 +189,7 @@ export async function run(opts: ExplainOptions): Promise<void> {
       const r = resolveByName(opts.name);
       if (!r) {
         const msg = `no KB entry for "${opts.name}" (KB size: ${kbSize()})`;
-        if (opts.json) console.log(JSON.stringify({error: msg, kbPath: kbPath()}, null, 2));
+        if (opts.json) console.log(JSON.stringify({error: msg, kbPath: kbPath()}));
         else {
           console.error(pc.red(`\n  ✗ ${msg}\n`));
           console.error(pc.dim('     Contribute at pdk/data/error_fixes.yaml — 5-line YAML PR.\n'));
@@ -220,7 +220,7 @@ export async function run(opts: ExplainOptions): Promise<void> {
   } catch (err) {
     const node = opts.node ? resolveNode(opts.node) : undefined;
     const msg = humanizeChainError(err, node);
-    if (opts.json) console.log(JSON.stringify({error: msg}, null, 2));
+    if (opts.json) console.log(JSON.stringify({error: msg}));
     else console.error(pc.red(`\n  ✗ explain failed — ${msg}\n`));
     await closeApi();
     process.exit(1);
@@ -230,7 +230,7 @@ export async function run(opts: ExplainOptions): Promise<void> {
 
 function output(r: ExplainReport, opts: ExplainOptions): void {
   if (opts.json) {
-    console.log(JSON.stringify(r, null, 2));
+    console.log(JSON.stringify(r));
     return;
   }
   console.log();

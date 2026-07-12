@@ -109,9 +109,18 @@ function emitDiagnosis(txHash: string, label: string, json: boolean): boolean {
   const report = resolveByName(label);
   const known = Boolean(report?.kbEntry);
   if (json) {
+    // Match Python `pdk debug --json` exactly: `pallet` is its own field and
+    // `error` is the BARE error name (not `Pallet.Error`), so a script keying
+    // on either field consumes both CLIs interchangeably. Split the label
+    // (properly cased `Balances.InsufficientBalance`), not resolveByName's
+    // fields (lowercased from the KB key) — Python emits Title-case.
+    const dot = label.indexOf('.');
+    const pallet = dot > 0 ? label.slice(0, dot) : '';
+    const errorName = dot > 0 ? label.slice(dot + 1) : label;
     console.log(JSON.stringify({
       tx: txHash,
-      error: label,
+      pallet,
+      error: errorName,
       known,
       summary: report?.summary ?? null,
       fix: report?.steps ?? [],

@@ -29,6 +29,16 @@ export interface SendOptions {
   json?: boolean;
 }
 
+/**
+ * True only for a plain decimal amount (`5`, `2.3`, `0.5`). Rejects
+ * scientific notation (`1e3`), hex, signs, and junk — `Number.isFinite`
+ * would accept `1e3`, but `potToPlancks` does `BigInt("1e3")` which throws,
+ * so validate on this before parsing to give a clear error not a raw crash.
+ */
+export function isPlainDecimalAmount(s: string): boolean {
+  return /^\d+(\.\d+)?$/.test(s.trim());
+}
+
 /** Exact POT → integer plancks (BigInt, no float rounding). */
 export function potToPlancks(amount: string): bigint {
   const [whole, frac = ''] = amount.trim().replace(/^-/, '').split('.');
@@ -89,6 +99,9 @@ function decodeDispatchError(api: {registry: {findMetaError: (m: unknown) => {se
  * failed transfer as sent (a verified false-success on a money path). Shared
  * by `send` (one transfer) and `seed` (many).
  */
+/** Max wait for block inclusion before reporting `unconfirmed`. */
+export const SUBMIT_TIMEOUT_MS = 60_000;
+
 export function submitTransfer(
   // biome-ignore lint/suspicious/noExplicitAny: ApiPromise surface is broad; the fields we touch are guarded at runtime.
   api: any,
@@ -96,18 +109,44 @@ export function submitTransfer(
   sender: any,
   dest: string,
   value: bigint,
+  timeoutMs: number = SUBMIT_TIMEOUT_MS,
 ): Promise<TransferOutcome> {
   return new Promise<TransferOutcome>((resolve, reject) => {
+    // signAndSend only fires our callback on the statuses we act on; a tx
+    // that is dropped/invalid/usurped or a node that never authors a block
+    // would otherwise leave this promise pending forever (a CLI hang on a
+    // money command). Guard every terminal outcome and cap the wait.
+    let settled = false;
+    // biome-ignore lint/suspicious/noExplicitAny: unsubscribe fn from signAndSend.
+    let unsub: any;
+    const settle = (outcome: TransferOutcome) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (typeof unsub === 'function') unsub();
+      resolve(outcome);
+    };
+
+    const timer = setTimeout(
+      () => settle({txHash: '', block: '', status: 'unconfirmed', error: `no block inclusion within ${Math.round(timeoutMs / 1000)}s`}),
+      timeoutMs,
+    );
+
     api.tx.balances
       .transferKeepAlive(dest, value.toString())
       // biome-ignore lint/suspicious/noExplicitAny: signAndSend callback payload.
       .signAndSend(sender, ({status, dispatchError, events, txHash}: any) => {
+        // Terminal non-inclusion statuses: the tx will never land in a block.
+        if (status.isInvalid || status.isDropped || status.isUsurped || status.isFinalityTimeout) {
+          settle({txHash: txHash?.toHex?.() ?? '', block: '', status: 'failed', error: status.type ?? 'not included'});
+          return;
+        }
         if (!status.isInBlock) return;
         const txh = txHash.toHex();
         const block = status.asInBlock.toHex();
 
         if (dispatchError) {
-          resolve({txHash: txh, block, status: 'failed', error: decodeDispatchError(api, dispatchError)});
+          settle({txHash: txh, block, status: 'failed', error: decodeDispatchError(api, dispatchError)});
           return;
         }
         let sawSuccess = false;
@@ -120,11 +159,22 @@ export function submitTransfer(
         } catch {
           // events undecodable — leave both false → unconfirmed below.
         }
-        if (sawSuccess) resolve({txHash: txh, block, status: 'success', error: null});
-        else if (sawFailure) resolve({txHash: txh, block, status: 'failed', error: null});
-        else resolve({txHash: txh, block, status: 'unconfirmed', error: null});
+        if (sawSuccess) settle({txHash: txh, block, status: 'success', error: null});
+        else if (sawFailure) settle({txHash: txh, block, status: 'failed', error: null});
+        else settle({txHash: txh, block, status: 'unconfirmed', error: null});
       })
-      .catch(reject);
+      .then((u: unknown) => {
+        unsub = u;
+        // If we already settled (e.g. a fast timeout), tear the sub down now.
+        if (settled && typeof unsub === 'function') unsub();
+      })
+      .catch((err: unknown) => {
+        if (!settled) {
+          settled = true;
+          if (timer) clearTimeout(timer);
+          reject(err);
+        }
+      });
   });
 }
 
@@ -133,8 +183,8 @@ export async function run(to: string, opts: SendOptions): Promise<void> {
   const amountStr = opts.amount;
   const timeoutMs = opts.timeout ? Math.round(Number(opts.timeout) * 1000) : undefined;
 
-  if (amountStr === undefined || !Number.isFinite(Number(amountStr)) || Number(amountStr) <= 0) {
-    const msg = 'Provide a positive --amount (POT).';
+  if (amountStr === undefined || !isPlainDecimalAmount(amountStr) || Number(amountStr) <= 0) {
+    const msg = 'Provide a positive --amount (POT) as a plain decimal, e.g. 1 or 2.5.';
     if (opts.json) console.log(JSON.stringify({error: msg}));
     else console.error(pc.red(`\n  ✗ ${msg}\n`));
     process.exit(1);
