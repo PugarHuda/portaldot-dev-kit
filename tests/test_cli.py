@@ -262,13 +262,15 @@ def test_explain_json_error_paths_emit_json() -> None:
 
 
 def test_explain_raw_code_without_kb_entry_returns_decoded_name() -> None:
-    # A raw code IN the index but WITHOUT a curated KB entry (Assets.BalanceZero
-    # at 26.1) must return the decoded name with kbEntry=false — NOT error.
-    # Mirrors pdk-ts (summary=null, steps=[]). Offline, no node.
-    result = runner.invoke(app, ["explain", "--module", "26", "--error", "1", "--json"])
+    # A raw code IN the index but WITHOUT a curated KB entry
+    # (Babe.InvalidEquivocationProof at 2.0 — consensus internals, not a
+    # dev-loop error, so it stays uncurated) must return the decoded name with
+    # kbEntry=false — NOT error. Mirrors pdk-ts (summary=null, steps=[]).
+    # Offline, no node.
+    result = runner.invoke(app, ["explain", "--module", "2", "--error", "0", "--json"])
     assert result.exit_code == 0
     d = _json.loads(result.output)
-    assert d["errorName"] == "BalanceZero"
+    assert d["errorName"] == "InvalidEquivocationProof"
     assert d["kbEntry"] is False
     assert d["summary"] is None
     assert d["steps"] == []

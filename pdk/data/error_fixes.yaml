@@ -175,3 +175,54 @@ dispatch.CannotLookup:
   summary: "An address lookup failed — e.g. an account index that does not resolve to an account."
   steps:
     - "Pass a full account address instead of an index, or check the index exists."
+
+# --- dev-loop coverage pass (alpha.6 QA): high-hit errors on a --dev node ---
+
+sudo.RequireSudo:
+  summary: "The call needs the Sudo (Root) key, but it was signed by another account or not wrapped in a sudo call."
+  steps:
+    - "Wrap the inner call in `sudo.sudo(call)` — Root-only calls must go through the Sudo pallet."
+    - "Sign with the current sudo key (it is //Alice on a --dev chain). Confirm it via `pdk storage Sudo Key`."
+
+staking.AlreadyBonded:
+  summary: "This stash is already bonded, so you cannot bond it again."
+  steps:
+    - "Add to the existing bond with `staking.bondExtra` instead of `staking.bond`."
+    - "To start over, `staking.unbond` then `staking.withdrawUnbonded` first."
+
+staking.EmptyTargets:
+  summary: "You called `staking.nominate` with an empty validator list."
+  steps:
+    - "Pass at least one validator address to nominate."
+    - "Find candidates via `staking.validators` before nominating."
+
+staking.NotStash:
+  summary: "The signing account is not the stash account this call expects."
+  steps:
+    - "Sign with the stash account (the one that holds the bonded funds), not the controller."
+
+assets.BalanceZero:
+  summary: "The account holds zero of this asset, so there is nothing for the operation to act on."
+  steps:
+    - "Mint or transfer some of the asset to the account first (`assets.mint` / `assets.transfer`)."
+
+assets.InUse:
+  summary: "The asset ID is already taken, so it cannot be created again."
+  steps:
+    - "Pick a different, unused asset ID for `assets.create`."
+    - "Inspect existing assets to find a free ID before creating."
+
+assets.NoProvider:
+  summary: "The target account has no provider reference, so it cannot hold a non-zero balance of this (non-sufficient) asset yet."
+  steps:
+    - "Give the account a provider first — fund it with a small POT transfer so it exists on-chain, then retry."
+
+balances.ExistingVestingSchedule:
+  summary: "A vesting schedule already exists for this account, so another cannot be added."
+  steps:
+    - "Target a different account, or wait for the existing schedule to release before adding one."
+
+balances.TooManyReserves:
+  summary: "The account already holds the maximum number of named reserves (MaxReserves)."
+  steps:
+    - "Release an existing reserve before creating a new one."
