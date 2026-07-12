@@ -36,8 +36,15 @@ export function potToPlancks(amount: string): bigint {
   return BigInt(whole || '0') * 10n ** BigInt(POT_DECIMALS) + BigInt(fracPadded || '0');
 }
 
+export interface TransferOutcome {
+  txHash: string;
+  block: string;
+  status: 'success' | 'failed' | 'unconfirmed';
+  error: string | null;
+}
+
 /** Resolve a recipient (//URI or bare name → derive address; SS58 → as-is). */
-function resolveRecipient(keyring: Keyring, to: string): string {
+export function resolveRecipient(keyring: Keyring, to: string): string {
   const norm = normaliseUri(to);
   if (norm.startsWith('//') || norm.includes('/')) {
     return keyring.addFromUri(norm).address;
@@ -59,6 +66,54 @@ function decodeDispatchError(api: {registry: {findMetaError: (m: unknown) => {se
   }
 }
 
+/**
+ * Sign + submit a transferKeepAlive and detect the outcome honestly.
+ *
+ * Success is confirmed ONLY by a positive `system.ExtrinsicSuccess` event,
+ * never by the mere absence of a dispatchError — @polkadot/api cannot decode
+ * Portaldot's events in a FAILED block, so trusting "no error" reports a
+ * failed transfer as sent (a verified false-success on a money path). Shared
+ * by `send` (one transfer) and `seed` (many).
+ */
+export function submitTransfer(
+  // biome-ignore lint/suspicious/noExplicitAny: ApiPromise surface is broad; the fields we touch are guarded at runtime.
+  api: any,
+  // biome-ignore lint/suspicious/noExplicitAny: KeyringPair.
+  sender: any,
+  dest: string,
+  value: bigint,
+): Promise<TransferOutcome> {
+  return new Promise<TransferOutcome>((resolve, reject) => {
+    api.tx.balances
+      .transferKeepAlive(dest, value.toString())
+      // biome-ignore lint/suspicious/noExplicitAny: signAndSend callback payload.
+      .signAndSend(sender, ({status, dispatchError, events, txHash}: any) => {
+        if (!status.isInBlock) return;
+        const txh = txHash.toHex();
+        const block = status.asInBlock.toHex();
+
+        if (dispatchError) {
+          resolve({txHash: txh, block, status: 'failed', error: decodeDispatchError(api, dispatchError)});
+          return;
+        }
+        let sawSuccess = false;
+        let sawFailure = false;
+        try {
+          for (const {event} of events as unknown as Array<{event: unknown}>) {
+            if (api.events.system.ExtrinsicSuccess.is(event as never)) sawSuccess = true;
+            if (api.events.system.ExtrinsicFailed.is(event as never)) sawFailure = true;
+          }
+        } catch {
+          // events undecodable — leave both false → unconfirmed below.
+        }
+        if (sawSuccess) resolve({txHash: txh, block, status: 'success', error: null});
+        else if (sawFailure) resolve({txHash: txh, block, status: 'failed', error: null});
+        else resolve({txHash: txh, block, status: 'unconfirmed', error: null});
+      })
+      .catch(reject);
+  });
+}
+
 export async function run(to: string, opts: SendOptions): Promise<void> {
   const node = resolveNode(opts.node);
   const amountStr = opts.amount;
@@ -78,48 +133,7 @@ export async function run(to: string, opts: SendOptions): Promise<void> {
     const dest = resolveRecipient(keyring, to);
     const value = potToPlancks(String(amountStr));
 
-    // Success on Portaldot MUST be confirmed by a positive
-    // `system.ExtrinsicSuccess` event — NOT merely by the absence of a
-    // dispatchError. @polkadot/api cannot decode Portaldot's events in a
-    // FAILED block (the known metadata limit), so on failure it yields no
-    // dispatchError AND no decodable events. Trusting "no dispatchError"
-    // would report a failed transfer as sent — a dangerous false success
-    // (verified: a drain-below-ED transfer left the balance untouched yet
-    // looked successful). So we require the ExtrinsicSuccess signal;
-    // anything else is at best unconfirmed.
-    const outcome = await new Promise<{txHash: string; block: string; status: 'success' | 'failed' | 'unconfirmed'; error: string | null}>(
-      (resolve, reject) => {
-        api.tx.balances
-          .transferKeepAlive(dest, value.toString())
-          .signAndSend(sender, ({status, dispatchError, events, txHash}) => {
-            if (!status.isInBlock) return;
-            const txh = txHash.toHex();
-            const block = status.asInBlock.toHex();
-
-            // Explicit, decodable dispatch failure (works on chains
-            // @polkadot/api decodes fully).
-            if (dispatchError) {
-              resolve({txHash: txh, block, status: 'failed', error: decodeDispatchError(api as never, dispatchError as never)});
-              return;
-            }
-            // Positive success signal.
-            let sawSuccess = false;
-            let sawFailure = false;
-            try {
-              for (const {event} of events as unknown as Array<{event: unknown}>) {
-                if (api.events.system.ExtrinsicSuccess.is(event as never)) sawSuccess = true;
-                if (api.events.system.ExtrinsicFailed.is(event as never)) sawFailure = true;
-              }
-            } catch {
-              // events undecodable — leave both false → unconfirmed below.
-            }
-            if (sawSuccess) resolve({txHash: txh, block, status: 'success', error: null});
-            else if (sawFailure) resolve({txHash: txh, block, status: 'failed', error: null});
-            else resolve({txHash: txh, block, status: 'unconfirmed', error: null});
-          })
-          .catch(reject);
-      },
-    );
+    const outcome = await submitTransfer(api, sender, dest, value);
 
     const ok = outcome.status === 'success';
     if (opts.json) {

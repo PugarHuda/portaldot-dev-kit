@@ -35,6 +35,7 @@ import * as kb from './commands/kb.js';
 import * as report from './commands/report.js';
 import * as simulate from './commands/simulate.js';
 import * as send from './commands/send.js';
+import * as seed from './commands/seed.js';
 
 const program = new Command();
 
@@ -144,6 +145,15 @@ program
   .option('--timeout <seconds>', 'connect timeout in seconds')
   .option('--json', 'emit machine-readable JSON')
   .action((to, opts) => send.run(to, opts));
+
+program
+  .command('seed')
+  .description('Fund accounts from a YAML fixtures file (real transfers from //Alice)')
+  .option('--file <path>', 'YAML fixtures file (default: bundled seed.example.yaml)')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--json', 'emit machine-readable JSON')
+  .action((opts) => seed.run(opts));
 
 program
   .command('simulate')

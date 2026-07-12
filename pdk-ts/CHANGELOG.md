@@ -64,6 +64,15 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
   Python `pdk debug <hash>`, never a false success. Verified live: a
   valid transfer moves the exact amount and reports success; a failing
   one reports unconfirmed.
+- **`seed`** — fund accounts from a YAML fixtures file so you start from
+  realistic multi-account state instead of just //Alice. Each `fund`
+  fixture is a REAL transfer from //Alice, reusing `send`'s
+  `submitTransfer` — so the same guard applies: a fund counts as applied
+  only on a positive `system.ExtrinsicSuccess` event, never on the
+  absence of a dispatchError. Malformed / non-`fund` fixtures are skipped
+  with a note; exit 1 if any fixture didn't confirm. Verified live: the
+  bundled example funds //Dave/Eve/Ferdie, 3/3 confirmed. This is the
+  **14th command — pdk-ts now covers the full Python `pdk` surface.**
 - **`simulate`** — preview a transfer's POT fee + feasibility without
   sending (read-only: `paymentInfo` + balance read, no submission).
   Mirrors Python `pdk simulate`, including the existential-deposit-aware
