@@ -79,6 +79,7 @@ shipped Assets pallet signing — the surface Python can't touch at all.
 - Security disclosures → [SECURITY.md](https://github.com/PugarHuda/portaldot-dev-kit/blob/master/SECURITY.md)
 - Support policy → [SUPPORT.md](https://github.com/PugarHuda/portaldot-dev-kit/blob/master/SUPPORT.md)
 - Contribution guide → [CONTRIBUTING.md](https://github.com/PugarHuda/portaldot-dev-kit/blob/master/CONTRIBUTING.md)
+- Release notes → [GitHub Releases](https://github.com/PugarHuda/portaldot-dev-kit/releases) (per-version detail also in [`docs/releases/`](docs/releases/))
 
 ## Roadmap
 
