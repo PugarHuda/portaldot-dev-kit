@@ -51,10 +51,13 @@ here for repo-level chronology.
   `@polkadot/api` chain queries, shared KB parser reads Python's
   `error_fixes.yaml`. `doctor` verified against `wss://rpc.polkadot.io`.
 
-## [Unreleased]
+## [0.1.8] — 2026-07-12
 
-A hardening + correctness pass across the CLI surface (post-0.1.7,
-not yet published to PyPI).
+A hardening + correctness pass across the CLI surface, plus two new
+commands: `fund` (top up an account with POT from `//Alice` — the
+literal answer to "how do I get POT?") and `send --dry-run` (preview
+the fee + feasibility for the exact transfer before submitting, reusing
+`simulate`'s predictor). 16th command overall.
 
 ### Security
 - **Rich-markup injection blocked.** Chain-sourced doc comments, error
@@ -139,7 +142,7 @@ not yet published to PyPI).
   RPC layer with "Invalid Transaction: bad signature" before reaching a
   dispatch error). `pdk-ts assets` (create/mint/transfer) signs it via
   `@polkadot/api` — the pallet Python is structurally unable to touch.
-- Test suite grew to **102 pytest cases** (from 40), now **121**.
+- Test suite grew to **102 pytest cases** (from 40), now **122**.
 
 ## [0.1.7] — 2026-07-09
 ### Description
