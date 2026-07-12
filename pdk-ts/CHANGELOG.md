@@ -51,6 +51,13 @@ portaldot-pdk-ts` from a user won't pick up a prerelease as `latest`.
 ## [Unreleased]
 
 ### Added
+- **`simulate`** — preview a transfer's POT fee + feasibility without
+  sending (read-only: `paymentInfo` + balance read, no submission).
+  Mirrors Python `pdk simulate`, including the existential-deposit-aware
+  prediction: a `transferKeepAlive` that would drain the sender below the
+  ED is correctly predicted `Balances.KeepAlive`, not a false SUCCEED.
+  `predictOutcome` + `potToPlancks` (exact 14-decimal BigInt) exported and
+  unit-tested; verified live parity with Python across all boundaries.
 - **`report`** — scan recent blocks and group every decoded failure by
   error type (read-only failure analytics). `--blocks N`, `--json`. The
   `{blocks_scanned, total_failures, by_error}` core shape matches Python

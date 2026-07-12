@@ -33,6 +33,7 @@ import * as diagnose from './commands/diagnose.js';
 import * as examples from './commands/examples.js';
 import * as kb from './commands/kb.js';
 import * as report from './commands/report.js';
+import * as simulate from './commands/simulate.js';
 
 const program = new Command();
 
@@ -132,6 +133,15 @@ program
   .command('examples')
   .description('Print a curated list of example invocations, grouped by task')
   .action(() => examples.run());
+
+program
+  .command('simulate')
+  .description('Preview a transfer\'s POT fee + feasibility without sending (Alice → Bob)')
+  .option('--amount <pot>', 'POT to simulate transferring (default 1)')
+  .option('--node <url>', 'WebSocket endpoint (overrides PDK_TS_NODE)')
+  .option('--timeout <seconds>', 'connect timeout in seconds')
+  .option('--json', 'emit machine-readable JSON')
+  .action((opts) => simulate.run(opts));
 
 program
   .command('report')
