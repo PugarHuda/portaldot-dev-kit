@@ -18,9 +18,9 @@ classifiers = [
 ]
 dependencies = [
     "typer>=0.26.8",
-    "rich>=13.7",
+    "rich>=15.0.0",
     "substrate-interface>=1.8.1",
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.3",
 ]
 
 [project.scripts]
