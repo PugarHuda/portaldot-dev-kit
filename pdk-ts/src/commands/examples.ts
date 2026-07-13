@@ -45,6 +45,17 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    title: 'Signing (moves real POT — run against a --dev node)',
+    items: [
+      {cmd: 'pdk-ts send //Bob --amount 5 --dry-run', note: 'preview the fee + feasibility, submits nothing'},
+      {cmd: 'pdk-ts fund //Bob', note: 'top up an account with POT from //Alice (default 100)'},
+      {cmd: 'pdk-ts seed', note: 'fund accounts from a YAML fixtures file'},
+      {cmd: 'pdk-ts assets create 9001', note: 'sign an Assets pallet call — Python cannot do this on Portaldot'},
+      {cmd: 'pdk-ts report --exit-code', note: 'exit 2 if any failure is found — CI gate'},
+      {cmd: 'pdk-ts watch --pallet Balances', note: 'live-stream chain events, filtered to one pallet'},
+    ],
+  },
+  {
     title: 'Scripting',
     items: [
       {cmd: 'pdk-ts pallets --json | jq \'map(.name)\'', note: 'pipe machine-readable output to jq'},
@@ -74,7 +85,7 @@ const GROUPS: Group[] = [
 export function run(): void {
   console.log();
   console.log(pc.bold('  pdk-ts examples'));
-  console.log(pc.dim('  Every command below is safe to run — read-only until α.4 signing lands.'));
+  console.log(pc.dim('  Everything except the "Signing" group is read-only and safe to run anywhere.'));
   console.log();
   for (const g of GROUPS) {
     console.log(`  ${pc.bold(g.title)}`);

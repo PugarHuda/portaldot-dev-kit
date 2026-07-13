@@ -11,9 +11,9 @@ export interface VersionOptions {
 }
 
 export function run(opts: VersionOptions = {}): void {
-  const status = 'alpha.4 · library-importable + hardened';
+  const status = 'alpha.7 · full command surface + Assets pallet signing';
   if (opts.json) {
-    console.log(JSON.stringify({name: 'pdk-ts', version: VERSION, status}, null, 2));
+    console.log(JSON.stringify({name: 'pdk-ts', version: VERSION, status}));
     return;
   }
   console.log();
