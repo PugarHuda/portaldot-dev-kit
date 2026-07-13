@@ -115,7 +115,12 @@ echo ">> agg cast -> gif (speed=1.0, narration-friendly real-time pacing)"
 agg --speed 1.0 --idle-time-limit 15 --last-frame-duration 11 --theme monokai --font-size 16 "$CAST" "$GIF"
 
 echo ">> ffmpeg gif -> mp4"
-ffmpeg -y -loglevel warning -i "$GIF" -movflags +faststart -pix_fmt yuv420p \
+# GIFs store per-frame delays, not a fixed fps — left to its own devices
+# ffmpeg's gif demuxer can pick a very high fps to represent the shortest
+# frame delay exactly (seen: 100fps). X/Twitter caps video uploads at
+# 60fps, so pin the output explicitly with -r (well under the cap; agg's
+# own --fps-cap default is 30, so nothing visible is lost).
+ffmpeg -y -loglevel warning -i "$GIF" -r 30 -movflags +faststart -pix_fmt yuv420p \
   -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" "$MP4"
 
 rm -f "$INNER"
