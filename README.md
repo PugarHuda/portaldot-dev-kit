@@ -22,11 +22,11 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 
 **[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Changelog](CHANGELOG.md)
 
-> **v0.1.7 ([on PyPI](https://pypi.org/project/portaldot-pdk/)).**
+> **v0.1.8 ([on PyPI](https://pypi.org/project/portaldot-pdk/)).**
 > **16 commands** for the whole local dev loop · **AI auto-on** when `PDK_AI_KEY`
 > is set (no `--ai` flag; the verified KB stays the source of truth) ·
 > **`/demo` web page** replays the actual asciinema cast in your browser ·
-> **119 pytest cases (Python) + 117 vitest cases (pdk-ts)** verified against a
+> **122 pytest cases (Python) + 125 vitest cases (pdk-ts)** verified against a
 > real `portaldot-1002` node, plus a hardening pass (Rich-markup /
 > terminal-escape injection, prompt-injection defense, exact planck math,
 > `--json` CI contract).
@@ -68,7 +68,7 @@ docker run --rm ghcr.io/pugarhuda/portaldot-pdk-ts:0.2.0-alpha.7 \
   explain --name balances.InsufficientBalance
 ```
 
-Live artifacts: [PyPI 0.1.7](https://pypi.org/project/portaldot-pdk/) · [npm alpha.7](https://www.npmjs.com/package/portaldot-pdk-ts) · [GHCR image](https://github.com/PugarHuda/portaldot-dev-kit/pkgs/container/portaldot-pdk-ts) · [GitHub Releases](https://github.com/PugarHuda/portaldot-dev-kit/releases)
+Live artifacts: [PyPI 0.1.8](https://pypi.org/project/portaldot-pdk/) · [npm alpha.7](https://www.npmjs.com/package/portaldot-pdk-ts) · [GHCR image](https://github.com/PugarHuda/portaldot-dev-kit/pkgs/container/portaldot-pdk-ts) · [GitHub Releases](https://github.com/PugarHuda/portaldot-dev-kit/releases)
 
 ---
 
@@ -108,7 +108,7 @@ see what needs curating:
 5. **CI gating** — `pdk debug --json --exit-code` returns rc 2 with a
    machine-readable diagnosis, so a team can fail a build on a decoded
    transaction failure.
-6. **Adoption-ready** — `pip install portaldot-pdk` (PyPI v0.1.7),
+6. **Adoption-ready** — `pip install portaldot-pdk` (PyPI v0.1.8),
    cross-platform (Linux + macOS + Windows native).
 
 **Blockchain Relevance.** pdk talks directly to the Portaldot runtime via
