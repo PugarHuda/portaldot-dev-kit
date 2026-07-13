@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json as _json
 import os
+import re
 import subprocess
 import sys
 
@@ -13,6 +14,16 @@ from pdk import __version__
 from pdk.cli import app
 
 runner = CliRunner()
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _strip_ansi(text: str) -> str:
+    """Rich's ReprHighlighter auto-styles numbers it finds in printed text,
+    splitting a plain substring like "at least 1" across two ANSI-colored
+    spans. Strip escape codes before asserting on substrings that include
+    a number, rather than asserting against raw styled output."""
+    return _ANSI_RE.sub("", text)
 
 
 def test_help_lists_all_commands(monkeypatch) -> None:
@@ -102,7 +113,7 @@ def test_report_rejects_non_positive_blocks() -> None:
     for bad in ("-5", "0"):
         result = runner.invoke(app, ["report", "--blocks", bad])
         assert result.exit_code == 1
-        assert "at least 1" in result.output
+        assert "at least 1" in _strip_ansi(result.output)
 
 
 def test_report_non_positive_blocks_json_is_valid() -> None:
