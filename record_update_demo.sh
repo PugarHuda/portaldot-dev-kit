@@ -23,7 +23,7 @@ ASSET_ID=424243
 
 echo ">> waiting for node ..."
 for i in $(seq 1 45); do
-  if timeout 5 node "$PDK_TS_DIR/dist/index.js" doctor --no-liveness --node ws://127.0.0.1:9944 2>/dev/null | grep -q "specName"; then echo "  node ready"; break; fi
+  if timeout 5 node "$PDK_TS_DIR/dist/index.js" doctor --no-liveness --node ws://127.0.0.1:9944 2>/dev/null | grep -q "Runtime"; then echo "  node ready"; break; fi
   sleep 2
 done
 
@@ -78,7 +78,7 @@ beat 4
 say "python3 attempt_assets_signing.py   # sign an Assets pallet call from Python"
 cd "\$REPO"
 python3 attempt_assets_signing.py
-beat 7
+beat 9
 
 title "pdk-ts — same call, @polkadot/api"
 cd "\$PDK_TS_DIR"
@@ -104,23 +104,31 @@ node dist/index.js storage Assets Account "\$ASSET_ID" "\$CHARLIE" --node ws://1
 beat 5
 
 printf "\n\033[2m# pdk 0.1.8 · pdk-ts 0.2.0-alpha.7 — Assets pallet signing Python cannot do at all.\033[0m\n"
-sleep 3
+sleep 10
 INNER_EOF
 chmod +x "$INNER"
 
 echo ">> recording asciinema cast (deliberate pace) ..."
-asciinema rec --cols 100 --rows 34 -q --overwrite -c "$INNER" "$CAST"
+asciinema rec --cols 100 --rows 34 -i 20 -q --overwrite -c "$INNER" "$CAST"
 
 echo ">> agg cast -> gif (speed=1.0, narration-friendly real-time pacing)"
-agg --speed 1.0 --theme monokai --font-size 16 "$CAST" "$GIF"
+agg --speed 1.0 --idle-time-limit 15 --last-frame-duration 11 --theme monokai --font-size 16 "$CAST" "$GIF"
 
 echo ">> ffmpeg gif -> mp4"
 ffmpeg -y -loglevel warning -i "$GIF" -movflags +faststart -pix_fmt yuv420p \
   -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" "$MP4"
 
 rm -f "$INNER"
+
+echo ">> generating + muxing VO narration ..."
+export PATH="$HOME/edge-tts-venv/bin:$PATH"
+VO_MP4="$VW/update-demo-vo.mp4"
+python3 "$REPO/build_vo_mix.py" "$MP4" "$CAST" "$REPO/scripts/vo_update_demo.json" "$VW/vo" "$VO_MP4"
+
 echo ""
 echo ">> DONE"
-ls -la "$CAST" "$MP4" "$GIF"
-echo ">> duration:"
+ls -la "$CAST" "$MP4" "$VO_MP4"
+echo ">> silent duration:"
 ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "$MP4"
+echo ">> narrated duration:"
+ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "$VO_MP4"

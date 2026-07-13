@@ -1,0 +1,16 @@
+{
+  "voice": "en-US-AndrewNeural",
+  "rate": "-2%",
+  "_notes": "VO for record_update_demo.sh. Each segment's `marker` is a unique substring of a title()/say() line in the recording script — record_update_demo.sh greps the rendered .cast for that exact text to find the segment's REAL on-screen timestamp (via extract_vo_timestamps.py), so VO placement never drifts even though command runtimes (network round-trips) vary run to run. Keep markers unique and keep this list in the same order as the script.",
+  "segments": [
+    {"key": "01-intro", "marker": "PDK update — new since the last demo", "text": "Quick update on PDK."},
+    {"key": "02-install", "marker": "pip install --quiet --upgrade portaldot-pdk", "text": "Freshly installed from PyPI. Version zero point one point eight."},
+    {"key": "03-fund", "marker": "new: pdk fund", "text": "New command — pdk fund. It tops up any account with POT from Alice. No need to know Alice exists."},
+    {"key": "04-dryrun", "marker": "new: pdk send --dry-run", "text": "And send now has a dry run. Preview the fee and the outcome, before you submit anything."},
+    {"key": "05-why", "marker": "now — the reason pdk-ts exists", "text": "Here is the real reason the TypeScript companion exists."},
+    {"key": "06-pyfail", "marker": "python3 attempt_assets_signing.py   # sign an Assets pallet call from Python", "text": "Python tries to sign an Assets pallet call on Portaldot, and fails. Bad signature, at the RPC layer, before it even reaches the chains own dispatch logic."},
+    {"key": "07-tssuccess", "marker": "pdk-ts — same call, @polkadot/api", "text": "pdk-ts signs the exact same call. Create an asset. Mint it. Transfer it. All real. All on-chain."},
+    {"key": "08-verify", "marker": "verified on-chain, not just claimed", "text": "And its not just a claim. Heres the balance, read straight from chain storage. Bob and Charlie, exactly as expected."},
+    {"key": "09-outro", "marker": "Assets pallet signing Python cannot do at all", "text": "pdk, oh one, point eight. pdk-ts, alpha seven. The one thing Python cannot do, pdk-ts does."}
+  ]
+}
