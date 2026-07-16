@@ -19,18 +19,17 @@ build/
 # Claude Code local settings (not part of the submission)
 .claude/
 
+# Not part of the public repo — local docs/notes/media scratch only,
+# never tracked. (examples/ used to live under here; it's now its own
+# top-level, tracked folder — see the explicit exception below.)
+/docs/
+
 # Local helper scripts (WSL-specific paths; not portable, not part of the submission)
 rerender_pitch.sh
 demo_capture.sh
 record_demo.sh
 start_node.sh
 build_combined_pitch.sh
-docs/_vid/
-docs/screens/pitch-seg*.png
-docs/screens/pitch-livedemo*.png
-docs/screens/pitch-t*.png
-docs/screens/pitch-e2e-mid.png
-docs/screens/demo-ai-check.png
 
 # Render-only copy of slide.html used to dodge a Chromium headless quirk
 # (URLs containing /slide trigger "Multiple targets are not supported")
@@ -48,12 +47,6 @@ record_e2e.sh
 record_live_demo.sh
 probe.sh
 stop_and_verify.sh
-docs/screens/live-demo-t90.png
-calibration frames + Remotion build artifacts
-
-# Subtitle calibration screenshots (regenerable via scripts)
-docs/screens/cal/
-docs/screens/captioned/
 
 # Remotion build output
 remotion/node_modules/
@@ -67,5 +60,5 @@ pdk-ts/.cache/
 pdk-ts/*.log
 
 # Consumer example artifacts — commit only sources + lockfile.
-docs/examples/basic-consumer/node_modules/
-docs/examples/basic-consumer/dist/
+examples/basic-consumer/node_modules/
+examples/basic-consumer/dist/

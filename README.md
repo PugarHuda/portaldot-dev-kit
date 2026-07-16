@@ -1,6 +1,6 @@
 # pdk — Portaldot Dev Kit
 
-<img src="docs/logo.png" alt="pdk — Portaldot Dev Kit" width="116" align="right" />
+<img src="web/logo.png" alt="pdk — Portaldot Dev Kit" width="116" align="right" />
 
 [![pdk (Python) CI](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/ci.yml)
 [![pdk-ts CI](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml/badge.svg)](https://github.com/PugarHuda/portaldot-dev-kit/actions/workflows/pdk-ts.yml)
@@ -48,9 +48,9 @@ Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* trac
 > Both CLIs read the same knowledge base (`pdk/data/error_fixes.yaml`), so
 > one PR benefits both — details in [pdk-ts/CONTRIBUTING.md](pdk-ts/CONTRIBUTING.md).
 
-![pdk — FailLens decoding a Portaldot transaction failure, live](docs/demo.gif)
+![pdk — FailLens decoding a Portaldot transaction failure, live](web/demo.gif)
 
-*Real recording of pdk running against a live Portaldot node. Full **narrated pitch video** (slide intro → 14-command live terminal demo → uniqueness slide → outro, voiced, ~90 s): [`docs/pitch.mp4`](docs/pitch.mp4). Replay interactively at [/demo](https://portaldot-pdk.vercel.app/demo).*
+*Real recording of pdk running against a live Portaldot node. Full **narrated pitch video** (slide intro → 14-command live terminal demo → uniqueness slide → outro, voiced, ~90 s): [`web/pitch.mp4`](web/pitch.mp4). Replay interactively at [/demo](https://portaldot-pdk.vercel.app/demo).*
 
 ## Try it in 30 seconds
 
@@ -315,8 +315,7 @@ pdk debug 0x<txhash> --json --exit-code   # exits 2 (with a decoded diagnosis) i
 
 ## Troubleshooting
 
-Real problems users have hit, with fixes that work. **Full catalogue
-(50+ failure modes) in [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)**.
+Real problems users have hit, with fixes that work.
 If anything else breaks, open an issue with the command + the output.
 
 ### `'pdk' is not recognized` (Windows)
@@ -431,9 +430,7 @@ The first push after this fixes auto-deploy permanently.
 `pdk` is built to gate a pipeline, not just to run interactively.
 `pdk debug --json --exit-code` exits non-zero with a machine-readable diagnosis
 when a transaction failed, so a Portaldot project can fail its build with a clear
-reason instead of a raw `Module error: 0x0600…`. See
-[`docs/ci-recipe.md`](docs/ci-recipe.md) for a copy-paste GitHub Actions workflow
-that boots a node, runs integration transactions, and gates on the result.
+reason instead of a raw `Module error: 0x0600…`.
 
 Example — `pdk debug --demo`:
 
@@ -498,7 +495,7 @@ designed to work on the real chain without that caveat.
 
 ## Demo
 
-- **Pitch video (~81 s, voiced):** `docs/pitch.mp4` — slide intro + **52 s live terminal demo** (fresh venv → `pip install portaldot-pdk` → all 14 commands against a real node) + uniqueness slide + outro. YouTube link added after upload.
+- **Pitch video (~81 s, voiced):** `web/pitch.mp4` — slide intro + **52 s live terminal demo** (fresh venv → `pip install portaldot-pdk` → all 14 commands against a real node) + uniqueness slide + outro. YouTube link added after upload.
 - **Live page:** https://portaldot-pdk.vercel.app
 - **Interactive dashboard** (in-browser FailLens you can type into): https://portaldot-pdk.vercel.app/dashboard
 - **Searchable error reference:** https://portaldot-pdk.vercel.app/errors

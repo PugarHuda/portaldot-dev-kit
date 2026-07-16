@@ -183,7 +183,7 @@ const health = await collectReport('wss://rpc.polkadot.io');
 ```
 
 A worked example lives at
-[`docs/examples/basic-consumer/`](../docs/examples/basic-consumer/).
+[`examples/basic-consumer/`](../examples/basic-consumer/).
 
 ## Troubleshooting
 

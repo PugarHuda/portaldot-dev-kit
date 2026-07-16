@@ -162,9 +162,9 @@ jobs:
           npm run build
 
       - name: "Install example deps (file: link picks up freshly built pdk-ts)"
-        working-directory: docs/examples/basic-consumer
+        working-directory: examples/basic-consumer
         run: npm install
 
       - name: Typecheck the example
-        working-directory: docs/examples/basic-consumer
+        working-directory: examples/basic-consumer
         run: npx tsc --noEmit

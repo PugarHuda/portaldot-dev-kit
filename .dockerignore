@@ -11,12 +11,6 @@
 # Large non-code trees
 remotion/
 web/
-docs/screens/
-docs/*.mp4
-docs/*.pdf
-docs/*.docx
-docs/pdk-*.docx
-docs/x-*.md
 
 # node artifacts (rebuilt inside the image anyway)
 **/node_modules
