@@ -20,7 +20,7 @@
 A developer toolkit for the [Portaldot](https://www.portaldot.io/) blockchain.
 Built during the **Portaldot Online Mini Hackathon S1** — *Builder Tools* track.
 
-**[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Changelog](CHANGELOG.md)
+**[▶ Live page](https://portaldot-pdk.vercel.app)** · [**Live demo (in-browser)**](https://portaldot-pdk.vercel.app/demo) · [Dashboard](https://portaldot-pdk.vercel.app/dashboard) · [Error reference](https://portaldot-pdk.vercel.app/errors) · [Pitch deck](https://portaldot-pdk.vercel.app/slide) · [Discord](https://discord.gg/WFZyHucQu) · [Changelog](CHANGELOG.md)
 
 > **v0.1.8 ([on PyPI](https://pypi.org/project/portaldot-pdk/)).**
 > **16 commands** for the whole local dev loop · **AI auto-on** when `PDK_AI_KEY`
@@ -553,6 +553,13 @@ every push (Python 3.11 and 3.12).
 - **Team name:** **AmpunBang**
 - **Members:** Pugar Huda Mantoro ([@PugarHuda](https://github.com/PugarHuda)) — solo full-stack developer (CLI, web, design, knowledge base).
 - **Contact:** hudapugar@gmail.com (for hackathon communication only).
+
+## Community
+
+- **Discord:** [discord.gg/WFZyHucQu](https://discord.gg/WFZyHucQu) — support, bug reports, and updates
+- **Zealy quests:** [zealy.io/cw/portaldot/questboard](https://zealy.io/cw/portaldot/questboard/) — earn points while helping the project
+- **Bugs & feature requests:** [GitHub issues](https://github.com/PugarHuda/portaldot-dev-kit/issues)
+- **Found a Portaldot error pdk doesn't decode yet?** A curated fix is a five-line YAML PR — see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
